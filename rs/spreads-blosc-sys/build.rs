@@ -3,7 +3,7 @@ extern crate cmake;
 fn main() {
     // TODO deduplicate code, only MinGW line for Windows, check if on MSVC
     if cfg!(windows) && cfg!(target_env = "gnu") {
-        cmake::Config::new("c-blosc")
+        let dst = cmake::Config::new("c-blosc")
             .generator("MinGW Makefiles")
             .define("BUILD_STATIC", "ON")
             .define("BUILD_SHARED", "ON")
@@ -20,8 +20,10 @@ fn main() {
             .define("PREFER_EXTERNAL_ZSTD", "OFF")
             .define("CMAKE_BUILD_TYPE", "Release")
             .build();
+        println!("cargo:rustc-link-search=native={}/lib", dst.display());
+        println!("cargo:rustc-link-lib=static=blosc");
     } else {
-        cmake::Config::new("c-blosc")
+        let dst = cmake::Config::new("c-blosc")
             .define("BUILD_STATIC", "ON")
             .define("BUILD_SHARED", "ON")
             .define("BUILD_TESTS", "OFF")
@@ -37,5 +39,7 @@ fn main() {
             .define("PREFER_EXTERNAL_ZSTD", "OFF")
             .define("CMAKE_BUILD_TYPE", "Release")
             .build();
+        println!("cargo:rustc-link-search=native={}/lib", dst.display());
+        println!("cargo:rustc-link-lib=static=blosc");
     }
 }
