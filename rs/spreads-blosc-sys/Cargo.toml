@@ -1,0 +1,6 @@
+[package]
+name = "spreads-blosc-sys"
+version = "0.1.0"
+authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
+
+[dependencies]
