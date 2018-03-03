@@ -1,0 +1,4 @@
+[submodule "rs/spreads-blosc-sys/c-blosc"]
+	path = rs/spreads-blosc-sys/c-blosc
+	url = git@github.com:Spreads/c-blosc.git
+	branch = master
