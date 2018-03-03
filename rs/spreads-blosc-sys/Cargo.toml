@@ -1,6 +1,16 @@
 [package]
 name = "spreads-blosc-sys"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
+description = "Spreads's C-Blosc bindings for Rust. Only LZ4 and ZSTD compressors."
+links = "blosxc"
+build = "build.rs"
+
+[lib]
+name = "spreads_blosc_sys"
 
 [dependencies]
+libc = "*"
+
+[build-dependencies]
+cmake = "*"
