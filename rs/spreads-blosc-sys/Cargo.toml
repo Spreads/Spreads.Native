@@ -1,27 +1,26 @@
 [package]
 name = "spreads-blosc-sys"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
-description = "Spreads's C-Blosc bindings for Rust. Only LZ4 and ZSTD compressors."
-links = "blosc"
+description = "Spreads's C-Blosc bindings for Rust."
 build = "build.rs"
 
 [lib]
 name = "spreads_blosc_sys"
-crate-type = ["cdylib", "rlib"] # dylib, rlib, staticlib, cdylib
+# crate-type = ["staticlib", "rlib"] # dylib, rlib, staticlib, cdylib
 
 [dependencies]
 libc = { version = "*"}
 
 [build-dependencies]
 cmake = "*"
-
+bindgen = "*"
 
 [profile.release]
 opt-level = 3
 debug = false
 rpath = false
-lto = false
+lto = true
 debug-assertions = false
 codegen-units = 1
-panic = 'unwind'
+panic = 'abort'

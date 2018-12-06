@@ -1,22 +1,31 @@
 [package]
-name = "spreads-blosc"
-version = "0.0.1"
+name = "spreads-native"
+homepage = "https://github.com/Spreads"
+repository = "https://github.com/Spreads/Spreads.Native"
+version = "0.1.0"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
-description = "Spreads's C-Blosc bindings for Rust. Only LZ4 and ZSTD compressors."
+description = "Spreads's native utils"
+license = "MPL-2.0"
+edition = "2018"
 
 [dependencies]
-spreads-blosc-sys = { version = "0.0.1", path = "spreads-blosc-sys" }
+spreads-blosc-sys = { version = "0.1.0", path = "spreads-blosc-sys" }
+libc = { version = "*"}
 
-# [lib]
-# name = "spreads_blosc"
-# crate-type = ["cdylib"] # dylib, rlib, staticlib, cdylib
+[lib]
+name = "spreads_native"
+crate-type = ["cdylib"] # dylib, rlib, staticlib, cdylib
 
+[workspace]
+members = [
+    "spreads-blosc-sys"
+]
 
 [profile.release]
 opt-level = 3
 debug = false
 rpath = false
-lto = false
+lto = true
 debug-assertions = false
-codegen-units = 1
-panic = 'unwind'
+codegen-units = 16
+panic = 'abort'
