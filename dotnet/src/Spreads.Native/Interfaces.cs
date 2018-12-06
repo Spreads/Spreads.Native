@@ -8,17 +8,21 @@ namespace Spreads
 {
     public interface IDelta<T>
     {
+        /// <summary>
+        /// This + Delta = New valid value
+        /// </summary>
         T AddDelta(T delta);
 
+        /// <summary>
+        /// This - Other = Delta so that: other.AddDelta(this.GetDelta(other)) == this.
+        /// </summary>
         T GetDelta(T other);
     }
 
     public interface IInt64Diffable<T> : IComparable<T>
     {
-        // Token: 0x0600001D RID: 29
         T Add(long diff);
 
-        // Token: 0x0600001E RID: 30
         long Diff(T other);
     }
 }

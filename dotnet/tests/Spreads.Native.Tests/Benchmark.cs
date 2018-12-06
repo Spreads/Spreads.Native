@@ -10,11 +10,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Spreads.Utils
+namespace Spreads.Native.Tests
 {
-    /// <summary>
-    /// A utility to benchmark code snippets inside a using block.
-    /// </summary>
+    // Copy from Spreads.Core, do not edit here
+
     public static class Benchmark
     {
         /// <summary>

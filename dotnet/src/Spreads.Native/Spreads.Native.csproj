@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Spreads.Native</AssemblyName>
     <RootNamespace>Spreads</RootNamespace>
-    <Description />
+    <Description>Spreads Native compression and low-level IL unsafe methods</Description>
     <FileVersion>1.0.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <LangVersion>7.2</LangVersion>
@@ -23,7 +23,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="..\..\lib\l64\libspreads_native.compressed">
       <Link>lib\l64\libspreads_native.so</Link>
-      <LogicalName>lin.x64.libspreads_native.so</LogicalName>
+      <LogicalName>lin.x64.spreads_native.so</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   
@@ -39,7 +39,11 @@
     <IL Remove="Unsafe.il" />
   </ItemGroup>
 
-  <Target Name="ProcessILAfterCompile" AfterTargets="Compile">
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+  </ItemGroup>
+
+  <Target Condition=" '$(OS)' == 'Windows_NT' " Name="ProcessILAfterCompile" AfterTargets="Compile">
     <CallTarget Targets="InitializeIL; CoreDecompile; CoreCompileIL" />
   </Target>
   <Target Name="InitializeIL">

@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreads.Native.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreads.Native.Run", "tests\Spreads.Native.Run\Spreads.Native.Run.csproj", "{A7E7E004-1C55-4524-96D1-5B74DC2D8C79}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C999E506-898C-41D7-8335-F867FA2F28DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A7E7E004-1C55-4524-96D1-5B74DC2D8C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7E7E004-1C55-4524-96D1-5B74DC2D8C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7E7E004-1C55-4524-96D1-5B74DC2D8C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C999E506-898C-41D7-8335-F867FA2F28DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C999E506-898C-41D7-8335-F867FA2F28DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C999E506-898C-41D7-8335-F867FA2F28DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C999E506-898C-41D7-8335-F867FA2F28DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

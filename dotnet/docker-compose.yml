@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  spreads.native.run:
+    image: ${DOCKER_REGISTRY-}spreadsnativerun
+    build:
+      context: .
+      dockerfile: tests/Spreads.Native.Run/Dockerfile

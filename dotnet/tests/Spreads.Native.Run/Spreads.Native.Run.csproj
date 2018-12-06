@@ -19,12 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Spreads.Native.Tests\Spreads.Native.Tests.csproj" />
   </ItemGroup>
 

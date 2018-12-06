@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Spreads.Native.Tests;
+using System;
 using System.Diagnostics;
-using Spreads.Native.Tests;
 
 namespace Spreads.Native.Run
 {
@@ -24,34 +24,26 @@ namespace Spreads.Native.Run
             Trace.Listeners.Add(new ConsoleListener());
 
             var test = new CompressionTests();
+
+            Console.WriteLine("----------- Shuffle -----------");
             test.CouldShuffleUnshuffle();
+
+            Console.WriteLine("----------- LZ4 -----------");
+            test.Lz4Benchmark();
+
+            Console.WriteLine("----------- ZSTD -----------");
+            test.ZstdBenchmark();
+
+            Console.WriteLine("----------- GZip -----------");
+            test.GzipBenchmark();
+
+            Console.WriteLine("----------- Deflate -----------");
+            test.DeflateBenchmark();
+
+            Console.WriteLine("\n\n\n-------------------------------");
 
             Console.WriteLine("Finished, press enter to exit...");
             Console.ReadLine();
         }
-
-        
-//        private static void CompressionBenchmark()
-//        {
-//            var test = new Tests.Blosc.BloscTests();
-//            // test.CouldShuffleUnshuffle();
-
-//            Console.WriteLine("----------- LZ4 -----------");
-//            test.Lz4Benchmark();
-//            Console.WriteLine("----------- ZSTD -----------");
-//            test.ZstdBenchmark();
-//            Console.WriteLine("----------- GZip -----------");
-//            test.GZipBenchmark();
-//#if NETCOREAPP2_1
-//            Console.WriteLine("----------- Brotli -----------");
-//            test.BrotliBenchmark();
-//#endif
-//            Console.WriteLine("----------- Copy -----------");
-//            test.CopyViaCalliBenchmark();
-//            //Console.WriteLine("----------- Deflate -----------");
-//            //test.DeflateBenchmark();
-//            Console.WriteLine("Finished, press enter to exit...");
-//            Console.ReadLine();
-//        }
     }
 }
