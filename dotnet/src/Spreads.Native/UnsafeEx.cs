@@ -90,5 +90,14 @@ namespace Spreads
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern long DiffLongConstrained<T>(ref T left, ref T right);
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern T Get<T>(object obj, byte* offset);
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern void Set<T>(object obj, byte* offset, T val);
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int ElemOffset<T>(T[] arr);
     }
 }

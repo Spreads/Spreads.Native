@@ -357,6 +357,60 @@
     IL_0012:  ret
   } // end of method Unsafe::DiffLongConstrained
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/// <summary>
+	/// Takes a (possibly null) object reference, plus an offset in bytes,
+	/// adds them, and safetly dereferences the target (untyped!) address in
+	/// a way that the GC will be okay with.  It yields a value of type T.
+	/// </summary>
+	.method public hidebysig static !!T Get<T>(
+		object obj, uint8* offset) cil managed aggressiveinlining
+	{
+		.maxstack 2
+		.locals ([0] uint8& addr)
+		ldarg.0     // load the object
+		stloc.0     // convert the object pointer to a byref
+		ldloc.0     // load the object pointer as a byref
+		ldarg.1     // load the offset
+		add         // add the offset
+		ldobj !!T   // load a T value from the computed address
+		ret
+	}
+
+	/// <summary>
+    /// Takes a (possibly null) object reference, plus an offset in bytes,
+    /// adds them, and safely stores the value of type T in a way that the
+    /// GC will be okay with.
+    /// </summary>
+    .method public hidebysig static void Set<T>(
+        object obj, uint8* offset, !!T val) cil managed aggressiveinlining
+    {
+        .maxstack 2
+        .locals ([0] uint8& addr)
+        ldarg.0     // load the object
+        stloc.0     // convert the object pointer to a byref
+        ldloc.0     // load the object pointer as a byref
+        ldarg.1     // load the offset
+        add         // add the offset
+        ldarg.2     // load the value to store
+        stobj !!T   // store a T value to the computed address
+        ret
+    }
+
+	/// <summary>
+    /// Computes the number of bytes offset from an array object reference
+    /// to its first element, in a way the GC will be okay with.
+    /// </summary>
+    .method public hidebysig static int32 ElemOffset<T>(!!T[] arr) cil managed
+    {
+        ldarg.0
+        ldc.i4 0
+        ldelema !!T
+        ldarg.0
+        sub
+        ret
+    }
 } // end of class Spreads.Unsafe
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute

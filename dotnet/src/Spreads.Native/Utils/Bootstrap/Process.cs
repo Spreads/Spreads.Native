@@ -18,7 +18,7 @@ namespace Spreads.Utils.Bootstrap
             OSX
         }
 
-#if NET451
+#if !NETSTANDARD
 
         private static bool IsLinux()
 		{
@@ -74,7 +74,7 @@ namespace Spreads.Utils.Bootstrap
 
         private static OperatingSystem DetectOperatingSystem()
         {
-#if NET451
+#if !NETSTANDARD
             uint platform = unchecked((uint)Environment.OSVersion.Platform);
 			switch (platform)
 			{

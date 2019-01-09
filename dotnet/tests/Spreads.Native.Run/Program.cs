@@ -23,24 +23,32 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            var test = new CompressionTests();
+            var offset = UnsafeExTests.Helper<int>.ElemOffset;
+            var size = UnsafeExTests.Helper<int>.ElemSize;
+            Console.WriteLine("Offset: " + offset);
+            Console.WriteLine("Size: " + size);
 
-            Console.WriteLine("----------- Shuffle -----------");
-            test.CouldShuffleUnshuffle();
+            var test = new UnsafeExTests();
+            test.GetSetBench();
 
-            Console.WriteLine("----------- LZ4 -----------");
-            test.Lz4Benchmark();
+            //var test = new CompressionTests();
 
-            Console.WriteLine("----------- ZSTD -----------");
-            test.ZstdBenchmark();
+            //Console.WriteLine("----------- Shuffle -----------");
+            //test.CouldShuffleUnshuffle();
 
-            Console.WriteLine("----------- GZip -----------");
-            test.GzipBenchmark();
+            //Console.WriteLine("----------- LZ4 -----------");
+            //test.Lz4Benchmark();
 
-            Console.WriteLine("----------- Deflate -----------");
-            test.DeflateBenchmark();
+            //Console.WriteLine("----------- ZSTD -----------");
+            //test.ZstdBenchmark();
 
-            Console.WriteLine("\n\n\n-------------------------------");
+            //Console.WriteLine("----------- GZip -----------");
+            //test.GzipBenchmark();
+
+            //Console.WriteLine("----------- Deflate -----------");
+            //test.DeflateBenchmark();
+
+            //Console.WriteLine("\n\n\n-------------------------------");
 
             Console.WriteLine("Finished, press enter to exit...");
             Console.ReadLine();

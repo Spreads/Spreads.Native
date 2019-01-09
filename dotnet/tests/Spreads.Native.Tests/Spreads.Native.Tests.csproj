@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <AssemblyName>Spreads.Native.Tests</AssemblyName>
     <RootNamespace>Spreads.Native.Tests</RootNamespace>
     <LangVersion>7.2</LangVersion>
@@ -12,14 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview.18571.3" />
+    <!--<PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview.18571.3" />-->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.0-preview-20181205-02" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" />
-    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />
+    <!--<PackageReference Update="System.ValueTuple" Version="4.5.0" />-->
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.6.0-preview.18571.3" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />
+    <!--<PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />-->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Spreads.Native\Spreads.Native.csproj" />
