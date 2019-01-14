@@ -10,6 +10,7 @@
         <Authors>Victor Baybekov</Authors>
         <Company />
         <Copyright>Victor Baybekov</Copyright>
+        <PackageLicenseUrl>https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.txt</PackageLicenseUrl>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn),1591</NoWarn>
         <SignAssembly>true</SignAssembly>
