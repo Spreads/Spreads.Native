@@ -1,6 +1,6 @@
 # Spreads.Native
 
-Spreads' native dependencies and low-level IL methods.
+**Spreads' native dependencies and low-level IL methods.**
 
 [NuGet link](https://www.nuget.org/packages/Spreads.Native)
 
@@ -13,7 +13,7 @@ Currently works on Windows x64/x86 and Linux x64 (tested on WSL & Docker Ubuntu)
 
 ## UnsafeEx
 
-[UnsafeEx](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.UnsafeEx.html) class contains unsafe IL helper methods that we cannot implement in C#.
+[UnsafeEx](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.UnsafeEx.html) class contains unsafe IL helper methods that we cannot implement in C#.
 
 ### Constrained generic calls without constraints
 
@@ -39,7 +39,7 @@ For example, calling the `IComparable<T>.CompareTo` method is implemented like t
 
 In addition to the `IComparable<T>` interface there are `IEquatable<T>` and the following custom ones in `Spreads` namespace:
 
-[`IDelta<T>`](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.IDelta-1.html)
+[`IDelta<T>`](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.IDelta-1.html)
 ```
 public interface IDelta<T>
 {
@@ -48,7 +48,7 @@ public interface IDelta<T>
 }
 
 ```
-[`IInt64Diffable<T>`](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.IInt64Diffable-1.html)
+[`IInt64Diffable<T>`](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.IInt64Diffable-1.html)
 
 ```
 public interface IInt64Diffable<T> : IComparable<T>
@@ -60,7 +60,7 @@ public interface IInt64Diffable<T> : IComparable<T>
 ```
 
 
-`KeyComparer<T>`
+### `KeyComparer<T>`
 ---------------------
 
 The main use case and sample usage is [`KeyComparer<T>`](http://docs.dataspreads.io/spreads/api/Spreads.KeyComparer-1.html). 
@@ -111,7 +111,7 @@ prediction should be 100% effective.
 
 
 
-FastDictionary
+### FastDictionary
 ---------------
 
 Another use case is [`FastDictionary<TKey,TValue>`](http://docs.dataspreads.io/spreads/api/Spreads.Collections.Generic.FastDictionary-2.html) 
@@ -144,19 +144,18 @@ FastDictionary       |   63.69 |   157 ms |   0.0 |   0.0 |   0.0 | 0.000 MB
 Dictionary           |   43.29 |   231 ms |   0.0 |   0.0 |   0.0 | 0.000 MB
 
 
-Discussion
+## Discussion
 ---------------
 
-There is an [interesting discussion](https://github.com/dotnet/coreclr/issues/6520) about intrinsifying `EqualityComparer<T>`,  
+There was an [interesting discussion](https://github.com/dotnet/coreclr/issues/6520) about intrinsifying `EqualityComparer<T>`,  
 aiming to achieve a similar goal of inlining calls when possible. However, the [last comment](https://github.com/dotnet/coreclr/issues/6688#issuecomment-295340599) from a CoreCLR member says that:
 
 > I am not aware of anybody working on this right now, so it is pretty unlikely [that it has a chance to appear in .NET Core 2.0].
 
 Later devirtualization support for `EqualityComparer<T>.Default` [was added](https://github.com/dotnet/coreclr/pull/14125). 
 But there is no support for comparers and especially for custom interfaces. Future versions of .NET Core may have much faster 
-comparers, but for existing code and platforms `Spreads.UnsafeEx` gives the required performance right here and now.
+comparers, but for existing code and platforms `Spreads.Native.UnsafeEx` gives the required performance right here and now.
 
 ## License
 
 MPL 2.0. See the [lincese file](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.txt) and [third-party licenses](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.Dependencies.txt).
-

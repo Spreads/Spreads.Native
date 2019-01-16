@@ -1,5 +1,5 @@
 ﻿
-.class public abstract auto ansi sealed beforefieldinit Spreads.UnsafeEx
+.class public abstract auto ansi sealed beforefieldinit Spreads.Native.UnsafeEx
        extends [System.Runtime]System.Object
 {
   
@@ -38,13 +38,13 @@
   // same signature as for CalliCompress
   .method public hidebysig static native int CopyCompressMethod() cil managed aggressiveinlining
   {
-		ldftn int32 class Spreads.UnsafeEx::CopyWrapper (void* source, native int sourceLength, void* destination, native int destinationLength, int32 clevel)
+		ldftn int32 class Spreads.Native.UnsafeEx::CopyWrapper (void* source, native int sourceLength, void* destination, native int destinationLength, int32 clevel)
 		ret	
   }
 
   .method public hidebysig static native int CopyDecompressMethod() cil managed aggressiveinlining
   {
-		ldftn int32 class Spreads.UnsafeEx::CopyWrapper2 (void* source, native int sourceLength, void* destination, native int destinationLength)
+		ldftn int32 class Spreads.Native.UnsafeEx::CopyWrapper2 (void* source, native int sourceLength, void* destination, native int destinationLength)
 		ret	
   }
 
@@ -309,7 +309,7 @@
     IL_0001:  ldarg.1
     IL_0002:  ldobj      !!T
     IL_0007:  constrained. !!T
-    IL_000d:  callvirt   instance !0 class Spreads.IDelta`1<!!T>::AddDelta(!0)
+    IL_000d:  callvirt   instance !0 class Spreads.Native.IDelta`1<!!T>::AddDelta(!0)
     IL_0012:  ret
   } // end of method Unsafe::AddDeltaConstrained
 
@@ -324,7 +324,7 @@
     IL_0001:  ldarg.1
     IL_0002:  ldobj      !!T
     IL_0007:  constrained. !!T
-    IL_000d:  callvirt   instance !0 class Spreads.IDelta`1<!!T>::GetDelta(!0)
+    IL_000d:  callvirt   instance !0 class Spreads.Native.IDelta`1<!!T>::GetDelta(!0)
     IL_0012:  ret
   } // end of method Unsafe::GetDeltaConstrained
 
@@ -338,7 +338,7 @@
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
     IL_0002:  constrained. !!T
-    IL_0008:  callvirt   instance !0 class Spreads.IInt64Diffable`1<!!T>::Add(int64)
+    IL_0008:  callvirt   instance !0 class Spreads.Native.IInt64Diffable`1<!!T>::Add(int64)
     IL_000d:  ret
   } // end of method Unsafe::AddLongConstrained
 
@@ -353,7 +353,7 @@
     IL_0001:  ldarg.1
     IL_0002:  ldobj      !!T
     IL_0007:  constrained. !!T
-    IL_000d:  callvirt   instance int64 class Spreads.IInt64Diffable`1<!!T>::Diff(!0)
+    IL_000d:  callvirt   instance int64 class Spreads.Native.IInt64Diffable`1<!!T>::Diff(!0)
     IL_0012:  ret
   } // end of method Unsafe::DiffLongConstrained
 
@@ -397,7 +397,7 @@
         sub
         ret
     }
-} // end of class Spreads.Unsafe
+} // end of class
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute
        extends [System.Runtime]System.Attribute

@@ -3,7 +3,7 @@
         <VersionPrefix>1.0.0</VersionPrefix>
         <VersionSuffix>beta</VersionSuffix>
         <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
-        <PackageTags>Spreads Native LZ4 Zstd Zlib GZip Unsafe</PackageTags>
+        <PackageTags>Spreads Native LZ4 Zstd Zlib GZip Unsafe shuffle SIMD pinvoke </PackageTags>
         <Product>Spreads</Product>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Spreads/Spreads.Native.git</RepositoryUrl>

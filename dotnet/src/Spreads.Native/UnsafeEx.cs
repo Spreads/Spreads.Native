@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+
 // ReSharper disable IdentifierTypo
 #pragma warning disable 1584
 
-namespace Spreads
+namespace Spreads.Native
 {
     /// <summary>
     /// Contains unsafe IL methods useful for Spreads.
@@ -13,83 +14,83 @@ namespace Spreads
     /// <seealso cref="System.Runtime.CompilerServices.Unsafe"/>
     public static unsafe class UnsafeEx
     {
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedMember.Local
         private static extern int CopyWrapper(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength, int clevel);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedMember.Local
         private static extern int CopyWrapper2(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern IntPtr CopyCompressMethod();
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern IntPtr CopyDecompressMethod();
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliCompress(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength, int clevel, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliCompressUnmanagedCdecl(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength, int clevel, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliDecompress(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliDecompressUnmanagedCdecl(void* source, IntPtr sourceLength, void* destination,
             IntPtr destinationLength, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern void CalliShuffleUnshuffle(IntPtr typeSize, IntPtr blockSize, void* source,
             void* destination, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrPtrUintPptr(void* ptr1, void* ptr2, uint uint1, void** pptr1,
             IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrUintPtrPtr(void* ptr1, uint uint1, void* ptr2, void* ptr3,
             IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrUintPtrPtrUint(void* ptr1, uint uint1, void* ptr2, void* ptr3, uint uint2,
             IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern void CalliVoidPtr(void* ptr1, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtr(void* ptr1, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrPtr(void* ptr1, void* ptr2, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrPtrPtrInt(void* ptr1, void* ptr2, void* ptr3, int int1, IntPtr functionPtr);
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int CalliIntPtrPtrPtrUint(void* ptr1, void* ptr2, void* ptr3, uint uint1,
             IntPtr functionPtr);

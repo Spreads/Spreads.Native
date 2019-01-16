@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Spreads
+namespace Spreads.Native
 {
     /// <summary>
     /// An interface for a type whose value could be stored as a delta from a previous value and recovered later.
