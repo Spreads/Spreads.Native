@@ -6,6 +6,10 @@ using System;
 
 namespace Spreads
 {
+    /// <summary>
+    /// An interface for a type whose value could be stored as a delta from a previous value and recovered later.
+    /// Delta is the same type as a value. E.g. all numeric types could implement this interface with plus and minus operations.
+    /// </summary>
     public interface IDelta<T>
     {
         /// <summary>
@@ -19,6 +23,10 @@ namespace Spreads
         T GetDelta(T other);
     }
 
+    /// <summary>
+    /// An interface for a type whose value could be stored as an Int64 delta from a previous value and recovered later by addition.
+    /// </summary>
+    /// <seealso cref="IDelta{T}"/>
     public interface IInt64Diffable<T> : IComparable<T>
     {
         T Add(long diff);

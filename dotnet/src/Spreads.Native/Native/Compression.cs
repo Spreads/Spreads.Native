@@ -6,16 +6,20 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
+using Spreads.Native.Bootstrap;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace Spreads.Native
 {
+    /// <summary>
+    /// Native compression methods.
+    /// </summary>
     [SuppressUnmanagedCodeSecurity]
     public unsafe class Compression
     {
-        public const string NativeLibraryName = "spreads_native";
+        internal const string NativeLibraryName = "spreads_native";
 
         internal static IntPtr compress_lz4_ptr;
         internal static IntPtr decompress_lz4_ptr;
@@ -43,7 +47,7 @@ namespace Spreads.Native
             try
             {
                 // Ensure Bootstrapper is initialized and native libraries are loaded
-                Utils.Bootstrap.Bootstrapper.Instance.Bootstrap<Compression>(
+                Bootstrapper.Instance.Bootstrap<Compression>(
                     NativeLibraryName,
                     null,
                     () => { },

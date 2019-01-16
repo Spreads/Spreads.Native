@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Spreads.Utils.Bootstrap
+namespace Spreads.Native.Bootstrap
 {
     public class NativeLibrary : IDisposable
     {

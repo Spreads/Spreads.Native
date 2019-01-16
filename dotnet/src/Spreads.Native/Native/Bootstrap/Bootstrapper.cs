@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Spreads.Utils.Bootstrap
+namespace Spreads.Native.Bootstrap
 {
     internal static class Program
     {

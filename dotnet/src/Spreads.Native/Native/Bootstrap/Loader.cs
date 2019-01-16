@@ -9,7 +9,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Spreads.Utils.Bootstrap
+namespace Spreads.Native.Bootstrap
 {
     // TODO internal
     internal interface INativeLibraryLoader

@@ -359,11 +359,6 @@
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/// <summary>
-	/// Takes a (possibly null) object reference, plus an offset in bytes,
-	/// adds them, and safetly dereferences the target (untyped!) address in
-	/// a way that the GC will be okay with.  It yields a value of type T.
-	/// </summary>
 	.method public hidebysig static !!T Get<T>(
 		object obj, uint8* offset) cil managed aggressiveinlining
 	{
@@ -378,11 +373,6 @@
 		ret
 	}
 
-	/// <summary>
-    /// Takes a (possibly null) object reference, plus an offset in bytes,
-    /// adds them, and safely stores the value of type T in a way that the
-    /// GC will be okay with.
-    /// </summary>
     .method public hidebysig static void Set<T>(
         object obj, uint8* offset, !!T val) cil managed aggressiveinlining
     {
@@ -398,10 +388,6 @@
         ret
     }
 
-	/// <summary>
-    /// Computes the number of bytes offset from an array object reference
-    /// to its first element, in a way the GC will be okay with.
-    /// </summary>
     .method public hidebysig static int32 ElemOffset<T>(!!T[] arr) cil managed
     {
         ldarg.0
