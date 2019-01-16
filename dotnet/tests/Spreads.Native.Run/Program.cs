@@ -29,7 +29,7 @@ namespace Spreads.Native.Run
             Console.WriteLine("Size: " + size);
 
             var test = new UnsafeExTests();
-            test.GetSetBench();
+            test.GetSetBenchPinned();
 
             //var test = new CompressionTests();
 

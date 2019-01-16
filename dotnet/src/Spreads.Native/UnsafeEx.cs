@@ -171,6 +171,18 @@ namespace Spreads.Native
 
         /// <summary>
         /// Takes a (possibly null) object reference, plus an offset in bytes,
+        /// adds them, and safely dereferences the target (untyped!) address in
+        /// a way that the GC will be okay with.  It yields a value of type T.
+        /// </summary>
+        /// <param name="obj">An object (could be null)</param>
+        /// <param name="offset">Byte offset from object pointer. If object is null this is just a native pointer (offset from zero pointer).
+        /// It is not a pointer to an offset value but the offset itself. Originally it was <see cref="IntPtr"/> but that required casting.
+        /// </param>
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern ref T GetRef<T>(object obj, byte* offset);
+
+        /// <summary>
+        /// Takes a (possibly null) object reference, plus an offset in bytes,
         /// adds them, and safely stores the value of type T in a way that the
         /// GC will be okay with.
         /// </summary>

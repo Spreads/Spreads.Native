@@ -373,6 +373,19 @@
 		ret
 	}
 
+	.method public hidebysig static !!T& GetRef<T>(
+		object obj, uint8* offset) cil managed aggressiveinlining
+	{
+		.maxstack 2
+		.locals ([0] uint8& addr)
+		ldarg.0     // load the object
+		stloc.0     // convert the object pointer to a byref
+		ldloc.0     // load the object pointer as a byref
+		ldarg.1     // load the offset
+		add         // add the offset
+		ret
+	}
+
     .method public hidebysig static void Set<T>(
         object obj, uint8* offset, !!T val) cil managed aggressiveinlining
     {
