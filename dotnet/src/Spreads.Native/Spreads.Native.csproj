@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
   </ItemGroup>
 
   <Target Condition=" '$(OS)' == 'Windows_NT' " Name="ProcessILAfterCompile" AfterTargets="Compile">

@@ -431,7 +431,7 @@
 		ldarg.0
 		ldarg.1
 		ldarg.2
-		calli object (object obj, uint8* offset)
+		calli default object (object obj, uint8* offset)
 		ret
 	}
 
@@ -443,7 +443,7 @@
 		ldarg.1
 		ldarg.2
 		ldarg.3
-		calli void (object obj, uint8* offset, object val)
+		calli default void (object obj, uint8* offset, object val)
 		ret
 	}
 } // end of class

@@ -70,20 +70,38 @@ namespace Spreads.Native.Tests
             var offset = UnsafeEx.ElemOffset(arr);
             Console.WriteLine(offset);
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            var snd = UnsafeEx.Get<short>(arr, (byte*)(offset + 4));
             Assert.AreEqual(2, snd);
 
             UnsafeEx.Set(arr, (byte*)(offset + 4), 42);
 
-            snd = UnsafeEx.GetRef<int>(arr, (byte*)(offset + 4));
+            snd = UnsafeEx.GetRef<short>(arr, (byte*)(offset + 4));
             Assert.AreEqual(42, snd);
 
-            snd = UnsafeEx.GetRef<int>(null, (byte*)(ptr + 4));
+            snd = UnsafeEx.GetRef<short>(null, (byte*)(ptr + 4));
             Assert.AreEqual(42, snd);
         }
 
         [Test]
         public void UnsafeExWorksWithNull()
+        {
+            var ptr = (byte*)Marshal.AllocHGlobal(64);
+
+            int[] arr = null;
+
+            *(((int*)ptr) + 1) = 2;
+
+            var snd = UnsafeEx.Get<int>(arr, (byte*)(ptr + 4));
+            Assert.AreEqual(2, snd);
+
+            UnsafeEx.Set(arr, (byte*)(ptr + 4), 42);
+
+            snd = UnsafeEx.GetRef<int>(arr, (byte*)(ptr + 4));
+            Assert.AreEqual(42, snd);
+        }
+
+        [Test]
+        public void UnsafeExWorksWithNullWrongButCompatibleType()
         {
             var ptr = (byte*)Marshal.AllocHGlobal(64);
 
@@ -275,14 +293,48 @@ namespace Spreads.Native.Tests
             Assert.AreEqual(42, snd);
         }
 
+        internal delegate void SetXDelegate<T>(object obj, IntPtr offset, object val);
+
+        internal delegate object GetXDelegate<T>(object obj, IntPtr offset);
+
+        internal abstract class SetDel
+        {
+            public abstract void Call(object obj, IntPtr offset, object val);
+        }
+
+        internal sealed class SetDel<T> : SetDel
+        {
+            private readonly SetXDelegate<T> _del;
+
+            public SetDel(SetXDelegate<T> del)
+            {
+                _del = del;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override void Call(object obj, IntPtr offset, object val)
+            {
+                _del(obj, offset, val);
+            }
+        }
+
         [Test, Explicit("long running")]
         public void CouldGetViaMethodPointerBenchmark()
         {
             var getterPtr = UnsafeEx.GetMethodPointerForType(typeof(int));
             var setterPtr = UnsafeEx.SetMethodPointerForType(typeof(int));
 
-            var arr = new int[] { 1, 2, 3 };
+            MethodInfo setMethod = typeof(UnsafeEx).GetMethod("SetX", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo setGenericMethod = setMethod.MakeGenericMethod(typeof(int));
+            var setDelegate = (SetXDelegate<int>)setGenericMethod.CreateDelegate(typeof(SetXDelegate<int>));
+            SetDel setDel = new SetDel<int>(setDelegate);
 
+            MethodInfo getMethod = typeof(UnsafeEx).GetMethod("GetX", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo getGenericMethod = getMethod.MakeGenericMethod(typeof(int));
+            var getDelegate = (GetXDelegate<int>)getGenericMethod.CreateDelegate(typeof(GetXDelegate<int>));
+
+            var arr = new int[] { 1, 2, 3 };
+            Array uArr = arr;
             var offset = UnsafeEx.ElemOffset(arr);
             Console.WriteLine(offset);
 
@@ -294,15 +346,48 @@ namespace Spreads.Native.Tests
             snd = (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
             Assert.AreEqual(42, snd);
 
-            var count = 100_000_000;
+            var count = 10_000_000;
             var sum = 0;
-            for (int r = 0; r < 10; r++)
+            for (int r = 0; r < 50; r++)
             {
+                using (Benchmark.Run("GetArray", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        unchecked
+                        {
+                            sum += (int)uArr.GetValue(1);
+                        }
+                    }
+                }
+
                 using (Benchmark.Run("GetIndirect", count))
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        sum += (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+                        unchecked
+                        {
+                            sum += (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+                        }
+                    }
+                }
+
+                using (Benchmark.Run("GetDelegate", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        unchecked
+                        {
+                            sum += (int)getDelegate.Invoke(arr, (IntPtr)(byte*)(offset + 4));
+                        }
+                    }
+                }
+
+                using (Benchmark.Run("SetArray", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        uArr.SetValue(42, 1);
                     }
                 }
 
@@ -311,6 +396,14 @@ namespace Spreads.Native.Tests
                     for (int i = 0; i < count; i++)
                     {
                         UnsafeEx.SetIndirect(arr, (byte*)(offset + 4), 42, setterPtr);
+                    }
+                }
+
+                using (Benchmark.Run("SetDelegate", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        setDel.Call(arr, (IntPtr)(byte*)(offset + 4), 42);
                     }
                 }
             }

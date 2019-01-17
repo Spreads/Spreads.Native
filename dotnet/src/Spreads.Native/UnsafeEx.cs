@@ -175,6 +175,12 @@ namespace Spreads.Native
         public static extern T Get<T>(object obj, byte* offset);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static object GetX<T>(object obj, IntPtr offset)
+        {
+            return GetAsObject<T>(obj, (byte*)offset);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object GetAsObject<T>(object obj, byte* offset)
         {
             return GetRef<T>(obj, offset);
@@ -221,6 +227,12 @@ namespace Spreads.Native
         public static extern void Set<T>(object obj, byte* offset, T val);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void SetX<T>(object obj, IntPtr offset, object val)
+        {
+            SetAsObject<T>(obj, (byte*)offset, val);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetAsObject<T>(object obj, byte* offset, object val)
         {
             GetRef<T>(obj, offset) = (dynamic)val;
@@ -260,5 +272,29 @@ namespace Spreads.Native
         /// </summary>
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern int ElemOffset<T>(T[] arr);
+
+        internal static int ElemOffset<T>()
+        {
+            return ElemOffset<T>(new T[1]);
+        }
+
+        public static int ElemOffsetOfType(Type ty)
+        {
+            MethodInfo method = typeof(UnsafeEx).GetMethod("ElemOffset", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo genericMethod = method.MakeGenericMethod(ty);
+            return (int)genericMethod.Invoke(null, null);
+        }
+
+        internal static int ElemSize<T>()
+        {
+            return Unsafe.SizeOf<T>();
+        }
+
+        public static int ElemSizeOfType(Type ty)
+        {
+            MethodInfo method = typeof(UnsafeEx).GetMethod("ElemSize", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo genericMethod = method.MakeGenericMethod(ty);
+            return (int)genericMethod.Invoke(null, null);
+        }
     }
 }
