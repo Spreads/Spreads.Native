@@ -1,5 +1,10 @@
-﻿using System;
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
@@ -169,6 +174,27 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern T Get<T>(object obj, byte* offset);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static object GetAsObject<T>(object obj, byte* offset)
+        {
+            return GetRef<T>(obj, offset);
+        }
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        // ReSharper disable once UnusedTypeParameter
+        public static extern IntPtr GetMethodPointer<T>();
+
+        public static IntPtr GetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
+        {
+            MethodInfo method = typeof(UnsafeEx).GetMethod("GetMethodPointer", BindingFlags.Static | BindingFlags.Public);
+            // ReSharper disable once PossibleNullReferenceException
+            MethodInfo generic = method.MakeGenericMethod(ty);
+            return (IntPtr)generic.Invoke(null, null);
+        }
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern object GetIndirect(object obj, byte* offset, IntPtr functionPtr);
+
         /// <summary>
         /// Takes a (possibly null) object reference, plus an offset in bytes,
         /// adds them, and safely dereferences the target (untyped!) address in
@@ -193,6 +219,40 @@ namespace Spreads.Native
         /// <param name="val">A value to set.</param>
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern void Set<T>(object obj, byte* offset, T val);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void SetAsObject<T>(object obj, byte* offset, object val)
+        {
+            GetRef<T>(obj, offset) = (dynamic)val;
+        }
+
+        /// <summary>
+        /// Get a native method pointer to <see cref="Set{T}"/> method for type <typeparamref name="T"/>.
+        /// The pointer should be used with <see cref="SetIndirect"/> method.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        // ReSharper disable once UnusedTypeParameter
+        public static extern IntPtr SetMethodPointer<T>();
+
+        /// <summary>
+        /// Get a native method pointer to <see cref="Set{T}"/> method for type <paramref name="ty"/>.
+        /// The pointer should be used with <see cref="SetIndirect"/> method.
+        /// </summary>
+        public static IntPtr SetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
+        {
+            MethodInfo method = typeof(UnsafeEx).GetMethod("SetMethodPointer", BindingFlags.Static | BindingFlags.Public);
+            // ReSharper disable once PossibleNullReferenceException
+            MethodInfo generic = method.MakeGenericMethod(ty);
+            return (IntPtr)generic.Invoke(null, null);
+        }
+
+        /// <summary>
+        /// Set a value <paramref name="val"/> without generic parameters using <see cref="OpCodes.Calli"/> instruction for <see cref="Set{T}"/>
+        /// method pointer obtained via <see cref="SetMethodPointer{T}"/> or <see cref="SetMethodPointerForType"/> methods.
+        /// </summary>
+        /// <remarks>Value <paramref name="val"/> is cast to underlying type as `(T)(dynamic)val`.</remarks>
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern void SetIndirect(object obj, byte* offset, object val, IntPtr functionPtr);
 
         /// <summary>
         /// Computes the number of bytes offset from an array object reference

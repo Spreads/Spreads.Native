@@ -410,6 +410,42 @@
         sub
         ret
     }
+
+
+	.method public hidebysig static native int GetMethodPointer<T>() cil managed aggressiveinlining
+	{
+		ldftn object class Spreads.Native.UnsafeEx::GetAsObject<!!T> (object obj, uint8* offset)
+		ret	
+	}
+
+	.method public hidebysig static native int SetMethodPointer<T>() cil managed aggressiveinlining
+	{
+		ldftn void class Spreads.Native.UnsafeEx::SetAsObject<!!T> (object obj, uint8* offset, object val)
+		ret	
+	}
+
+	.method public hidebysig static object GetIndirect(
+		object obj, uint8* offset, native int functionPtr) cil managed aggressiveinlining
+	{
+		.maxstack 3
+		ldarg.0
+		ldarg.1
+		ldarg.2
+		calli object (object obj, uint8* offset)
+		ret
+	}
+
+	.method public hidebysig static void SetIndirect(
+		object obj, uint8* offset, object val, native int functionPtr) cil managed aggressiveinlining
+	{
+		.maxstack 4
+		ldarg.0
+		ldarg.1
+		ldarg.2
+		ldarg.3
+		calli void (object obj, uint8* offset, object val)
+		ret
+	}
 } // end of class
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute

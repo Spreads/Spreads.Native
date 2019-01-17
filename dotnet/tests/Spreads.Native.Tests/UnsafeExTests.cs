@@ -4,6 +4,7 @@
 
 using NUnit.Framework;
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -63,7 +64,7 @@ namespace Spreads.Native.Tests
         public void UnsafeExWorksViaPinnedPtr()
         {
             var arr = new int[] { 1, 2, 3 };
-            var handle = ((Memory<int>) arr).Pin();
+            var handle = ((Memory<int>)arr).Pin();
             var ptr = (byte*)handle.Pointer;
 
             var offset = UnsafeEx.ElemOffset(arr);
@@ -88,7 +89,7 @@ namespace Spreads.Native.Tests
 
             int[] arr = null;
 
-            *(((int*) ptr) + 1) = 2;
+            *(((int*)ptr) + 1) = 2;
 
             var snd = UnsafeEx.Get<int>(arr, (byte*)(ptr + 4));
             Assert.AreEqual(2, snd);
@@ -155,7 +156,6 @@ namespace Spreads.Native.Tests
 
             Benchmark.Dump();
         }
-
 
         [Test, Explicit("Long running")]
         public void GetSetBenchPinned()
@@ -250,6 +250,72 @@ namespace Spreads.Native.Tests
                 }
             }
 
+            Benchmark.Dump();
+        }
+
+        [Test]
+        public void CouldGetSetViaMethodPointer()
+        {
+            var getterPtr = UnsafeEx.GetMethodPointerForType(typeof(int));
+            var setterPtr = UnsafeEx.SetMethodPointerForType(typeof(int));
+
+            Console.WriteLine((long)getterPtr);
+
+            var arr = new int[] { 1, 2, 3 };
+
+            var offset = UnsafeEx.ElemOffset(arr);
+            Console.WriteLine(offset);
+
+            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            Assert.AreEqual(2, snd);
+
+            UnsafeEx.SetIndirect(arr, (byte*)(offset + 4), (object)42, setterPtr);
+
+            snd = (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+            Assert.AreEqual(42, snd);
+        }
+
+        [Test, Explicit("long running")]
+        public void CouldGetViaMethodPointerBenchmark()
+        {
+            var getterPtr = UnsafeEx.GetMethodPointerForType(typeof(int));
+            var setterPtr = UnsafeEx.SetMethodPointerForType(typeof(int));
+
+            var arr = new int[] { 1, 2, 3 };
+
+            var offset = UnsafeEx.ElemOffset(arr);
+            Console.WriteLine(offset);
+
+            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            Assert.AreEqual(2, snd);
+
+            UnsafeEx.Set(arr, (byte*)(offset + 4), 42);
+
+            snd = (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+            Assert.AreEqual(42, snd);
+
+            var count = 100_000_000;
+            var sum = 0;
+            for (int r = 0; r < 10; r++)
+            {
+                using (Benchmark.Run("GetIndirect", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        sum += (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+                    }
+                }
+
+                using (Benchmark.Run("SetIndirect", count))
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        UnsafeEx.SetIndirect(arr, (byte*)(offset + 4), 42, setterPtr);
+                    }
+                }
+            }
+
+            Console.WriteLine(sum);
             Benchmark.Dump();
         }
     }
