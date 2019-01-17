@@ -28,8 +28,8 @@ namespace Spreads.Native.Run
             Console.WriteLine("Offset: " + offset);
             Console.WriteLine("Size: " + size);
 
-            var test = new UnsafeExTests();
-            test.CouldGetViaMethodPointerBenchmark();
+            var test = new VecTests();
+            test.ForEachBench();
 
             //var test = new CompressionTests();
 

@@ -183,7 +183,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object GetAsObject<T>(object obj, byte* offset)
         {
-            return GetRef<T>(obj, offset);
+            var t = GetRef<T>(obj, offset);
+            return (object)t;
         }
 
         [MethodImpl(MethodImplOptions.ForwardRef)]

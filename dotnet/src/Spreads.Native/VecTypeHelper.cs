@@ -67,7 +67,9 @@ namespace Spreads.Native
 
     internal static class VecTypeHelper<T>
     {
-        public static RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
+        public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
+        public static int ElemOffset = VecTypeHelper.GetInfo(typeof(T)).ElemOffset;
+        public static int RuntimeTypeId = VecTypeHelper.GetInfo(typeof(T)).RuntimeTypeId;
     }
 
     /// <summary>

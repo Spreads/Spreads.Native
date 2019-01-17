@@ -34,5 +34,83 @@ namespace Spreads.Native.Tests
 
             Assert.Throws<IndexOutOfRangeException>(() => { vecT[3] = 42; });
         }
+
+        [Test, Explicit("long running")]
+        public void ForEachBench()
+        {
+            var count = 10_000_000;
+            var arr = new int[count];
+            var vecT = new Vec<int>(arr);
+            var vec = new Vec(arr);
+
+            for (int i = 0; i < count; i++)
+            {
+                vecT[i] = i;
+                //if ((int)vec[i] != vecT[i])
+                //{
+                //    throw new Exception("(int)vec[i] != vecT[i]");
+                //}
+            }
+
+            long sum = 0;
+            var rounds = 20;
+            var mult = 10;
+
+            for (int r = 0; r < rounds; r++)
+            {
+                //using (Benchmark.Run("Array", count * mult))
+                //{
+                //    var z = count - 1;
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        for (int j = 0; j < z; j++)
+                //        {
+                //            sum += arr[j];
+                //        }
+                //    }
+                //}
+
+                //using (Benchmark.Run("VecT", count * mult))
+                //{
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        //foreach (var i in vecT)
+                //        //{
+                //        //    sum += i;
+                //        //}
+                //        for (int j = 0; j < count; j++)
+                //        {
+                //            sum += vecT.GetUnchecked(j);
+                //        }
+                //    }
+                //}
+
+                //using (Benchmark.Run("VecT.Span", count * mult))
+                //{
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        var z = count - 1;
+                //        var sp = vecT.Span;
+                //        for (int j = 0; j < z; j++)
+                //        {
+                //            sum += sp[j];
+                //        }
+                //    }
+                //}
+
+                using (Benchmark.Run("Vec", count * mult))
+                {
+                    for (int m = 0; m < mult; m++)
+                    {
+                        for (int j = 0; j < count; j++)
+                        {
+                            sum += (int)vec.GetUnchecked(j);
+                        }
+                    }
+                }
+            }
+
+            Benchmark.Dump();
+        }
     }
 }
