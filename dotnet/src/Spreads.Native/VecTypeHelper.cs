@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -42,6 +43,14 @@ namespace Spreads.Native
                         return idx2;
                     }
 
+                    foreach (var runtimeVecInfo in Info._storage)
+                    {
+                        if (runtimeVecInfo.Type != null && runtimeVecInfo.Type == tNew)
+                        {
+                            return runtimeVecInfo.RuntimeTypeId;
+                        }
+                    }
+
                     var idxNew = Info.Add(new RuntimeVecInfo()
                     {
                         Type = tNew,
@@ -78,7 +87,7 @@ namespace Spreads.Native
     /// <typeparam name="T"></typeparam>
     public class AppendOnlyStorage<T>
     {
-        private T[] _storage = new T[4];
+        internal T[] _storage = new T[4];
         private int _counter;
 
         public int Add(T value)
