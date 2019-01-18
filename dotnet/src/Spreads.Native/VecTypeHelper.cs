@@ -10,15 +10,17 @@ using System.Threading;
 
 namespace Spreads.Native
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 32)]
-    public struct RuntimeVecInfo
+    /// TODO check actual size
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    internal struct RuntimeVecInfo
     {
         public Type Type;
         internal IntPtr UnsafeGetterPtr;
         internal IntPtr UnsafeSetterPtr;
         public int RuntimeTypeId;
-        public short ElemOffset;
         public short ElemSize;
+        public byte ArrayOffsetAdjustment;
+        public bool IsReferenceOrContainsReferences;
     }
 
     internal static class VecTypeHelper
@@ -55,8 +57,9 @@ namespace Spreads.Native
                         Type = tNew,
                         UnsafeGetterPtr = UnsafeEx.GetMethodPointerForType(tNew),
                         UnsafeSetterPtr = UnsafeEx.SetMethodPointerForType(tNew),
-                        ElemOffset = checked((short)UnsafeEx.ElemOffsetOfType(tNew)),
-                        ElemSize = checked((short)UnsafeEx.ElemSizeOfType(tNew))
+                        ElemSize = checked((short)UnsafeEx.ElemSizeOfType(tNew)),
+                        ArrayOffsetAdjustment = checked((byte)UnsafeEx.ArrayOffsetAdjustmentOfType(tNew)),
+                        IsReferenceOrContainsReferences = UnsafeEx.IsReferenceOrContainsReferencesOfType(tNew)
                     });
                     ref var infoNew = ref Info[idxNew];
                     infoNew.RuntimeTypeId = idxNew;
@@ -110,12 +113,13 @@ namespace Spreads.Native
                 get => ref _storage[index - 1];
             }
         }
+
+        public static readonly int FastPathAdjustment = UnsafeEx.FastPathAdjustment<int>();
     }
 
     internal static class VecTypeHelper<T>
     {
         public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
-        public static int ElemOffset = VecTypeHelper.GetInfo(typeof(T)).ElemOffset;
-        public static int RuntimeTypeId = VecTypeHelper.GetInfo(typeof(T)).RuntimeTypeId;
+        public static readonly int FastPathAdjustment = UnsafeEx.FastPathAdjustment<T>();
     }
 }

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 // ReSharper disable IdentifierTypo
 #pragma warning disable 1584
@@ -164,43 +165,38 @@ namespace Spreads.Native
 
         /// <summary>
         /// Takes a (possibly null) object reference, plus an offset in bytes,
-        /// adds them, and safely dereferences the target (untyped!) address in
-        /// a way that the GC will be okay with.  It yields a value of type T.
+        /// adds them, and dereferences the target (could be unaligned). It yields a value of type T.
+        /// Should only be used for blittable types.
         /// </summary>
         /// <param name="obj">An object (could be null)</param>
         /// <param name="offset">Byte offset from object pointer. If object is null this is just a native pointer (offset from zero pointer).
         /// It is not a pointer to an offset value but the offset itself. Originally it was <see cref="IntPtr"/> but that required casting.
         /// </param>
+        /// <param name="index">Element index</param>
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern T Get<T>(object obj, byte* offset);
+        public static extern T DangerousGetAtIndex<T>(object obj, IntPtr offset, int index);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static object GetX<T>(object obj, IntPtr offset)
+        public static object GetAsObject<T>(object obj, IntPtr offset, int index)
         {
-            return GetAsObject<T>(obj, (byte*)offset);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static object GetAsObject<T>(object obj, byte* offset)
-        {
-            var t = GetRef<T>(obj, offset);
+            var t = GetRef<T>(obj, offset, index);
             return (object)t;
         }
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedTypeParameter
-        public static extern IntPtr GetMethodPointer<T>();
+        public static extern IntPtr GetterMethodPointer<T>();
 
         public static IntPtr GetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
         {
-            MethodInfo method = typeof(UnsafeEx).GetMethod("GetMethodPointer", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo method = typeof(UnsafeEx).GetMethod("GetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
             MethodInfo generic = method.MakeGenericMethod(ty);
             return (IntPtr)generic.Invoke(null, null);
         }
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern object GetIndirect(object obj, byte* offset, IntPtr functionPtr);
+        public static extern object GetIndirect(object obj, IntPtr offset, int index, IntPtr functionPtr);
 
         /// <summary>
         /// Takes a (possibly null) object reference, plus an offset in bytes,
@@ -208,35 +204,23 @@ namespace Spreads.Native
         /// a way that the GC will be okay with.  It yields a value of type T.
         /// </summary>
         /// <param name="obj">An object (could be null)</param>
-        /// <param name="offset">Byte offset from object pointer. If object is null this is just a native pointer (offset from zero pointer).
-        /// It is not a pointer to an offset value but the offset itself. Originally it was <see cref="IntPtr"/> but that required casting.
-        /// </param>
-        [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern ref T GetRef<T>(object obj, byte* offset);
-
-        /// <summary>
-        /// Takes a (possibly null) object reference, plus an offset in bytes,
-        /// adds them, and safely stores the value of type T in a way that the
-        /// GC will be okay with.
-        /// </summary>
-        /// <param name="obj">An object (could be null).</param>
-        /// <param name="offset">Byte offset from object pointer. If object is null this is just a native pointer (offset from zero pointer).
-        /// It is not a pointer to an offset value but the offset itself. Originally it was <see cref="IntPtr"/> but that required casting.
-        /// </param>
-        /// <param name="val">A value to set.</param>
-        [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern void Set<T>(object obj, byte* offset, T val);
-
+        /// <param name="byteOffset">Byte offset from object pointer.</param>
+        /// <param name="index"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void SetX<T>(object obj, IntPtr offset, object val)
+        public static ref T GetRef<T>(object obj, IntPtr byteOffset, int index)
         {
-            SetAsObject<T>(obj, (byte*)offset, val);
+            if (obj == null)
+            {
+                return ref Unsafe.Add<T>(ref Unsafe.AsRef<T>(byteOffset.ToPointer()), index);
+            }
+
+            return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void SetAsObject<T>(object obj, byte* offset, object val)
+        public static void SetAsObject<T>(object obj, IntPtr offset, int index, object val)
         {
-            GetRef<T>(obj, offset) = (dynamic)val;
+            GetRef<T>(obj, offset, index) = (dynamic)val;
         }
 
         /// <summary>
@@ -245,15 +229,15 @@ namespace Spreads.Native
         /// </summary>
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedTypeParameter
-        public static extern IntPtr SetMethodPointer<T>();
+        internal static extern IntPtr SetterMethodPointer<T>();
 
         /// <summary>
         /// Get a native method pointer to <see cref="Set{T}"/> method for type <paramref name="ty"/>.
         /// The pointer should be used with <see cref="SetIndirect"/> method.
         /// </summary>
-        public static IntPtr SetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
+        internal static IntPtr SetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
         {
-            MethodInfo method = typeof(UnsafeEx).GetMethod("SetMethodPointer", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo method = typeof(UnsafeEx).GetMethod("SetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
             MethodInfo generic = method.MakeGenericMethod(ty);
             return (IntPtr)generic.Invoke(null, null);
@@ -261,31 +245,58 @@ namespace Spreads.Native
 
         /// <summary>
         /// Set a value <paramref name="val"/> without generic parameters using <see cref="OpCodes.Calli"/> instruction for <see cref="Set{T}"/>
-        /// method pointer obtained via <see cref="SetMethodPointer{T}"/> or <see cref="SetMethodPointerForType"/> methods.
+        /// method pointer obtained via <see cref="SetterMethodPointer{T}"/> or <see cref="SetMethodPointerForType"/> methods.
         /// </summary>
         /// <remarks>Value <paramref name="val"/> is cast to underlying type as `(T)(dynamic)val`.</remarks>
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern void SetIndirect(object obj, byte* offset, object val, IntPtr functionPtr);
+        public static extern void SetIndirect(object obj, IntPtr offset, int index, object val, IntPtr functionPtr);
+
+        internal static int ArrayOffsetAdjustment<T>()
+        {
+            return checked((int)VecHelpers.PerTypeValues<T>.ArrayAdjustment);
+        }
+
+        internal static int ArrayOffsetAdjustmentOfType(Type ty)
+        {
+            var method = typeof(UnsafeEx).GetMethod("ArrayOffsetAdjustment", BindingFlags.Static | BindingFlags.NonPublic);
+            var genericMethod = method.MakeGenericMethod(ty);
+            return (int)genericMethod.Invoke(null, null);
+        }
 
         /// <summary>
         /// Computes the number of bytes offset from an array object reference
         /// to its first element, in a way the GC will be okay with.
         /// </summary>
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern int ElemOffset<T>(T[] arr);
+        internal static extern IntPtr ElemOffset<T>(T[] arr);
 
-        internal static int ElemOffset<T>()
+        internal static int FastPathAdjustment<T>()
         {
-            return ElemOffset<T>(new T[1]);
+            var arr = new T[1];
+            var h = GCHandle.Alloc(arr);
+            var offsetO = (int)UnsafeEx.ElemOffset(arr);
+            var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
+            var fpa = offsetO - offsetA;
+            h.Free();
+            return fpa;
         }
 
-        public static int ElemOffsetOfType(Type ty)
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsReferenceOrContainsReferences<T>()
         {
-            MethodInfo method = typeof(UnsafeEx).GetMethod("ElemOffset", BindingFlags.Static | BindingFlags.NonPublic);
-            MethodInfo genericMethod = method.MakeGenericMethod(ty);
-            return (int)genericMethod.Invoke(null, null);
+            return VecHelpers.IsReferenceOrContainsReferences<T>();
         }
 
+        public static bool IsReferenceOrContainsReferencesOfType(Type ty)
+        {
+            var method = typeof(UnsafeEx).GetMethod("IsReferenceOrContainsReferences", BindingFlags.Static | BindingFlags.Public);
+            var genericMethod = method.MakeGenericMethod(ty);
+            return (bool)genericMethod.Invoke(null, null);
+        }
+
+        // needed for reflection below
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int ElemSize<T>()
         {
             return Unsafe.SizeOf<T>();
@@ -293,8 +304,8 @@ namespace Spreads.Native
 
         public static int ElemSizeOfType(Type ty)
         {
-            MethodInfo method = typeof(UnsafeEx).GetMethod("ElemSize", BindingFlags.Static | BindingFlags.NonPublic);
-            MethodInfo genericMethod = method.MakeGenericMethod(ty);
+            var method = typeof(UnsafeEx).GetMethod("ElemSize", BindingFlags.Static | BindingFlags.NonPublic);
+            var genericMethod = method.MakeGenericMethod(ty);
             return (int)genericMethod.Invoke(null, null);
         }
     }

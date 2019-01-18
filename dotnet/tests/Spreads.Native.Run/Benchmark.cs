@@ -53,51 +53,51 @@ namespace Spreads.Native.Run
             return sum;
         }
 
-        [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Vec.GetUnchecked<T>(i)")]
-        public int VecGetTIndexer_Get()
-        {
-            int sum = 0;
+        //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Vec.GetUnchecked<T>(i)")]
+        //public int VecGetTIndexer_Get()
+        //{
+        //    int sum = 0;
 
-            for (int _ = 0; _ < Loops; _++)
-            {
-                for (int j = 1; j < _count; j++)
-                {
-                    if (j >= 42)
-                    {
-                        sum += _vec.GetUnchecked<int>(j - 1);
-                    }
-                    else
-                    {
-                        sum += _vec.GetUnchecked<int>(j);
-                    }
-                }
-            }
+        //    for (int _ = 0; _ < Loops; _++)
+        //    {
+        //        for (int j = 1; j < _count; j++)
+        //        {
+        //            if (j >= 42)
+        //            {
+        //                sum += _vec.GetUnchecked<int>(j - 1);
+        //            }
+        //            else
+        //            {
+        //                sum += _vec.GetUnchecked<int>(j);
+        //            }
+        //        }
+        //    }
 
-            return sum;
-        }
+        //    return sum;
+        //}
 
-        [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "(T)Vec.GetUnchecked(i)")]
-        public int VecGetIndexer_Get()
-        {
-            int sum = 0;
+        //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "(T)Vec.GetUnchecked(i)")]
+        //public int VecGetIndexer_Get()
+        //{
+        //    int sum = 0;
 
-            for (int _ = 0; _ < Loops; _++)
-            {
-                for (int j = 1; j < _count; j++)
-                {
-                    if (j >= 42)
-                    {
-                        sum += (int)_vec.GetUnchecked(j - 1);
-                    }
-                    else
-                    {
-                        sum += (int)_vec.GetUnchecked(j);
-                    }
-                }
-            }
+        //    for (int _ = 0; _ < Loops; _++)
+        //    {
+        //        for (int j = 1; j < _count; j++)
+        //        {
+        //            if (j >= 42)
+        //            {
+        //                sum += (int)_vec.GetUnchecked(j - 1);
+        //            }
+        //            else
+        //            {
+        //                sum += (int)_vec.GetUnchecked(j);
+        //            }
+        //        }
+        //    }
 
-            return sum;
-        }
+        //    return sum;
+        //}
 
         [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "T[i]")]
         public int ArrayIndexer_Get()
@@ -144,28 +144,28 @@ namespace Spreads.Native.Run
             return sum;
         }
 
-        [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Memory<T>.Span[i]")]
-        public int MemoryIndexer_Get()
-        {
-            int sum = 0;
+        //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Memory<T>.Span[i]")]
+        //public int MemoryIndexer_Get()
+        //{
+        //    int sum = 0;
 
-            for (int _ = 0; _ < Loops; _++)
-            {
-                for (int j = 1; j < _count; j++)
-                {
-                    if (j >= 42)
-                    {
-                        sum += _mem.Span[j - 1];
-                    }
-                    else
-                    {
-                        sum += _mem.Span[j];
-                    }
-                }
-            }
+        //    for (int _ = 0; _ < Loops; _++)
+        //    {
+        //        for (int j = 1; j < _count; j++)
+        //        {
+        //            if (j >= 42)
+        //            {
+        //                sum += _mem.Span[j - 1];
+        //            }
+        //            else
+        //            {
+        //                sum += _mem.Span[j];
+        //            }
+        //        }
+        //    }
 
-            return sum;
-        }
+        //    return sum;
+        //}
     }
 
     public class MultipleRuntimesConfig : ManualConfig
@@ -178,15 +178,15 @@ namespace Spreads.Native.Run
             Add(MarkdownExporter.GitHub);
             Add(HtmlExporter.Default);
 
-            Add(Job.MediumRun
+            Add(Job.VeryLongRun
                 .With(CsProjClassicNetToolchain.Net461)
                 .WithId(".NET 4.6.1"));
 
-            Add(Job.MediumRun
+            Add(Job.VeryLongRun
                 .With(CsProjCoreToolchain.NetCoreApp21)
                 .WithId(".NET Core 2.1 LTS"));
 
-            Add(Job.MediumRun
+            Add(Job.VeryLongRun
                 .With(CsProjCoreToolchain.NetCoreApp30)
                 .WithId(".NET Core 3.0.1-pv"));
         }

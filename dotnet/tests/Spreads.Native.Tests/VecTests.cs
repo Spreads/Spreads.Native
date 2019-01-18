@@ -38,11 +38,13 @@ namespace Spreads.Native.Tests
         [Test, Explicit("long running")]
         public void ForEachBench()
         {
+            
+
             var count = 100_000_000;
             var arr = new int[count];
             var vecT = new Vec<int>(arr);
             var vec = new Vec(arr);
-            var mem = (Memory<int>) arr;
+            var mem = (Memory<int>)arr;
 
             for (int i = 0; i < count; i++)
             {
@@ -54,7 +56,7 @@ namespace Spreads.Native.Tests
             }
 
             long sum = 0;
-            var rounds = 10;
+            var rounds = 20;
             var mult = 10;
 
             for (int r = 0; r < rounds; r++)
@@ -83,18 +85,18 @@ namespace Spreads.Native.Tests
                     }
                 }
 
-                using (Benchmark.Run("Span", count * mult))
-                {
-                    for (int m = 0; m < mult; m++)
-                    {
-                        var z = count - 1;
-                        var sp = vecT.Span;
-                        for (int j = 1; j < z; j++)
-                        {
-                            sum += sp[j - 1];
-                        }
-                    }
-                }
+                //using (Benchmark.Run("Span", count * mult))
+                //{
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        var z = count - 1;
+                //        var sp = vecT.Span;
+                //        for (int j = 1; j < z; j++)
+                //        {
+                //            sum += sp[j - 1];
+                //        }
+                //    }
+                //}
 
                 //using (Benchmark.Run("Vec.Get<T>", count * mult))
                 //{

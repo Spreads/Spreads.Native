@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Spreads.Native
 {
+    // TODO replace Span name
     // Vec<T> and Vec implementations must be identical.
 
     /// <summary>
@@ -19,157 +20,131 @@ namespace Spreads.Native
     /// <remarks>Not thread safe and not safe at all</remarks>
     public readonly unsafe struct Vec<T> : IEnumerable<T>
     {
-        internal readonly T[] _array;
-        internal readonly byte* _offset;
-
-        /// <summary>
-        ///
-        /// </summary>
+        internal readonly Pinnable<T> _pinnable;
+        internal readonly IntPtr _byteOffset;
         internal readonly int _length;
 
         internal readonly int _runtimeTypeId;
 
         /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the entirety of the target array.
+        /// Creates a new Vec over the entirety of the target array.
         /// </summary>
         /// <param name="array">The target array.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
-        /// </exception>
+        /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
+        /// <exception cref="ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec(T[] array)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
+                this = default;
+                return; // returns default
             }
-            _array = array;
-            _offset = (byte*)VecTypeHelper<T>.RuntimeVecInfo.ElemOffset;
-            // ReSharper disable once PossibleNullReferenceException
+
+            if (default(T) == null && array.GetType() != typeof(T[]))
+            {
+                VecThrowHelper.ThrowArrayTypeMismatchException();
+            }
+
             _length = array.Length;
+            _pinnable = Unsafe.As<Pinnable<T>>(array);
+            _byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment;
+
             _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
         }
 
-        /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the portion of the target array beginning
-        /// at 'start' index.
-        /// </summary>
-        /// <param name="array">The target array.</param>
-        /// <param name="start">The index at which to begin the slice.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when the specified start index is not in range.
-        /// </exception>
+        // This is a constructor that takes an array and start but not length. The reason we expose it as a static method as a constructor
+        // is to mirror the actual api shape. This overload of the constructor was removed from the api surface area due to possible
+        // confusion with other overloads that take an int parameter that don't represent a start index.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(T[] array, int start)
+        internal static Vec<T> Create(T[] array, int start)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
+                if (start != 0)
+                    VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+                return default;
             }
-            // ReSharper disable once PossibleNullReferenceException
-            var arrLen = array.Length;
-            if (unchecked((uint)start) >= unchecked((uint)arrLen))
-            {
-                VecThrowHelper.ThrowStartOrLengthOutOfRange();
-            }
+            if (default(T) == null && array.GetType() != typeof(T[]))
+                VecThrowHelper.ThrowArrayTypeMismatchException();
+            if (unchecked((uint)start) > unchecked((uint)array.Length))
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
-            if (start < arrLen)
-            {
-                _array = array;
-                _offset = (byte*)(VecTypeHelper<T>.RuntimeVecInfo.ElemOffset + start * Unsafe.SizeOf<T>());
-                _length = array.Length - start;
-                _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            }
-            else
-            {
-                _array = null;
-                _offset = null;
-                _length = 0;
-                _runtimeTypeId = 0;
-            }
+            IntPtr byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
+            int length = array.Length - start;
+            return new Vec<T>(pinnable: Unsafe.As<Pinnable<T>>(array), byteOffset: byteOffset, length: length, runtimeTypeId: VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId);
         }
 
         /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the portion of the target array beginning
+        /// Creates a new Vec over the portion of the target array beginning
         /// at 'start' index and ending at 'end' index (exclusive).
         /// </summary>
         /// <param name="array">The target array.</param>
-        /// <param name="start">The index at which to begin the slice.</param>
-        /// <param name="length">The length of the Vec.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
+        /// <param name="start">The index at which to begin the Vec.</param>
+        /// <param name="length">The number of items in the Vec.</param>
+        /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
+        /// <exception cref="System.ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified <paramref name="start"/> or end index is not in the range (&lt;0 or &gt;=Length).
         /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when the specified start or end index is not in range.
-        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec(T[] array, int start, int length)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
+                if (start != 0 || length != 0)
+                    VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+                this = default;
+                return; // returns default
             }
-            // ReSharper disable once PossibleNullReferenceException
-            var arrLen = array.Length;
-            if (unchecked((uint)start) + unchecked((uint)length) >= unchecked((uint)arrLen))
-            {
-                VecThrowHelper.ThrowStartOrLengthOutOfRange();
-            }
-            if (start < arrLen)
-            {
-                _array = array;
-                _offset = (byte*)(VecTypeHelper<T>.RuntimeVecInfo.ElemOffset + start * Unsafe.SizeOf<T>());
-                _length = length;
-                _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            }
-            else
-            {
-                _array = null;
-                _offset = null;
-                _length = 0;
-                _runtimeTypeId = 0;
-            }
-        }
+            if (default(T) == null && array.GetType() != typeof(T[]))
+            { VecThrowHelper.ThrowArrayTypeMismatchException(); }
+            if (unchecked((uint)start) > unchecked((uint)array.Length) || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
+            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
 
-        /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the target unmanaged buffer. This
-        /// is quite dangerous, because we are creating arbitrarily typed T's
-        /// out of a void*-typed block of memory.  And the length is not checked.
-        /// But if this creation is correct, then all subsequent uses are correct.
-        /// </summary>
-        /// <param name="ptr">An unmanaged pointer to memory.</param>
-        /// <param name="length">The number of T elements the memory contains.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(void* ptr, int length)
-        {
-            if (length < 0)
-            {
-                VecThrowHelper.ThrowNegativeLength();
-            }
-
-            if (ptr == null && length != 0)
-            {
-                VecThrowHelper.ThrowNullPointer();
-            }
-
-            _array = null;
-            _offset = (byte*)ptr;
             _length = length;
+            _pinnable = Unsafe.As<Pinnable<T>>(array);
+            _byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
             _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
         }
 
         /// <summary>
-        /// An internal helper for creating Vecs.  Not for public use.
+        /// Creates a new Vec over the target unmanaged buffer.  Clearly this
+        /// is quite dangerous, because we are creating arbitrarily typed T's
+        /// out of a void*-typed block of memory.  And the length is not checked.
+        /// But if this creation is correct, then all subsequent uses are correct.
         /// </summary>
+        /// <param name="pointer">An unmanaged pointer to memory.</param>
+        /// <param name="length">The number of <typeparamref name="T"/> elements the memory contains.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown when <typeparamref name="T"/> is reference type or contains pointers and hence cannot be stored in unmanaged memory.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified <paramref name="length"/> is negative.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Vec(T[] array, byte* offset, int length, int runtimeTypeId)
+        public Vec(void* pointer, int length)
         {
-            Debug.Assert(runtimeTypeId == VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId);
-            _array = array;
-            _offset = offset;
+            if (VecHelpers.IsReferenceOrContainsReferences<T>())
+            { VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(typeof(T)); }
+            if (length < 0)
+            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+
             _length = length;
+            _pinnable = null;
+            _byteOffset = new IntPtr(pointer);
+            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+        }
+
+        // Constructor for internal use only.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Vec(Pinnable<T> pinnable, IntPtr byteOffset, int length, int runtimeTypeId)
+        {
+            Debug.Assert(length >= 0);
+
+            _length = length;
+            _pinnable = pinnable;
+            _byteOffset = byteOffset;
             _runtimeTypeId = runtimeTypeId;
         }
 
@@ -179,7 +154,7 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec AsVec()
         {
-            return new Vec(_array, _offset, _length, _runtimeTypeId);
+            return new Vec(Unsafe.As<Array>(_pinnable), _byteOffset, _length, _runtimeTypeId);
         }
 
         /// <summary>
@@ -196,12 +171,12 @@ namespace Spreads.Native
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (_array == null)
+                if (_pinnable == null)
                 {
-                    return new Span<T>(_offset, _length);
+                    return new Span<T>((void*)_byteOffset, _length);
                 }
 
-                return new Span<T>(_array, (int)(checked((uint)_offset - VecTypeHelper<T>.RuntimeVecInfo.ElemOffset)) / Unsafe.SizeOf<T>(), _length);
+                return new Span<T>(Unsafe.As<T[]>(_pinnable), (int)(checked((uint)_byteOffset - VecTypeHelper<T>.RuntimeVecInfo.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
             }
         }
 
@@ -218,7 +193,7 @@ namespace Spreads.Native
             {
                 if (unchecked((uint)index) >= unchecked((uint)_length))
                 {
-                    VecThrowHelper.ThrowIndexOutOfRange();
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
                 return GetUnchecked(index);
@@ -228,10 +203,10 @@ namespace Spreads.Native
             {
                 if (unchecked((uint)index) >= unchecked((uint)_length))
                 {
-                    VecThrowHelper.ThrowIndexOutOfRange();
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
-                UnsafeEx.Set<T>(_array, _offset + index * Unsafe.SizeOf<T>(), value);
+                GetRefUnchecked(index) = value;
             }
         }
 
@@ -241,7 +216,12 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetUnchecked(int index)
         {
-            return UnsafeEx.Get<T>(_array, _offset + index * Unsafe.SizeOf<T>());
+            // TODO known types
+            if (typeof(T) == typeof(int))
+            {
+                return UnsafeEx.DangerousGetAtIndex<T>(_pinnable, _byteOffset, index);
+            }
+            return GetRefUnchecked(index);
         }
 
         /// <summary>
@@ -252,7 +232,7 @@ namespace Spreads.Native
         {
             if (unchecked((uint)index) >= unchecked((uint)_length))
             {
-                VecThrowHelper.ThrowIndexOutOfRange();
+                VecThrowHelper.ThrowIndexOutOfRangeException();
             }
             return ref GetRefUnchecked(index);
         }
@@ -261,9 +241,16 @@ namespace Spreads.Native
         /// Returns a reference to a value at index without bound checks.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ref T GetRefUnchecked(int index)
+        public ref T GetRefUnchecked(int index)
         {
-            return ref UnsafeEx.GetRef<T>(_array, _offset + index * Unsafe.SizeOf<T>());
+            if (_pinnable == null)
+            {
+                return ref Unsafe.Add<T>(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
+            }
+            else
+            {
+                return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
+            }
         }
 
         /// <summary>
@@ -273,8 +260,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReferenceEquals(Vec<T> other)
         {
-            return _array == other._array
-                   && _offset == other._offset
+            return _pinnable == other._pinnable
+                   && _byteOffset == other._byteOffset
                    && _length == other._length
                    && _runtimeTypeId == other._runtimeTypeId;
         }
@@ -349,148 +336,115 @@ namespace Spreads.Native
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 24)]
     public readonly unsafe struct Vec : IEnumerable
     {
-        internal readonly Array _array;
-        internal readonly byte* _offset;
-
-        /// <summary>
-        ///
-        /// </summary>
+        internal readonly Array _pinnable;
+        internal readonly IntPtr _byteOffset;
         internal readonly int _length;
-
         internal readonly int _runtimeTypeId;
 
         /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the entirety of the target array.
+        /// Creates a new Vec over the entirety of the target array.
         /// </summary>
         /// <param name="array">The target array.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
-        /// </exception>
+        /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
+        /// <exception cref="ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec(Array array)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
+                this = default;
+                return; // returns default
             }
 
-            // ReSharper disable once PossibleNullReferenceException
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
-            _array = array;
-            _offset = (byte*)vti.ElemOffset;
             _length = array.Length;
+            _pinnable = array;
+            _byteOffset = (IntPtr)vti.ArrayOffsetAdjustment;
+
             _runtimeTypeId = vti.RuntimeTypeId;
         }
 
-        /// <summary>
-        /// Creates a new <see cref="Vec"/> over the portion of the target array beginning
-        /// at 'start' index.
-        /// </summary>
-        /// <param name="array">The target array.</param>
-        /// <param name="start">The index at which to begin the slice.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when the specified start index is not in range.
-        /// </exception>
+        // This is a constructor that takes an array and start but not length. The reason we expose it as a static method as a constructor
+        // is to mirror the actual api shape. This overload of the constructor was removed from the api surface area due to possible
+        // confusion with other overloads that take an int parameter that don't represent a start index.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(Array array, int start)
+        internal static Vec Create(Array array, int start)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
-            }
-            // ReSharper disable once PossibleNullReferenceException
-            var arrLen = array.Length;
-            if (unchecked((uint)start) >= unchecked((uint)arrLen))
-            {
-                VecThrowHelper.ThrowStartOrLengthOutOfRange();
+                if (start != 0)
+                    VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+                return default;
             }
 
-            // ReSharper disable once PossibleNullReferenceException
+            if (unchecked((uint)start) > unchecked((uint)array.Length))
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
-            if (start < arrLen)
-            {
-                _array = array;
-                _offset = (byte*)(vti.ElemOffset + start * vti.ElemSize);
-                _length = array.Length - start;
-                _runtimeTypeId = vti.RuntimeTypeId;
-            }
-            else
-            {
-                _array = null;
-                _offset = null;
-                _length = 0;
-                _runtimeTypeId = 0;
-            }
+            IntPtr byteOffset = (IntPtr)(vti.ArrayOffsetAdjustment + start * vti.ElemSize);
+            int length = array.Length - start;
+            return new Vec(array: array, byteOffset: byteOffset, length: length, runtimeTypeId: vti.RuntimeTypeId);
         }
 
         /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the portion of the target array beginning
+        /// Creates a new Vec over the portion of the target array beginning
         /// at 'start' index and ending at 'end' index (exclusive).
         /// </summary>
         /// <param name="array">The target array.</param>
-        /// <param name="start">The index at which to begin the slice.</param>
-        /// <param name="length">The length of the Vec.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the 'array' parameter is null.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when the specified start or end index is not in range.
+        /// <param name="start">The index at which to begin the Vec.</param>
+        /// <param name="length">The number of items in the Vec.</param>
+        /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
+        /// <exception cref="System.ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified <paramref name="start"/> or end index is not in the range (&lt;0 or &gt;=Length).
         /// </exception>
         public Vec(Array array, int start, int length)
         {
             if (array == null)
             {
-                VecThrowHelper.ThrowArrayIsNull();
-            }
-            // ReSharper disable once PossibleNullReferenceException
-            var arrLen = array.Length;
-            if (unchecked((uint)start) + unchecked((uint)length) >= unchecked((uint)arrLen))
-            {
-                VecThrowHelper.ThrowStartOrLengthOutOfRange();
+                if (start != 0 || length != 0)
+                    VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+                this = default;
+                return; // returns default
             }
 
             // ReSharper disable once PossibleNullReferenceException
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
-            if (start < arrLen)
-            {
-                _array = array;
-                _offset = (byte*)(vti.ElemOffset + start * vti.ElemSize);
-                _length = length;
-                _runtimeTypeId = vti.RuntimeTypeId;
-            }
-            else
-            {
-                _array = null;
-                _offset = null;
-                _length = 0;
-                _runtimeTypeId = 0;
-            }
+            if (unchecked((uint)start) > unchecked((uint)array.Length) || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
+            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+
+            _length = length;
+            _pinnable = array;
+            _byteOffset = (IntPtr)(vti.ArrayOffsetAdjustment + start * vti.ElemSize);
+            _runtimeTypeId = vti.RuntimeTypeId;
         }
 
         /// <summary>
-        /// Creates a new <see cref="Vec{T}"/> over the target unmanaged buffer. This
+        /// Creates a new Vec over the target unmanaged buffer.  Clearly this
         /// is quite dangerous, because we are creating arbitrarily typed T's
         /// out of a void*-typed block of memory.  And the length is not checked.
         /// But if this creation is correct, then all subsequent uses are correct.
         /// </summary>
-        /// <param name="ptr">An unmanaged pointer to memory.</param>
-        /// <param name="length">The number of T elements the memory contains.</param>
+        /// <param name="pointer">An unmanaged pointer to memory.</param>
+        /// <param name="length">The number of elements the memory contains.</param>
         /// <param name="elementType">Element type.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when the specified <paramref name="length"/> is negative.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(void* ptr, int length, Type elementType)
+        public Vec(void* pointer, int length, Type elementType)
         {
-            if (length < 0)
-            {
-                VecThrowHelper.ThrowNegativeLength();
-            }
+            ref var vti = ref VecTypeHelper.GetInfo(elementType);
 
-            if (ptr == null && length != 0)
+            if (vti.IsReferenceOrContainsReferences)
+            { VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(elementType); }
+            if (length < 0)
+            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+
+            if (pointer == null && length != 0)
             {
                 VecThrowHelper.ThrowNullPointer();
             }
@@ -500,10 +454,8 @@ namespace Spreads.Native
                 VecThrowHelper.ThrowTypeIsNull();
             }
 
-            ref var vti = ref VecTypeHelper.GetInfo(elementType);
-
-            _array = null;
-            _offset = (byte*)ptr;
+            _pinnable = null;
+            _byteOffset = (IntPtr)pointer;
             _length = length;
             _runtimeTypeId = vti.RuntimeTypeId;
         }
@@ -512,13 +464,13 @@ namespace Spreads.Native
         /// An internal helper for creating Vecs.  Not for public use.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Vec(Array array, byte* offset, int length, int runtimeTypeId)
+        internal Vec(Array array, IntPtr byteOffset, int length, int runtimeTypeId)
         {
 #if DEBUG
             Debug.Assert(runtimeTypeId == VecTypeHelper.GetInfo(array.GetType().GetElementType()).RuntimeTypeId);
 #endif
-            _array = array;
-            _offset = offset;
+            _pinnable = array;
+            _byteOffset = byteOffset;
             _length = length;
             _runtimeTypeId = runtimeTypeId;
         }
@@ -535,27 +487,8 @@ namespace Spreads.Native
                 VecThrowHelper.ThrowWrongCastType<T>();
             }
 
-            return new Vec<T>(_array as T[], _offset, _length, _runtimeTypeId);
+            return new Vec<T>(Unsafe.As<Pinnable<T>>(_pinnable), _byteOffset, _length, _runtimeTypeId);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Get<T>(int index)
-        {
-            var vtidx = VecTypeHelper<T>.RuntimeTypeId;
-            if (vtidx != _runtimeTypeId)
-            {
-                VecThrowHelper.ThrowWrongCastType<T>();
-            }
-
-            return GetUnchecked<T>(index);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetUnchecked<T>(int index)
-        {
-            return UnsafeEx.Get<T>(_array, _offset + index * Unsafe.SizeOf<T>());
-        }
-
 
         /// <summary>
         /// Get the total number of elements in Vec.
@@ -579,7 +512,7 @@ namespace Spreads.Native
             {
                 if (unchecked((uint)index) >= unchecked((uint)_length))
                 {
-                    VecThrowHelper.ThrowIndexOutOfRange();
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
                 return GetUnchecked(index);
@@ -589,11 +522,11 @@ namespace Spreads.Native
             {
                 if (unchecked((uint)index) >= unchecked((uint)_length))
                 {
-                    VecThrowHelper.ThrowIndexOutOfRange();
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
                 ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
-                UnsafeEx.SetIndirect(_array, _offset + index * vti.ElemSize, value, vti.UnsafeSetterPtr);
+                UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
             }
         }
 
@@ -604,7 +537,60 @@ namespace Spreads.Native
         public object GetUnchecked(int index)
         {
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
-            return UnsafeEx.GetIndirect(_array, _offset + index * vti.ElemSize, vti.UnsafeGetterPtr);
+            return UnsafeEx.GetIndirect(_pinnable, _byteOffset, index, vti.UnsafeGetterPtr);
+        }
+
+        /// <summary>
+        /// Get a typed value at index.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Get<T>(int index)
+        {
+            if (unchecked((uint)index) >= unchecked((uint)_length))
+            {
+                VecThrowHelper.ThrowIndexOutOfRangeException();
+            }
+
+            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            if (vtidx != _runtimeTypeId)
+            {
+                VecThrowHelper.ThrowWrongCastType<T>();
+            }
+
+            return GetRefUnchecked<T>(index);
+        }
+
+        /// <summary>
+        /// Get a typed value at index without type or bounds check.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T GetUnchecked<T>(int index)
+        {
+            return GetRefUnchecked<T>(index);
+        }
+
+        /// <summary>
+        /// Get a typed reference to a value at index.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetRef<T>(int index)
+        {
+            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            if (vtidx != _runtimeTypeId)
+            {
+                VecThrowHelper.ThrowWrongCastType<T>();
+            }
+
+            return ref GetRefUnchecked<T>(index);
+        }
+
+        /// <summary>
+        /// Get a typed reference to a value at index without type or bounds check.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetRefUnchecked<T>(int index)
+        {
+            return ref UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
         }
 
         /// <summary>
@@ -613,8 +599,8 @@ namespace Spreads.Native
         /// </summary>
         public bool ReferenceEquals(Vec other)
         {
-            return _array == other._array
-                   && _offset == other._offset
+            return _pinnable == other._pinnable
+                   && _byteOffset == other._byteOffset
                    && _length == other._length
                    && _runtimeTypeId == other._runtimeTypeId;
         }
@@ -651,7 +637,7 @@ namespace Spreads.Native
             public object Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _vec[_position];
+                get => _vec.GetUnchecked(_position);
             }
 
             object IEnumerator.Current => Current;
@@ -674,56 +660,6 @@ namespace Spreads.Native
             {
                 _position = -1;
             }
-        }
-    }
-
-    internal static class VecThrowHelper
-    {
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowArrayIsNull()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentNullException("array");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowTypeIsNull()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentNullException("type");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowNegativeLength()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentOutOfRangeException("length");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowNullPointer()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentOutOfRangeException("ptr");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowIndexOutOfRange()
-        {
-            throw new IndexOutOfRangeException();
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowStartOrLengthOutOfRange()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentOutOfRangeException("start or length");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowWrongCastType<T>()
-        {
-            throw new InvalidOperationException("Wrong type in object to T conversion: T is " + typeof(T).Name);
         }
     }
 }

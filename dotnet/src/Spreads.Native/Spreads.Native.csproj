@@ -36,6 +36,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="System.Slices\**" />
+    <EmbeddedResource Remove="System.Slices\**" />
+    <IL Remove="System.Slices\**" />
+    <None Remove="System.Slices\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <IL Remove="Unsafe.il" />
   </ItemGroup>
 

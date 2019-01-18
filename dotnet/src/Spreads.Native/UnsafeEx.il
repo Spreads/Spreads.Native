@@ -357,95 +357,86 @@
     IL_0012:  ret
   } // end of method Unsafe::DiffLongConstrained
 
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	.method public hidebysig static !!T Get<T>(
-		object obj, uint8* offset) cil managed aggressiveinlining
-	{
-		.maxstack 2
-		.locals ([0] uint8& addr)
-		ldarg.0     // load the object
-		stloc.0     // convert the object pointer to a byref
-		ldloc.0     // load the object pointer as a byref
-		ldarg.1     // load the offset
-		add         // add the offset
-		ldobj !!T   // load a T value from the computed address
-		ret
-	}
+  .method public hidebysig static !!T DangerousGetAtIndex<T>(object obj, native int offset, int32 index) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    .maxstack 3
+    .locals([0] uint8 & addr)
+    ldarg.0     // load the object
+    stloc.0     // convert the object pointer to a byref
+    ldloc.0     // load the object pointer as a byref
+    ldarg.1     // load the offset
+    add         // add the offset
+    ldarg.2     // load the index
+    sizeof !!T  // load size of T
+    conv.i
+    mul         // multiply the index and size of T
+    add         // add the result
+	sizeof native int
+	add
+    unaligned. 0x1
+    ldobj !!T   // load a T value from the computed address
+    ret
+  }
 
-	.method public hidebysig static !!T& GetRef<T>(
-		object obj, uint8* offset) cil managed aggressiveinlining
-	{
-		.maxstack 2
-		.locals ([0] uint8& addr)
-		ldarg.0     // load the object
-		stloc.0     // convert the object pointer to a byref
-		ldloc.0     // load the object pointer as a byref
-		ldarg.1     // load the offset
-		add         // add the offset
-		ret
-	}
+  .method public hidebysig static native int GetterMethodPointer<T>() cil managed aggressiveinlining
+  {
+    .maxstack 1
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    ldftn object class Spreads.Native.UnsafeEx::GetAsObject<!!T> (object obj, native int offset, int32 index)
+    ret	
+  }
 
-    .method public hidebysig static void Set<T>(
-        object obj, uint8* offset, !!T val) cil managed aggressiveinlining
-    {
-        .maxstack 2
-        .locals ([0] uint8& addr)
-        ldarg.0     // load the object
-        stloc.0     // convert the object pointer to a byref
-        ldloc.0     // load the object pointer as a byref
-        ldarg.1     // load the offset
-        add         // add the offset
-        ldarg.2     // load the value to store
-        stobj !!T   // store a T value to the computed address
-        ret
-    }
+  .method public hidebysig static native int SetterMethodPointer<T>() cil managed aggressiveinlining
+  {
+    .maxstack 1
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    ldftn void class Spreads.Native.UnsafeEx::SetAsObject<!!T> (object obj, native int offset, int32 index, object val)
+    ret	
+  }
 
-    .method public hidebysig static int32 ElemOffset<T>(!!T[] arr) cil managed
-    {
-        ldarg.0
-        ldc.i4 0
-        ldelema !!T
-        ldarg.0
-        sub
-        ret
-    }
+  .method public hidebysig static object GetIndirect(
+    object obj, native int offset, int32 index, native int functionPtr) cil managed aggressiveinlining
+  {
+    .maxstack 4
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    ldarg.0
+    ldarg.1
+    ldarg.2
+    ldarg.3
+    calli default object (object obj, native int offset, int32 index)
+    ret
+  }
 
+  .method public hidebysig static void SetIndirect(
+   object obj, native int offset, int32 index,  object val, native int functionPtr) cil managed aggressiveinlining
+  {
+    .maxstack 5
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    ldarg.0
+    ldarg.1
+    ldarg.2
+    ldarg.3
+    ldarg 4
+    calli default void (object obj, native int offset, int32 index, object val)
+    ret
+  }
 
-	.method public hidebysig static native int GetMethodPointer<T>() cil managed aggressiveinlining
-	{
-		ldftn object class Spreads.Native.UnsafeEx::GetAsObject<!!T> (object obj, uint8* offset)
-		ret	
-	}
+  .method public hidebysig static native int ElemOffset<T>(!!T[] arr) cil managed
+  {
+    .maxstack 2
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+    ldarg.0
+    ldc.i4 0
+    ldelema !!T
+    ldarg.0
+    sub
+    ret
+  }
 
-	.method public hidebysig static native int SetMethodPointer<T>() cil managed aggressiveinlining
-	{
-		ldftn void class Spreads.Native.UnsafeEx::SetAsObject<!!T> (object obj, uint8* offset, object val)
-		ret	
-	}
-
-	.method public hidebysig static object GetIndirect(
-		object obj, uint8* offset, native int functionPtr) cil managed aggressiveinlining
-	{
-		.maxstack 3
-		ldarg.0
-		ldarg.1
-		ldarg.2
-		calli default object (object obj, uint8* offset)
-		ret
-	}
-
-	.method public hidebysig static void SetIndirect(
-		object obj, uint8* offset, object val, native int functionPtr) cil managed aggressiveinlining
-	{
-		.maxstack 4
-		ldarg.0
-		ldarg.1
-		ldarg.2
-		ldarg.3
-		calli default void (object obj, uint8* offset, object val)
-		ret
-	}
 } // end of class
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute

@@ -40,14 +40,14 @@ namespace Spreads.Native.Tests
                 var vti2 = VecTypeHelper.GetInfo(vti.RuntimeTypeId);
 
                 Assert.IsTrue(ReferenceEquals(vti.Type, vti2.Type));
-                Assert.AreEqual(vti.ElemOffset, vti2.ElemOffset);
+                Assert.AreEqual(vti.ArrayOffsetAdjustment, vti2.ArrayOffsetAdjustment);
                 Assert.AreEqual(vti.ElemSize, vti2.ElemSize);
                 Assert.AreEqual(vti.UnsafeGetterPtr, vti2.UnsafeGetterPtr);
                 Assert.AreEqual(vti.UnsafeSetterPtr, vti2.UnsafeSetterPtr);
                 Assert.AreEqual(vti.RuntimeTypeId, vti2.RuntimeTypeId);
                 Console.WriteLine("TYPE: " + type.Name);
                 Console.WriteLine("vti.RuntimeTypeId: " + vti.RuntimeTypeId);
-                Console.WriteLine("vti.ElemOffset: " + vti.ElemOffset);
+                Console.WriteLine("vti.ElemOffset: " + vti.ArrayOffsetAdjustment);
                 Console.WriteLine("vti.ElemSize: " + vti.ElemSize);
                 Console.WriteLine();
             }

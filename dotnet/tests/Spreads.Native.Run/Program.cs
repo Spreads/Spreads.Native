@@ -27,10 +27,10 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            var summary = BenchmarkRunner.Run<Benchmark>();
+            // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            //var test = new VecTests();
-            //test.ForEachBench();
+            var test = new VecTests();
+            test.ForEachBench();
 
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;

@@ -16,12 +16,12 @@ namespace Spreads.Native.Tests
     [TestFixture]
     public unsafe class UnsafeExTests
     {
-        public static readonly int ElemOffset = UnsafeEx.ElemOffset(new int[1]);
+        public static readonly int ElemOffset = (int)UnsafeEx.ArrayOffsetAdjustment<int>();
         public static readonly int ElemSize = Unsafe.SizeOf<int>();
 
         public static class Helper<T>
         {
-            public static readonly int ElemOffset = UnsafeEx.ElemOffset(new T[1]);
+            public static readonly int ElemOffset = (int)UnsafeEx.ArrayOffsetAdjustment<T>();
             public static readonly int ElemSize = Unsafe.SizeOf<T>();
         }
 
@@ -30,15 +30,17 @@ namespace Spreads.Native.Tests
         {
             var arr = new int[] { 1, 2, 3 };
 
-            var offset = UnsafeEx.ElemOffset(arr);
-            Console.WriteLine(offset);
+            var offset = (int)UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            //var offsetO = (int) UnsafeEx.ElemOffset(new int[1]);
+            //var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
+            //var fpa = offsetO - offsetA;
+            var snd = UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(offset), 1);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.Set(arr, (byte*)(offset + 4), 42);
+            UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
 
-            snd = UnsafeEx.GetRef<int>(arr, (byte*)(offset + 4));
+            snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1);
             Assert.AreEqual(42, snd);
         }
 
@@ -47,16 +49,16 @@ namespace Spreads.Native.Tests
         {
             var arr = new string[] { "1", "2", "3" };
 
-            var offset = UnsafeEx.ElemOffset(arr);
+            var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
             Console.WriteLine("Offset: " + offset);
             Console.WriteLine("Element size: " + Helper<string>.ElemSize);
 
-            var snd = UnsafeEx.Get<string>(arr, (byte*)(offset + Helper<string>.ElemSize));
+            var snd = UnsafeEx.DangerousGetAtIndex<string>(arr, (IntPtr)(offset), 1);
             Assert.AreEqual("2", snd);
 
-            UnsafeEx.Set(arr, (byte*)(offset + Helper<string>.ElemSize), "42");
+            UnsafeEx.GetRef<string>(arr, (IntPtr)(offset), 1) = "42";
 
-            snd = UnsafeEx.GetRef<string>(arr, (byte*)(offset + Helper<string>.ElemSize));
+            snd = UnsafeEx.GetRef<string>(arr, (IntPtr)(offset + Helper<string>.ElemSize), 0);
             Assert.AreEqual("42", snd);
         }
 
@@ -65,56 +67,56 @@ namespace Spreads.Native.Tests
         {
             var arr = new int[] { 1, 2, 3 };
             var handle = ((Memory<int>)arr).Pin();
-            var ptr = (byte*)handle.Pointer;
+            var ptr = (IntPtr)handle.Pointer;
 
-            var offset = UnsafeEx.ElemOffset(arr);
+            var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
             Console.WriteLine(offset);
 
-            var snd = UnsafeEx.Get<short>(arr, (byte*)(offset + 4));
+            var snd = UnsafeEx.DangerousGetAtIndex<short>(arr, (IntPtr)(offset), 1);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.Set(arr, (byte*)(offset + 4), 42);
+            UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
 
-            snd = UnsafeEx.GetRef<short>(arr, (byte*)(offset + 4));
+            snd = UnsafeEx.GetRef<short>(arr, (IntPtr)(offset), 1);
             Assert.AreEqual(42, snd);
 
-            snd = UnsafeEx.GetRef<short>(null, (byte*)(ptr + 4));
+            snd = UnsafeEx.GetRef<short>(null, (IntPtr)(ptr), 1);
             Assert.AreEqual(42, snd);
         }
 
         [Test]
         public void UnsafeExWorksWithNull()
         {
-            var ptr = (byte*)Marshal.AllocHGlobal(64);
+            var ptr = (IntPtr)Marshal.AllocHGlobal(64);
 
             int[] arr = null;
 
             *(((int*)ptr) + 1) = 2;
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(ptr + 4));
+            var snd = UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(ptr), 1);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.Set(arr, (byte*)(ptr + 4), 42);
+            UnsafeEx.GetRef<int>(arr, (IntPtr)(ptr), 1) = 42;
 
-            snd = UnsafeEx.GetRef<int>(arr, (byte*)(ptr + 4));
+            snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(ptr), 1);
             Assert.AreEqual(42, snd);
         }
 
         [Test]
         public void UnsafeExWorksWithNullWrongButCompatibleType()
         {
-            var ptr = (byte*)Marshal.AllocHGlobal(64);
+            var ptr = (IntPtr)Marshal.AllocHGlobal(64);
 
             int[] arr = null;
 
             *(((int*)ptr) + 1) = 2;
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(ptr + 4));
+            var snd = UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(ptr + 4), 0);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.Set(arr, (byte*)(ptr + 4), 42);
+            UnsafeEx.GetRef<int>(arr, (IntPtr)(ptr), 1) = 42;
 
-            snd = UnsafeEx.GetRef<int>(arr, (byte*)(ptr + 4));
+            snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(ptr), 1);
             Assert.AreEqual(42, snd);
         }
 
@@ -142,7 +144,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        sumUnsafe += UnsafeEx.GetRef<int>(arr, (byte*)(Helper<int>.ElemOffset + 2 * Helper<int>.ElemSize));
+                        sumUnsafe += UnsafeEx.GetRef<int>(arr, (IntPtr)(Helper<int>.ElemOffset), 2);
                     }
                 }
 
@@ -161,7 +163,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        UnsafeEx.GetRef<int>(arr, (byte*)(Helper<int>.ElemOffset + 2 * Helper<int>.ElemSize)) = i;
+                        UnsafeEx.GetRef<int>(arr, (IntPtr)(Helper<int>.ElemOffset), 2) = i;
                         sumUnsafeX++;
                     }
                 }
@@ -169,7 +171,7 @@ namespace Spreads.Native.Tests
                 Assert.AreEqual(sumArr, sumUnsafe);
                 Assert.AreEqual(sumArrX, sumUnsafeX);
 
-                UnsafeEx.Set(arr, (byte*)(Helper<int>.ElemOffset + 2 * Helper<int>.ElemSize), arr[2]++);
+                UnsafeEx.GetRef<int>(arr, (IntPtr)(VecTypeHelper<int>.RuntimeVecInfo.ArrayOffsetAdjustment), 2) = arr[2]++;
             }
 
             Benchmark.Dump();
@@ -180,7 +182,7 @@ namespace Spreads.Native.Tests
         {
             var arr = new int[] { 1, 2, 3 };
             var handle = ((Memory<int>)arr).Pin();
-            var ptr = (byte*)handle.Pointer;
+            var ptr = (IntPtr)handle.Pointer;
 
             var count = 100_000_000;
             var rounds = 10;
@@ -201,7 +203,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        sumUnsafe += UnsafeEx.GetRef<int>(null, (byte*)(ptr + 2 * Helper<int>.ElemSize));
+                        sumUnsafe += UnsafeEx.GetRef<int>(null, (IntPtr)(ptr), 2);
                     }
                 }
 
@@ -220,7 +222,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        UnsafeEx.GetRef<int>(null, (byte*)(ptr + 2 * Helper<int>.ElemSize)) = i;
+                        UnsafeEx.GetRef<int>(null, (IntPtr)(ptr), 2) = i;
                         sumUnsafeX++;
                     }
                 }
@@ -228,7 +230,7 @@ namespace Spreads.Native.Tests
                 Assert.AreEqual(sumArr, sumUnsafe);
                 Assert.AreEqual(sumArrX, sumUnsafeX);
 
-                UnsafeEx.Set(arr, (byte*)(Helper<int>.ElemOffset + 2 * Helper<int>.ElemSize), arr[2]++);
+                UnsafeEx.GetRef<int>(arr, (IntPtr)(VecTypeHelper<int>.RuntimeVecInfo.ArrayOffsetAdjustment), 2) = arr[2]++;
             }
 
             Benchmark.Dump();
@@ -241,7 +243,7 @@ namespace Spreads.Native.Tests
 
             var arr2 = new int[] { 1, 2, 3 };
 
-            var ptr = (byte*)Marshal.AllocHGlobal(64);
+            var ptr = (IntPtr)Marshal.AllocHGlobal(64);
 
             var count = 100_000_000;
             var rounds = 10;
@@ -253,7 +255,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        sumUnsafe += UnsafeEx.Get<int>(arr, (byte*)(ptr + 2 * Helper<int>.ElemSize));
+                        sumUnsafe += UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(ptr + 2 * Helper<int>.ElemSize), 0);
                     }
                 }
 
@@ -262,7 +264,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        UnsafeEx.GetRef<int>(arr, (byte*)(ptr + 2 * Helper<int>.ElemSize)) = i;
+                        UnsafeEx.GetRef<int>(arr, (IntPtr)(ptr ), 2) = i;
                         sumUnsafeX++;
                     }
                 }
@@ -281,15 +283,15 @@ namespace Spreads.Native.Tests
 
             var arr = new int[] { 1, 2, 3 };
 
-            var offset = UnsafeEx.ElemOffset(arr);
+            var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
             Console.WriteLine(offset);
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            var snd = UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(offset + 4), 0);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.SetIndirect(arr, (byte*)(offset + 4), (object)42, setterPtr);
+            UnsafeEx.SetIndirect(arr, (IntPtr)(offset), 1, (object)42, setterPtr);
 
-            snd = (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+            snd = (int)UnsafeEx.GetIndirect(arr, (IntPtr)(offset), 1, getterPtr);
             Assert.AreEqual(42, snd);
         }
 
@@ -335,15 +337,15 @@ namespace Spreads.Native.Tests
 
             var arr = new int[] { 1, 2, 3 };
             Array uArr = arr;
-            var offset = UnsafeEx.ElemOffset(arr);
+            var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
             Console.WriteLine(offset);
 
-            var snd = UnsafeEx.Get<int>(arr, (byte*)(offset + 4));
+            var snd = UnsafeEx.DangerousGetAtIndex<int>(arr, (IntPtr)(offset + 4), 0);
             Assert.AreEqual(2, snd);
 
-            UnsafeEx.Set(arr, (byte*)(offset + 4), 42);
+            UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
 
-            snd = (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+            snd = (int)UnsafeEx.GetIndirect(arr, (IntPtr)(offset), 1, getterPtr);
             Assert.AreEqual(42, snd);
 
             var count = 10_000_000;
@@ -367,7 +369,7 @@ namespace Spreads.Native.Tests
                     {
                         unchecked
                         {
-                            sum += (int)UnsafeEx.GetIndirect(arr, (byte*)(offset + 4), getterPtr);
+                            sum += (int)UnsafeEx.GetIndirect(arr, (IntPtr)(offset), 1, getterPtr);
                         }
                     }
                 }
@@ -378,7 +380,7 @@ namespace Spreads.Native.Tests
                     {
                         unchecked
                         {
-                            sum += (int)getDelegate.Invoke(arr, (IntPtr)(byte*)(offset + 4));
+                            sum += (int)getDelegate.Invoke(arr, (IntPtr)(IntPtr)(offset + 4));
                         }
                     }
                 }
@@ -395,7 +397,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        UnsafeEx.SetIndirect(arr, (byte*)(offset + 4), 42, setterPtr);
+                        UnsafeEx.SetIndirect(arr, (IntPtr)(offset), 1, 42, setterPtr);
                     }
                 }
 
@@ -403,7 +405,7 @@ namespace Spreads.Native.Tests
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        setDel.Call(arr, (IntPtr)(byte*)(offset + 4), 42);
+                        setDel.Call(arr, (IntPtr)(IntPtr)(offset + 4), 42);
                     }
                 }
             }
