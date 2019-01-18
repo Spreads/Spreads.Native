@@ -1,4 +1,8 @@
-﻿using Spreads.Native.Tests;
+﻿using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Running;
+using Spreads.Native.Tests;
 using System;
 using System.Diagnostics;
 
@@ -23,13 +27,16 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            var offset = UnsafeExTests.Helper<int>.ElemOffset;
-            var size = UnsafeExTests.Helper<int>.ElemSize;
-            Console.WriteLine("Offset: " + offset);
-            Console.WriteLine("Size: " + size);
+            var summary = BenchmarkRunner.Run<Benchmark>();
 
-            var test = new VecTests();
-            test.ForEachBench();
+            //var test = new VecTests();
+            //test.ForEachBench();
+
+
+            //var offset = UnsafeExTests.Helper<int>.ElemOffset;
+            //var size = UnsafeExTests.Helper<int>.ElemSize;
+            //Console.WriteLine("Offset: " + offset);
+            //Console.WriteLine("Size: " + size);
 
             //var test = new CompressionTests();
 

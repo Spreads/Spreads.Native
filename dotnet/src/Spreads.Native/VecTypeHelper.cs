@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -72,6 +71,45 @@ namespace Spreads.Native
         {
             return ref Info[runtimeTypeId];
         }
+
+        /// <summary>
+        /// A helper class to store types info
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        internal class AppendOnlyStorage<T>
+        {
+            internal T[] _storage = new T[4];
+            private int _counter;
+
+            public int Add(T value)
+            {
+                lock (this)
+                {
+                    // could use ++ if locked
+                    var cnt = Interlocked.Increment(ref _counter);
+                    var idx = cnt - 1;
+                    if (_counter > _storage.Length)
+                    {
+                        var newStorage = new T[_storage.Length * 2];
+                        _storage.CopyTo(newStorage, 0);
+                        _storage = newStorage; // ref assignment is atomic
+                    }
+
+                    _storage[idx] = value;
+                    return cnt;
+                }
+            }
+
+            public ref T this[int index]
+            {
+                // no locks here because _storage could be changed atomically
+                // and to use an index from code it must be added first and
+                // Add must return first (otherwise usage is broken).
+                // No range check because with correct usage it's always in range
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ref _storage[index - 1];
+            }
+        }
     }
 
     internal static class VecTypeHelper<T>
@@ -79,44 +117,5 @@ namespace Spreads.Native
         public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
         public static int ElemOffset = VecTypeHelper.GetInfo(typeof(T)).ElemOffset;
         public static int RuntimeTypeId = VecTypeHelper.GetInfo(typeof(T)).RuntimeTypeId;
-    }
-
-    /// <summary>
-    /// A helper class to store types info
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class AppendOnlyStorage<T>
-    {
-        internal T[] _storage = new T[4];
-        private int _counter;
-
-        public int Add(T value)
-        {
-            lock (this)
-            {
-                // could use ++ if locked
-                var cnt = Interlocked.Increment(ref _counter);
-                var idx = cnt - 1;
-                if (_counter > _storage.Length)
-                {
-                    var newStorage = new T[_storage.Length * 2];
-                    _storage.CopyTo(newStorage, 0);
-                    _storage = newStorage; // ref assignment is atomic
-                }
-
-                _storage[idx] = value;
-                return cnt;
-            }
-        }
-
-        public ref T this[int index]
-        {
-            // no locks here because _storage could be changed atomically
-            // and to use an index from code it must be added first and
-            // Add must return first (otherwise usage is broken).
-            // No range check because with correct usage it's always in range
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref _storage[index - 1];
-        }
     }
 }

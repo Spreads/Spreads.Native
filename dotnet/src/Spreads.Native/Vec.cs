@@ -235,12 +235,18 @@ namespace Spreads.Native
             }
         }
 
+        /// <summary>
+        /// Fetches the element at the specified index without bound checks.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal T GetUnchecked(int index)
+        public T GetUnchecked(int index)
         {
             return UnsafeEx.Get<T>(_array, _offset + index * Unsafe.SizeOf<T>());
         }
 
+        /// <summary>
+        /// Returns a reference to a value at index.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetRef(int index)
         {
@@ -251,6 +257,9 @@ namespace Spreads.Native
             return ref GetRefUnchecked(index);
         }
 
+        /// <summary>
+        /// Returns a reference to a value at index without bound checks.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ref T GetRefUnchecked(int index)
         {
@@ -523,11 +532,30 @@ namespace Spreads.Native
             var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
             if (vtidx != _runtimeTypeId)
             {
-                VecThrowHelper.ThrowWrongAsType();
+                VecThrowHelper.ThrowWrongCastType<T>();
             }
 
             return new Vec<T>(_array as T[], _offset, _length, _runtimeTypeId);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Get<T>(int index)
+        {
+            var vtidx = VecTypeHelper<T>.RuntimeTypeId;
+            if (vtidx != _runtimeTypeId)
+            {
+                VecThrowHelper.ThrowWrongCastType<T>();
+            }
+
+            return GetUnchecked<T>(index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T GetUnchecked<T>(int index)
+        {
+            return UnsafeEx.Get<T>(_array, _offset + index * Unsafe.SizeOf<T>());
+        }
+
 
         /// <summary>
         /// Get the total number of elements in Vec.
@@ -569,8 +597,11 @@ namespace Spreads.Native
             }
         }
 
+        /// <summary>
+        /// Fetches the element at the specified index without bound checks.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal object GetUnchecked(int index)
+        public object GetUnchecked(int index)
         {
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
             return UnsafeEx.GetIndirect(_array, _offset + index * vti.ElemSize, vti.UnsafeGetterPtr);
@@ -690,9 +721,9 @@ namespace Spreads.Native
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowWrongAsType()
+        internal static void ThrowWrongCastType<T>()
         {
-            throw new InvalidOperationException("Wrong type in Vec to Vec<T> conversion");
+            throw new InvalidOperationException("Wrong type in object to T conversion: T is " + typeof(T).Name);
         }
     }
 }
