@@ -360,46 +360,14 @@
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  .method public hidebysig static !!T DangerousGetAtIndex<T>(object& obj, 
-    native int offset, int32 index, int32 runtimeTypeId) cil managed aggressiveinlining
-  {
-    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
-    .maxstack 3
-    .locals([0] uint8 & addr)
-    ldarg.0     // load the object byref reference
-	ldind.ref	// load actual object reference
-    stloc.0     // convert the object pointer to a byref
-    ldloc.0     // load the object pointer as a byref
-	ldarg.3
-	ldc.i4.0
-    cgt
-	mul
-    ldarg.1     // load the offset
-    add         // add the offset
-    ldarg.2     // load the index
-    sizeof !!T  // load size of T
-    conv.i
-    mul         // multiply the index and size of T
-    add         // add the result
-    sizeof native int
-    add
-    unaligned. 0x1
-    ldobj !!T   // load a T value from the computed address
-    ret
-  }
-
+  // see on ldarg.0 + ldind.i   https://github.com/dotnet/coreclr/pull/20386
   .method public hidebysig static !!T Get<T>(object& obj, 
-    native int byteOffset, int32 index, int32 runtimeTypeId) cil managed aggressiveinlining
+    native int byteOffset, int32 index) cil managed aggressiveinlining
   {
     .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
     .maxstack 3
-    // .locals([0] uint8 & addr)
     ldarg.0     // load the object byref reference
     ldind.i	    // load actual object reference as native int
-	// stloc.0     // convert the object pointer to a byref
-    // ldloc.0     // load the object pointer as a byref
-	sizeof native int // temp add FP adj #3
-    add
 
     ldarg.1     // load the offset
     add         // add the offset
@@ -464,7 +432,9 @@
     ldarg.0
     ldc.i4 0
     ldelema !!T
+	conv.i
     ldarg.0
+	conv.i
     sub
     ret
   }

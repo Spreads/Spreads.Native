@@ -223,13 +223,7 @@ namespace Spreads.Native
         public T GetUnchecked(int index)
         {
             object p = _pinnable;
-            return UnsafeEx.Get<T>(ref p, _byteOffset, index, _runtimeTypeId);
-//#if !NETCOREAPP3_0
-//            return GetRefUnchecked(index);
-//#else
-//            object p = _pinnable;
-//            return UnsafeEx.Get<T>(ref p, _byteOffset, index, _runtimeTypeId);
-//#endif
+            return UnsafeEx.Get<T>(ref p, _byteOffset, index);
         }
 
         /// <summary>
@@ -257,7 +251,7 @@ namespace Spreads.Native
             }
             else
             {
-                return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
+                return ref Unsafe.Add<T>(ref Unsafe.SubtractByteOffset<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), (IntPtr)IntPtr.Size), index);
             }
         }
 

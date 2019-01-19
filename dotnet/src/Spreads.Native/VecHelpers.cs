@@ -306,7 +306,7 @@ namespace Spreads.Native
 
             public static readonly T[] EmptyArray = new T[0];
 
-            public static readonly IntPtr ArrayAdjustment = MeasureArrayAdjustment();
+            public static readonly IntPtr ArrayAdjustment = MeasureArrayAdjustment() + IntPtr.Size;
 
             // Array header sizes are a runtime implementation detail and aren't the same across all runtimes. (The CLR made a tweak after 4.5, and Mono has an extra Bounds pointer.)
             private static IntPtr MeasureArrayAdjustment()

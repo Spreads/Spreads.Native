@@ -174,16 +174,14 @@ namespace Spreads.Native
         /// </param>
         /// <param name="index">Element index</param>
         //[MethodImpl(MethodImplOptions.ForwardRef)]
-        //public static extern T DangerousGetAtIndex<T>(ref object obj, 
+        //public static extern T DangerousGetAtIndex<T>(ref object obj,
         //    IntPtr offset, int index, int runtimeTypeId);
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern T Get<T>(ref object obj,
-            IntPtr offset, int index, int runtimeTypeId);
+        public static extern T Get<T>(ref object obj, IntPtr offset, int index);
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern ref T GetRef<T>(ref object obj,
-            IntPtr offset, int index, int runtimeTypeId);
+        internal static extern ref T GetRefX<T>(in Pinnable<T> obj, IntPtr offset, int index);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetAsObject<T>(object obj, IntPtr offset, int index)
