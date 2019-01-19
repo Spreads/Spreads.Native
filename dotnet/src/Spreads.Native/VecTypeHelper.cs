@@ -25,6 +25,8 @@ namespace Spreads.Native
 
     internal static class VecTypeHelper
     {
+        public static readonly object NullSentinel = new int[1];
+
         // this is basically a manual vtable for a particular use case
         // cannot make untyped delegates to perform at least on par with indirect calls
         private static readonly AppendOnlyStorage<RuntimeVecInfo> Info = new AppendOnlyStorage<RuntimeVecInfo>();
@@ -119,6 +121,7 @@ namespace Spreads.Native
 
     internal static class VecTypeHelper<T>
     {
+        
         public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
         public static readonly int FastPathAdjustment = UnsafeEx.FastPathAdjustment<T>();
     }

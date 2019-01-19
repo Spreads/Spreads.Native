@@ -173,30 +173,39 @@ namespace Spreads.Native
         /// It is not a pointer to an offset value but the offset itself. Originally it was <see cref="IntPtr"/> but that required casting.
         /// </param>
         /// <param name="index">Element index</param>
+        //[MethodImpl(MethodImplOptions.ForwardRef)]
+        //public static extern T DangerousGetAtIndex<T>(ref object obj, 
+        //    IntPtr offset, int index, int runtimeTypeId);
+
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern T DangerousGetAtIndex<T>(object obj, IntPtr offset, int index);
+        public static extern T Get<T>(ref object obj,
+            IntPtr offset, int index, int runtimeTypeId);
+
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern ref T GetRef<T>(ref object obj,
+            IntPtr offset, int index, int runtimeTypeId);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetAsObject<T>(object obj, IntPtr offset, int index)
         {
             // TODO other primitive types
-            if (typeof(T) == typeof(bool)
-                || typeof(T) == typeof(byte)
-                || typeof(T) == typeof(sbyte)
-                || typeof(T) == typeof(short)
-                || typeof(T) == typeof(ushort)
-                || typeof(T) == typeof(int)
-                || typeof(T) == typeof(uint)
-                || typeof(T) == typeof(long)
-                || typeof(T) == typeof(ulong)
-                || typeof(T) == typeof(char)
-                || typeof(T) == typeof(float)
-                || typeof(T) == typeof(double)
-                || typeof(T) == typeof(decimal)
-            )
-            {
-                return DangerousGetAtIndex<int>(obj, offset, index);
-            }
+            //if (typeof(T) == typeof(bool)
+            //    || typeof(T) == typeof(byte)
+            //    || typeof(T) == typeof(sbyte)
+            //    || typeof(T) == typeof(short)
+            //    || typeof(T) == typeof(ushort)
+            //    || typeof(T) == typeof(int)
+            //    || typeof(T) == typeof(uint)
+            //    || typeof(T) == typeof(long)
+            //    || typeof(T) == typeof(ulong)
+            //    || typeof(T) == typeof(char)
+            //    || typeof(T) == typeof(float)
+            //    || typeof(T) == typeof(double)
+            //    || typeof(T) == typeof(decimal)
+            //)
+            //{
+            //    return DangerousGetAtIndex<int>(obj, offset, index);
+            //}
             var t = GetRef<T>(obj, offset, index);
             return (object)t;
         }

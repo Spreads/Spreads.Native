@@ -20,10 +20,11 @@ namespace Spreads.Native
     /// <remarks>Not thread safe and not safe at all</remarks>
     public readonly unsafe struct Vec<T> : IEnumerable<T>
     {
+        private static readonly Pinnable<T> NullSentinel = Unsafe.As<Pinnable<T>>(VecTypeHelper.NullSentinel);
+
         internal readonly Pinnable<T> _pinnable;
         internal readonly IntPtr _byteOffset;
         internal readonly int _length;
-
         internal readonly int _runtimeTypeId;
 
         /// <summary>
@@ -131,9 +132,10 @@ namespace Spreads.Native
             { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
 
             _length = length;
-            _pinnable = null;
+            _pinnable = NullSentinel;
             _byteOffset = new IntPtr(pointer);
-            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            // negative
+            _runtimeTypeId = -VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
         }
 
         // Constructor for internal use only.
@@ -141,6 +143,10 @@ namespace Spreads.Native
         internal Vec(Pinnable<T> pinnable, IntPtr byteOffset, int length, int runtimeTypeId)
         {
             Debug.Assert(length >= 0);
+            Debug.Assert(pinnable != null);
+            Debug.Assert(runtimeTypeId == 0
+                         || runtimeTypeId < 0 && pinnable == NullSentinel
+                         || runtimeTypeId > 0 && pinnable != NullSentinel);
 
             _length = length;
             _pinnable = pinnable;
@@ -216,25 +222,14 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetUnchecked(int index)
         {
-            // TODO known types
-            if (typeof(T) == typeof(bool)
-                || typeof(T) == typeof(byte) 
-                || typeof(T) == typeof(sbyte) 
-                || typeof(T) == typeof(short) 
-                || typeof(T) == typeof(ushort) 
-                || typeof(T) == typeof(int) 
-                || typeof(T) == typeof(uint) 
-                || typeof(T) == typeof(long) 
-                || typeof(T) == typeof(ulong)
-                || typeof(T) == typeof(char)
-                || typeof(T) == typeof(float)
-                || typeof(T) == typeof(double)
-                || typeof(T) == typeof(decimal)
-            )
-            {
-                return UnsafeEx.DangerousGetAtIndex<T>(_pinnable, _byteOffset, index);
-            }
-            return GetRefUnchecked(index);
+            object p = _pinnable;
+            return UnsafeEx.Get<T>(ref p, _byteOffset, index, _runtimeTypeId);
+//#if !NETCOREAPP3_0
+//            return GetRefUnchecked(index);
+//#else
+//            object p = _pinnable;
+//            return UnsafeEx.Get<T>(ref p, _byteOffset, index, _runtimeTypeId);
+//#endif
         }
 
         /// <summary>

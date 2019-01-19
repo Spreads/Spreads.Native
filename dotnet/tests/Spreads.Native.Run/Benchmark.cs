@@ -121,6 +121,24 @@ namespace Spreads.Native.Run
             return sum;
         }
 
+        //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "T[i] NO BC")]
+        //public int ArrayIndexerNoBC_Get()
+        //{
+        //    int sum = 0;
+        //    for (int _ = 0; _ < Loops; _++)
+        //    {
+        //        for (int j = 0; j < _arr.Length; j++)
+        //        {
+        //            if (j >= 2)
+        //            {
+        //                sum += _arr[j];
+        //            }
+        //        }
+        //    }
+
+        //    return sum;
+        //}
+
         [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Span<T>[i]")]
         public int SpanIndexer_Get()
         {
@@ -178,15 +196,15 @@ namespace Spreads.Native.Run
             Add(MarkdownExporter.GitHub);
             Add(HtmlExporter.Default);
 
-            Add(Job.ShortRun
+            Add(Job.Default
                 .With(CsProjClassicNetToolchain.Net461)
                 .WithId(".NET 4.6.1"));
 
-            Add(Job.ShortRun
+            Add(Job.Default
                 .With(CsProjCoreToolchain.NetCoreApp21)
                 .WithId(".NET Core 2.1 LTS"));
 
-            Add(Job.ShortRun
+            Add(Job.Default
                 .With(CsProjCoreToolchain.NetCoreApp30)
                 .WithId(".NET Core 3.0.1-pv"));
         }

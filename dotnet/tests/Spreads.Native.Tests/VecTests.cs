@@ -4,6 +4,7 @@
 
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace Spreads.Native.Tests
 {
@@ -43,6 +44,7 @@ namespace Spreads.Native.Tests
             var vecT = new Vec<int>(arr);
             var vec = new Vec(arr);
             var mem = (Memory<int>)arr;
+            var list = new List<int>(arr);
 
             for (int i = 0; i < count; i++)
             {
@@ -59,14 +61,38 @@ namespace Spreads.Native.Tests
 
             for (int r = 0; r < rounds; r++)
             {
-                //using (Benchmark.Run("Array", count * mult))
+                using (Benchmark.Run("Array", count * mult))
+                {
+                    var z = count - 1;
+                    for (int m = 0; m < mult; m++)
+                    {
+                        for (int j = 1; j < z; j++)
+                        {
+                            sum += arr[j - 1];
+                        }
+                    }
+                }
+
+                //using (Benchmark.Run("ArrayNoBC", count * mult))
+                //{
+                //    var z = count - 1;
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        for (int j = 1; j < arr.Length; j++)
+                //        {
+                //            sum += arr[j] + 1;
+                //        }
+                //    }
+                //}
+
+                //using (Benchmark.Run("List", count * mult))
                 //{
                 //    var z = count - 1;
                 //    for (int m = 0; m < mult; m++)
                 //    {
                 //        for (int j = 1; j < z; j++)
                 //        {
-                //            sum += arr[j - 1];
+                //            sum += list[j - 1];
                 //        }
                 //    }
                 //}
@@ -83,18 +109,18 @@ namespace Spreads.Native.Tests
                     }
                 }
 
-                //using (Benchmark.Run("Span", count * mult))
-                //{
-                //    for (int m = 0; m < mult; m++)
-                //    {
-                //        var z = count - 1;
-                //        var sp = vecT.Span;
-                //        for (int j = 1; j < z; j++)
-                //        {
-                //            sum += sp[j - 1];
-                //        }
-                //    }
-                //}
+                using (Benchmark.Run("Span", count * mult))
+                {
+                    for (int m = 0; m < mult; m++)
+                    {
+                        var z = count - 1;
+                        var sp = vecT.Span;
+                        for (int j = 1; j < z; j++)
+                        {
+                            sum += sp[j - 1];
+                        }
+                    }
+                }
 
                 //using (Benchmark.Run("Vec.Get<T>", count * mult))
                 //{
