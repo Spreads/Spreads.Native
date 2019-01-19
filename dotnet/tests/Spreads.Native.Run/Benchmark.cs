@@ -178,15 +178,15 @@ namespace Spreads.Native.Run
             Add(MarkdownExporter.GitHub);
             Add(HtmlExporter.Default);
 
-            Add(Job.VeryLongRun
+            Add(Job.ShortRun
                 .With(CsProjClassicNetToolchain.Net461)
                 .WithId(".NET 4.6.1"));
 
-            Add(Job.VeryLongRun
+            Add(Job.ShortRun
                 .With(CsProjCoreToolchain.NetCoreApp21)
                 .WithId(".NET Core 2.1 LTS"));
 
-            Add(Job.VeryLongRun
+            Add(Job.ShortRun
                 .With(CsProjCoreToolchain.NetCoreApp30)
                 .WithId(".NET Core 3.0.1-pv"));
         }

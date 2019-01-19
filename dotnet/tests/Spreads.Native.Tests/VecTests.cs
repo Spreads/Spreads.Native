@@ -38,9 +38,7 @@ namespace Spreads.Native.Tests
         [Test, Explicit("long running")]
         public void ForEachBench()
         {
-            
-
-            var count = 100_000_000;
+            var count = 50_000_000;
             var arr = new int[count];
             var vecT = new Vec<int>(arr);
             var vec = new Vec(arr);
@@ -61,17 +59,17 @@ namespace Spreads.Native.Tests
 
             for (int r = 0; r < rounds; r++)
             {
-                using (Benchmark.Run("Array", count * mult))
-                {
-                    var z = count - 1;
-                    for (int m = 0; m < mult; m++)
-                    {
-                        for (int j = 1; j < z; j++)
-                        {
-                            sum += arr[j - 1];
-                        }
-                    }
-                }
+                //using (Benchmark.Run("Array", count * mult))
+                //{
+                //    var z = count - 1;
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        for (int j = 1; j < z; j++)
+                //        {
+                //            sum += arr[j - 1];
+                //        }
+                //    }
+                //}
 
                 using (Benchmark.Run("VecT", count * mult))
                 {

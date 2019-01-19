@@ -164,7 +164,7 @@ namespace Spreads.Native
         public static extern long DiffLongConstrained<T>(ref T left, ref T right);
 
         /// <summary>
-        /// Takes a (possibly null) object reference, plus an offset in bytes,
+        /// Takes a (possibly null) object reference, plus an offset in bytes and the size of native int (see https://github.com/Spreads/Spreads.Native/issues/3),
         /// adds them, and dereferences the target (could be unaligned). It yields a value of type T.
         /// Should only be used for blittable types.
         /// </summary>
@@ -179,6 +179,24 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetAsObject<T>(object obj, IntPtr offset, int index)
         {
+            // TODO other primitive types
+            if (typeof(T) == typeof(bool)
+                || typeof(T) == typeof(byte)
+                || typeof(T) == typeof(sbyte)
+                || typeof(T) == typeof(short)
+                || typeof(T) == typeof(ushort)
+                || typeof(T) == typeof(int)
+                || typeof(T) == typeof(uint)
+                || typeof(T) == typeof(long)
+                || typeof(T) == typeof(ulong)
+                || typeof(T) == typeof(char)
+                || typeof(T) == typeof(float)
+                || typeof(T) == typeof(double)
+                || typeof(T) == typeof(decimal)
+            )
+            {
+                return DangerousGetAtIndex<int>(obj, offset, index);
+            }
             var t = GetRef<T>(obj, offset, index);
             return (object)t;
         }
@@ -280,7 +298,6 @@ namespace Spreads.Native
             h.Free();
             return fpa;
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsReferenceOrContainsReferences<T>()

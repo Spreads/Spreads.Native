@@ -217,7 +217,20 @@ namespace Spreads.Native
         public T GetUnchecked(int index)
         {
             // TODO known types
-            if (typeof(T) == typeof(int))
+            if (typeof(T) == typeof(bool)
+                || typeof(T) == typeof(byte) 
+                || typeof(T) == typeof(sbyte) 
+                || typeof(T) == typeof(short) 
+                || typeof(T) == typeof(ushort) 
+                || typeof(T) == typeof(int) 
+                || typeof(T) == typeof(uint) 
+                || typeof(T) == typeof(long) 
+                || typeof(T) == typeof(ulong)
+                || typeof(T) == typeof(char)
+                || typeof(T) == typeof(float)
+                || typeof(T) == typeof(double)
+                || typeof(T) == typeof(decimal)
+            )
             {
                 return UnsafeEx.DangerousGetAtIndex<T>(_pinnable, _byteOffset, index);
             }

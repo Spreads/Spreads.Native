@@ -375,8 +375,8 @@
     conv.i
     mul         // multiply the index and size of T
     add         // add the result
-	sizeof native int
-	add
+    sizeof native int
+    add
     unaligned. 0x1
     ldobj !!T   // load a T value from the computed address
     ret
