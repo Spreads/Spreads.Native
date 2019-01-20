@@ -5,6 +5,7 @@ using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.CsProj;
 using System;
+// ReSharper disable NotAccessedField.Local
 
 namespace Spreads.Native.Run
 {
@@ -41,11 +42,11 @@ namespace Spreads.Native.Run
                 {
                     if (j >= 42)
                     {
-                        sum += _vecT.GetUnchecked(j - 1);
+                        sum += _vecT.DangerousGet(j - 1);
                     }
                     else
                     {
-                        sum += _vecT.GetUnchecked(j);
+                        sum += _vecT.DangerousGet(j);
                     }
                 }
             }
@@ -64,11 +65,11 @@ namespace Spreads.Native.Run
         //        {
         //            if (j >= 42)
         //            {
-        //                sum += _vec.GetUnchecked<int>(j - 1);
+        //                sum += _vec.DangerousGet<int>(j - 1);
         //            }
         //            else
         //            {
-        //                sum += _vec.GetUnchecked<int>(j);
+        //                sum += _vec.DangerousGet<int>(j);
         //            }
         //        }
         //    }
@@ -87,11 +88,11 @@ namespace Spreads.Native.Run
         //        {
         //            if (j >= 42)
         //            {
-        //                sum += (int)_vec.GetUnchecked(j - 1);
+        //                sum += (int)_vec.DangerousGet(j - 1);
         //            }
         //            else
         //            {
-        //                sum += (int)_vec.GetUnchecked(j);
+        //                sum += (int)_vec.DangerousGet(j);
         //            }
         //        }
         //    }
@@ -139,28 +140,28 @@ namespace Spreads.Native.Run
         //    return sum;
         //}
 
-        [Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Span<T>[i]")]
-        public int SpanIndexer_Get()
-        {
-            int sum = 0;
-            Span<int> local = _arr; // implicit cast to Span, we can't have Span as a field!
-            for (int _ = 0; _ < Loops; _++)
-            {
-                for (int j = 1; j < _count; j++)
-                {
-                    if (j >= 42)
-                    {
-                        sum += local[j - 1];
-                    }
-                    else
-                    {
-                        sum += local[j];
-                    }
-                }
-            }
+        //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Span<T>[i]")]
+        //public int SpanIndexer_Get()
+        //{
+        //    int sum = 0;
+        //    Span<int> local = _arr; // implicit cast to Span, we can't have Span as a field!
+        //    for (int _ = 0; _ < Loops; _++)
+        //    {
+        //        for (int j = 1; j < _count; j++)
+        //        {
+        //            if (j >= 42)
+        //            {
+        //                sum += local[j - 1];
+        //            }
+        //            else
+        //            {
+        //                sum += local[j];
+        //            }
+        //        }
+        //    }
 
-            return sum;
-        }
+        //    return sum;
+        //}
 
         //[Benchmark(OperationsPerInvoke = Loops * (Count - 2), Description = "Memory<T>.Span[i]")]
         //public int MemoryIndexer_Get()

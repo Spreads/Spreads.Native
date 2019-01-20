@@ -176,7 +176,7 @@ namespace Spreads.Native
         // ReSharper disable once UnusedTypeParameter
         public static extern IntPtr GetterMethodPointer<T>();
 
-        public static IntPtr GetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
+        public static IntPtr GetterMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
         {
             MethodInfo method = typeof(UnsafeEx).GetMethod("GetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
@@ -224,7 +224,7 @@ namespace Spreads.Native
         /// Get a native method pointer to <see cref="SetAsObject{T}"/> method for type <paramref name="ty"/>.
         /// The pointer should be used with <see cref="SetIndirect"/> method.
         /// </summary>
-        internal static IntPtr SetMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
+        internal static IntPtr SetterMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
         {
             var method = typeof(UnsafeEx).GetMethod("SetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
@@ -234,7 +234,7 @@ namespace Spreads.Native
 
         /// <summary>
         /// Set a value <paramref name="val"/> without generic parameters using <see cref="OpCodes.Calli"/> instruction for <see cref="Set{T}"/>
-        /// method pointer obtained via <see cref="SetterMethodPointer{T}"/> or <see cref="SetMethodPointerForType"/> methods.
+        /// method pointer obtained via <see cref="SetterMethodPointer{T}"/> or <see cref="SetterMethodPointerForType"/> methods.
         /// </summary>
         /// <remarks>Value <paramref name="val"/> is cast to underlying type as `(T)(dynamic)val`.</remarks>
         [MethodImpl(MethodImplOptions.ForwardRef)]

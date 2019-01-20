@@ -57,8 +57,8 @@ namespace Spreads.Native
                     var idxNew = Info.Add(new RuntimeVecInfo()
                     {
                         Type = tNew,
-                        UnsafeGetterPtr = UnsafeEx.GetMethodPointerForType(tNew),
-                        UnsafeSetterPtr = UnsafeEx.SetMethodPointerForType(tNew),
+                        UnsafeGetterPtr = UnsafeEx.GetterMethodPointerForType(tNew),
+                        UnsafeSetterPtr = UnsafeEx.SetterMethodPointerForType(tNew),
                         ElemSize = checked((short)UnsafeEx.ElemSizeOfType(tNew)),
                         ArrayOffsetAdjustment = checked((byte)UnsafeEx.ArrayOffsetAdjustmentOfType(tNew)),
                         IsReferenceOrContainsReferences = UnsafeEx.IsReferenceOrContainsReferencesOfType(tNew)

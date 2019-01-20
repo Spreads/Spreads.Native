@@ -34,6 +34,10 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Exception CreateArrayTypeMismatchException() { return new ArrayTypeMismatchException(); }
 
+        internal static void ThrowVecTypeMismatchException() { throw CreateVecTypeMismatchException(); }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static Exception CreateVecTypeMismatchException() { return new ArrayTypeMismatchException("Vec types mismatch."); }
+
         internal static void ThrowArgumentException_InvalidTypeWithPointersNotSupported(Type type) { throw CreateArgumentException_InvalidTypeWithPointersNotSupported(type); }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -77,6 +81,11 @@ namespace Spreads.Native
         internal static void ThrowInvalidOperationException_UnexpectedSegmentType() { throw CreateInvalidOperationException_UnexpectedSegmentType(); }
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Exception CreateInvalidOperationException_UnexpectedSegmentType() { return new InvalidOperationException("SR.UnexpectedSegmentType"); }
+
+        internal static void ThrowInvalidOperationException_ArrayNotVector() { throw CreateInvalidOperationException_ArrayNotVector(); }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static Exception CreateInvalidOperationException_ArrayNotVector() { return new InvalidOperationException("Array is not a Vector (one-dimentional array with zero low bound)"); }
+
 
         internal static void ThrowInvalidOperationException_EndPositionNotReached() { throw CreateInvalidOperationException_EndPositionNotReached(); }
         [MethodImpl(MethodImplOptions.NoInlining)]

@@ -5,6 +5,8 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+// ReSharper disable UnusedVariable
 
 namespace Spreads.Native.Tests
 {
@@ -12,6 +14,15 @@ namespace Spreads.Native.Tests
     [TestFixture]
     public class VecTests
     {
+        [Test]
+        public void SizeOfVec()
+        {
+            Assert.AreEqual(24, Unsafe.SizeOf<Vec<int>>());
+            Assert.AreEqual(24, Unsafe.SizeOf<Vec>());
+            Console.WriteLine(Unsafe.SizeOf<RuntimeVecInfo>());
+            // Assert.AreEqual(24, Unsafe.SizeOf<RuntimeVecInfo>());
+        }
+
         [Test]
         public void CouldUseVec()
         {
@@ -34,6 +45,28 @@ namespace Spreads.Native.Tests
             Assert.AreEqual(123, vec[2]);
 
             Assert.Throws<IndexOutOfRangeException>(() => { vecT[3] = 42; });
+        }
+
+        [Test]
+        public void CouldUseVecSlice()
+        {
+            var arr = new[] { 1, 2, 3 };
+            var vecT = new Vec<int>(arr).Slice(1);
+            var vec = new Vec(arr).Slice(1);
+
+            Assert.AreEqual(2, vecT.Length);
+            Assert.AreEqual(2, vec.Length);
+
+            Assert.AreEqual(2, vecT[0]);
+            Assert.AreEqual(3, vecT[1]);
+
+            Assert.AreEqual(2, vec[0]);
+            Assert.AreEqual(3, vec[1]);
+
+            Assert.IsTrue(vec.As<int>().ReferenceEquals(vecT));
+
+
+            Assert.IsTrue(vecT.Span.SequenceEqual(vec.AsSpan<int>()));
         }
 
         [Test, Explicit("long running")]
@@ -104,7 +137,7 @@ namespace Spreads.Native.Tests
                         var z = count - 1;
                         for (int j = 1; j < z; j++)
                         {
-                            sum += vecT.GetUnchecked(j - 1);
+                            sum += vecT.DangerousGet(j - 1);
                         }
                     }
                 }
@@ -139,7 +172,7 @@ namespace Spreads.Native.Tests
                 //    {
                 //        for (int j = 0; j < count; j++)
                 //        {
-                //            sum += (int)vec.GetUnchecked(j);
+                //            sum += (int)vec.DangerousGet(j);
                 //        }
                 //    }
                 //}
