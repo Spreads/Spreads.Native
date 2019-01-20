@@ -11,8 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Spreads.Native
 {
-    // TODO replace Span name
-    // Vec<T> and Vec implementations must be identical.
+    // TODO (review) Vec<T> and Vec implementations must be identical.
 
     /// <summary>
     /// Typed native or managed vector.
@@ -222,8 +221,14 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetUnchecked(int index)
         {
-            object p = _pinnable;
-            return UnsafeEx.Get<T>(ref p, _byteOffset, index);
+            if (_pinnable == null)
+            {
+                return Unsafe.Add<T>(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
+            }
+            else
+            {
+                return Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
+            }
         }
 
         /// <summary>
@@ -251,7 +256,7 @@ namespace Spreads.Native
             }
             else
             {
-                return ref Unsafe.Add<T>(ref Unsafe.SubtractByteOffset<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), (IntPtr)IntPtr.Size), index);
+                return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
             }
         }
 

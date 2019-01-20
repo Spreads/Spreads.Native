@@ -115,14 +115,10 @@ namespace Spreads.Native
                 get => ref _storage[index - 1];
             }
         }
-
-        public static readonly int FastPathAdjustment = UnsafeEx.FastPathAdjustment<int>();
     }
 
     internal static class VecTypeHelper<T>
     {
-        
         public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
-        public static readonly int FastPathAdjustment = UnsafeEx.FastPathAdjustment<T>();
     }
 }

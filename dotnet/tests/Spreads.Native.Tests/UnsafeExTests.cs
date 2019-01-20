@@ -19,33 +19,28 @@ namespace Spreads.Native.Tests
     {
         public static object NullObj = null;
 
-        public static readonly int ElemOffset = (int)UnsafeEx.ArrayOffsetAdjustment<int>();
+        
         public static readonly int ElemSize = Unsafe.SizeOf<int>();
+        
 
-        public static class Helper<T>
-        {
-            public static readonly int ElemOffset = (int)UnsafeEx.ArrayOffsetAdjustment<T>();
-            public static readonly int ElemSize = Unsafe.SizeOf<T>();
-        }
+        //[Test]
+        //public void UnsafeExWorks()
+        //{
+        //    var arr = new int[] { 1, 2, 3 };
+        //    object obj = arr;
+        //    var offset = (int)UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
 
-        [Test]
-        public void UnsafeExWorks()
-        {
-            var arr = new int[] { 1, 2, 3 };
-            object obj = arr;
-            var offset = (int)UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
+        //    //var offsetO = (int) UnsafeEx.ElemOffset(new int[1]);
+        //    //var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
+        //    //var fpa = offsetO - offsetA;
+        //    var snd = UnsafeEx.Get<int>(ref obj, (IntPtr)(offset), 1);
+        //    Assert.AreEqual(2, snd);
 
-            //var offsetO = (int) UnsafeEx.ElemOffset(new int[1]);
-            //var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
-            //var fpa = offsetO - offsetA;
-            var snd = UnsafeEx.Get<int>(ref obj, (IntPtr)(offset), 1);
-            Assert.AreEqual(2, snd);
+        //    UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
 
-            UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
-
-            snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1);
-            Assert.AreEqual(42, snd);
-        }
+        //    snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1);
+        //    Assert.AreEqual(42, snd);
+        //}
 
         //[Test]
         //public void UnsafeExWorksWithStrings()
@@ -65,28 +60,28 @@ namespace Spreads.Native.Tests
         //    Assert.AreEqual("42", snd);
         //}
 
-        [Test]
-        public void UnsafeExWorksViaPinnedPtr()
-        {
-            var arr = new int[] { 1, 2, 3 };
+        //[Test]
+        //public void UnsafeExWorksViaPinnedPtr()
+        //{
+        //    var arr = new int[] { 1, 2, 3 };
             
-            var handle = ((Memory<int>)arr).Pin();
-            var ptr = (IntPtr)handle.Pointer;
+        //    var handle = ((Memory<int>)arr).Pin();
+        //    var ptr = (IntPtr)handle.Pointer;
 
-            var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
-            Console.WriteLine(offset);
+        //    var offset = UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
+        //    Console.WriteLine(offset);
 
-            var snd = UnsafeEx.Get<int>(ref NullObj, (IntPtr)(ptr), 1);
-            Assert.AreEqual(2, snd);
+        //    var snd = UnsafeEx.Get<int>(ref NullObj, (IntPtr)(ptr), 1);
+        //    Assert.AreEqual(2, snd);
 
-            UnsafeEx.GetRef<int>(arr, (IntPtr)(offset - 8), 1) = 42;
+        //    UnsafeEx.GetRef<int>(arr, (IntPtr)(offset - 8), 1) = 42;
 
-            snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset - 8), 1);
-            Assert.AreEqual(42, snd);
+        //    snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset - 8), 1);
+        //    Assert.AreEqual(42, snd);
 
-            snd = UnsafeEx.Get<int>(ref NullObj, (IntPtr)(ptr), 1);
-            Assert.AreEqual(42, snd);
-        }
+        //    snd = UnsafeEx.Get<int>(ref NullObj, (IntPtr)(ptr), 1);
+        //    Assert.AreEqual(42, snd);
+        //}
 
         //[Test]
         //public void UnsafeExWorksWithNull()

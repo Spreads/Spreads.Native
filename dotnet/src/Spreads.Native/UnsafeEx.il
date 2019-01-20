@@ -360,28 +360,6 @@
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // see on ldarg.0 + ldind.i   https://github.com/dotnet/coreclr/pull/20386
-  .method public hidebysig static !!T Get<T>(object& obj, 
-    native int byteOffset, int32 index) cil managed aggressiveinlining
-  {
-    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
-    .maxstack 3
-    ldarg.0     // load the object byref reference
-    ldind.i	    // load actual object reference as native int
-
-    ldarg.1     // load the offset
-    add         // add the offset
-    ldarg.2     // load int32 index
-    sizeof !!T  // load size of T as unsigned int32
-    conv.i      // convert size to native int
-    mul         // multiply the index and size of T
-    add         // add the result
-	
-    unaligned. 0x1 // it's safer, perf is OK
-    ldobj !!T   // load a T value from the computed address
-    ret
-  }
-
   .method public hidebysig static native int GetterMethodPointer<T>() cil managed aggressiveinlining
   {
     .maxstack 1
@@ -422,20 +400,6 @@
     ldarg.3
     ldarg 4
     calli default void (object obj, native int offset, int32 index, object val)
-    ret
-  }
-
-  .method public hidebysig static native int ElemOffset<T>(!!T[] arr) cil managed
-  {
-    .maxstack 2
-    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
-    ldarg.0
-    ldc.i4 0
-    ldelema !!T
-	conv.i
-    ldarg.0
-	conv.i
-    sub
     ret
   }
 
