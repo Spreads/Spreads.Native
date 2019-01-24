@@ -12,8 +12,6 @@ using System.Runtime.InteropServices;
 
 namespace Spreads.Native
 {
-    // TODO (review) Vec<T> and Vec implementations must be identical.
-
     /// <summary>
     /// Typed native or managed vector.
     /// </summary>
@@ -146,7 +144,7 @@ namespace Spreads.Native
             _pinnable = null;
             _byteOffset = new IntPtr(pointer);
             // negative
-            _runtimeTypeId = -VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
         }
 
         // Constructor for internal use only.
@@ -194,6 +192,21 @@ namespace Spreads.Native
         }
 
         /// <summary>
+        /// Returns true if Vec is created via a pointer. Vec could still be manually pinned if it was create with an array of blittable types.
+        /// </summary>
+        public bool IsPinned
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _pinnable == null;
+        }
+
+        internal int RuntimeTypeId
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _runtimeTypeId;
+        }
+
+        /// <summary>
         /// Fetches the element at the specified index.
         /// </summary>
         /// <exception cref="IndexOutOfRangeException">
@@ -202,15 +215,8 @@ namespace Spreads.Native
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                if (unchecked((uint)index) >= unchecked((uint)_length))
-                {
-                    VecThrowHelper.ThrowIndexOutOfRangeException();
-                }
+            get => Get(index);
 
-                return DangerousGet(index);
-            }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
@@ -224,19 +230,25 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Fetches the element at the specified index without bound checks.
+        /// Returns the element at the specified index.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Get(int index)
+        {
+            if (unchecked((uint)index) >= unchecked((uint)_length))
+            {
+                VecThrowHelper.ThrowIndexOutOfRangeException();
+            }
+            return DangerousGetRef(index);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index without bound checks.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T DangerousGet(int index)
         {
-            if (_pinnable == null)
-            {
-                return Unsafe.Add<T>(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
-            }
-            else
-            {
-                return Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
-            }
+            return DangerousGetRef(index);
         }
 
         /// <summary>
@@ -260,11 +272,11 @@ namespace Spreads.Native
         {
             if (_pinnable == null)
             {
-                return ref Unsafe.Add<T>(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
+                return ref Unsafe.Add(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
             }
             else
             {
-                return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset), index);
+                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
             }
         }
 
@@ -410,6 +422,14 @@ namespace Spreads.Native
             return _length == other._length
                    && Unsafe.AreSame<T>(ref DangerousGetPinnableReference(), ref other.DangerousGetPinnableReference())
                    && _runtimeTypeId == other._runtimeTypeId;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="String"/> with the name of the type and the number of elements.
+        /// </summary>
+        public override string ToString()
+        {
+            return $"Spreads.Vec<{typeof(T).Name}>[{_length}]";
         }
 
         /// <summary>
@@ -678,6 +698,27 @@ namespace Spreads.Native
         }
 
         /// <summary>
+        /// Returns true if Vec is created via a pointer. Vec could still be manually pinned if it was create with an array of blittable types.
+        /// </summary>
+        public bool IsPinned
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _pinnable == null;
+        }
+
+        internal int RuntimeTypeId
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _runtimeTypeId;
+        }
+
+        internal Type Type
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => VecTypeHelper.GetInfo(_runtimeTypeId).Type;
+        }
+
+        /// <summary>
         /// Fetches the element at the specified index.
         /// </summary>
         /// <exception cref="IndexOutOfRangeException">
@@ -703,8 +744,7 @@ namespace Spreads.Native
                     VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
-                ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
-                UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
+                DangerousSet(index, value);
             }
         }
 
@@ -718,8 +758,15 @@ namespace Spreads.Native
             return UnsafeEx.GetIndirect(_pinnable, _byteOffset, index, vti.UnsafeGetterPtr);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DangerousSet(int index, object value)
+        {
+            ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
+            UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
+        }
+
         /// <summary>
-        /// Get a typed value at index.
+        /// Returns the element at the specified index.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get<T>(int index)
@@ -739,7 +786,7 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Get a typed value at index without type or bounds check.
+        /// Returns the element at the specified index without type or bounds check.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T DangerousGet<T>(int index)
@@ -824,6 +871,14 @@ namespace Spreads.Native
         }
 
         /// <summary>
+        /// Returns a <see cref="String"/> with the name of the type and the number of elements.
+        /// </summary>
+        public override string ToString()
+        {
+            return $"Spreads.Vec[{_length}] of {Type.Name}";
+        }
+
+        /// <summary>
         /// Returns an enumerator over the Slice's entire contents.
         /// </summary>
         public Enumerator GetEnumerator()
@@ -840,7 +895,7 @@ namespace Spreads.Native
         /// A struct-based enumerator, to make fast enumerations possible.
         /// This isn't designed for direct use, instead see GetEnumerator.
         /// </summary>
-        public struct Enumerator : IEnumerator
+        public struct Enumerator : IEnumerator<object>
         {
             private Vec _vec;    // The slice being enumerated.
             private int _position; // The current position.

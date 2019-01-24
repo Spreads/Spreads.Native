@@ -4,6 +4,7 @@
 
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 // ReSharper disable UnusedVariable
@@ -17,9 +18,10 @@ namespace Spreads.Native.Tests
         [Test]
         public void SizeOfVec()
         {
-            Assert.AreEqual(24, Unsafe.SizeOf<Vec<int>>());
-            Assert.AreEqual(24, Unsafe.SizeOf<Vec>());
-            Console.WriteLine(Unsafe.SizeOf<RuntimeVecInfo>());
+            // >= for x86
+            Assert.IsTrue(24 >= Unsafe.SizeOf<Vec<int>>());
+            Assert.IsTrue(24 >= Unsafe.SizeOf<Vec>());
+            // Console.WriteLine(Unsafe.SizeOf<RuntimeVecInfo>());
             // Assert.AreEqual(24, Unsafe.SizeOf<RuntimeVecInfo>());
         }
 
@@ -31,8 +33,10 @@ namespace Spreads.Native.Tests
             var vec = new Vec(arr);
 
             Assert.AreEqual(2, vecT[1]);
+            Assert.AreEqual(2, vec[1]);
 
             vecT[1] = 42;
+
             vec[2] = (byte)123; // dynamic cast inside
 
             Assert.AreEqual(3, vecT.Length);
@@ -74,6 +78,7 @@ namespace Spreads.Native.Tests
         {
             var count = 50_000_000;
             var arr = new int[count];
+            IList arrO = arr;
             var vecT = new Vec<int>(arr);
             var vec = new Vec(arr);
             var mem = (Memory<int>)arr;
@@ -106,6 +111,18 @@ namespace Spreads.Native.Tests
                 //    }
                 //}
 
+                //using (Benchmark.Run("ArrayO", count * mult))
+                //{
+                //    var z = count - 1;
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        for (int j = 1; j < z; j++)
+                //        {
+                //            sum += (int)arrO[j - 1];
+                //        }
+                //    }
+                //}
+
                 //using (Benchmark.Run("ArrayNoBC", count * mult))
                 //{
                 //    var z = count - 1;
@@ -130,17 +147,17 @@ namespace Spreads.Native.Tests
                 //    }
                 //}
 
-                using (Benchmark.Run("VecT", count * mult))
-                {
-                    for (int m = 0; m < mult; m++)
-                    {
-                        var z = count - 1;
-                        for (int j = 1; j < z; j++)
-                        {
-                            sum += vecT.DangerousGet(j - 1);
-                        }
-                    }
-                }
+                //using (Benchmark.Run("VecT", count * mult))
+                //{
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        var z = count - 1;
+                //        for (int j = 1; j < z; j++)
+                //        {
+                //            sum += vecT.DangerousGet(j - 1);
+                //        }
+                //    }
+                //}
 
                 //using (Benchmark.Run("Span", count * mult))
                 //{
@@ -155,16 +172,16 @@ namespace Spreads.Native.Tests
                 //    }
                 //}
 
-                //using (Benchmark.Run("Vec.Get<T>", count * mult))
-                //{
-                //    for (int m = 0; m < mult; m++)
-                //    {
-                //        for (int j = 0; j < count; j++)
-                //        {
-                //            sum += vec.Get<int>(j);
-                //        }
-                //    }
-                //}
+                using (Benchmark.Run("Vec.Get<T>", count * mult))
+                {
+                    for (int m = 0; m < mult; m++)
+                    {
+                        for (int j = 0; j < count; j++)
+                        {
+                            sum += vec.DangerousGet<int>(j);
+                        }
+                    }
+                }
 
                 //using (Benchmark.Run("Vec", count * mult))
                 //{

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AssemblyName>Spreads.Native</AssemblyName>
     <RootNamespace>Spreads.Native</RootNamespace>
     <Description>Spreads Native compression and low-level IL unsafe methods</Description>

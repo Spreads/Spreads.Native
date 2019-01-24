@@ -162,9 +162,6 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern long DiffLongConstrained<T>(ref T left, ref T right);
 
-        [MethodImpl(MethodImplOptions.ForwardRef)]
-        internal static extern ref T GetRefX<T>(in Pinnable<T> obj, IntPtr offset, int index);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetAsObject<T>(object obj, IntPtr offset, int index)
         {
@@ -202,8 +199,8 @@ namespace Spreads.Native
             {
                 return ref Unsafe.Add<T>(ref Unsafe.AsRef<T>(byteOffset.ToPointer()), index);
             }
-
-            return ref Unsafe.Add<T>(ref Unsafe.AddByteOffset<T>(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
+            
+            return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,7 +230,7 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Set a value <paramref name="val"/> without generic parameters using <see cref="OpCodes.Calli"/> instruction for <see cref="Set{T}"/>
+        /// Set a value <paramref name="val"/> without generic parameters using <see cref="OpCodes.Calli"/> instruction for <see cref="SetAsObject{T}"/>
         /// method pointer obtained via <see cref="SetterMethodPointer{T}"/> or <see cref="SetterMethodPointerForType"/> methods.
         /// </summary>
         /// <remarks>Value <paramref name="val"/> is cast to underlying type as `(T)(dynamic)val`.</remarks>

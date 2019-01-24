@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
     <AssemblyName>Spreads.Native.Tests</AssemblyName>
     <RootNamespace>Spreads.Native.Tests</RootNamespace>
     <LangVersion>7.2</LangVersion>
-    <TieredCompilation>true</TieredCompilation>
+    <TieredCompilation>false</TieredCompilation>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputType>Library</OutputType>
     <Platforms>AnyCPU;x86</Platforms>

@@ -30,7 +30,7 @@ namespace Spreads.Native.Run
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
             var test = new VecTests();
-            test.ForEachBench();
+            test.CouldUseVec();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;

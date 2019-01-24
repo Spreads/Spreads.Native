@@ -15,8 +15,8 @@ namespace Spreads.Native.Tests
     [TestFixture]
     public unsafe class CompressionTests
     {
-        public const long Iterations = 1_000;
-        public const int ItemCount = 10_000;
+        public const long Iterations = 1_0;
+        public const int ItemCount = 1_000;
 
         [Test]
         public void UnsafeExWorks()
@@ -44,7 +44,7 @@ namespace Spreads.Native.Tests
 
             var iterations = Iterations;
 
-            var rounds = 10;
+            var rounds = 3;
             for (int r = 0; r < rounds; r++)
             {
                 using (Benchmark.Run("Shuffle", iterations * srcLen))
@@ -114,7 +114,7 @@ namespace Spreads.Native.Tests
 
             Console.WriteLine("-------------------------------");
 
-            var rounds = 10;
+            var rounds = 3;
             var iterations = Iterations / 10;
             for (int r = 0; r < rounds; r++)
             {
@@ -180,7 +180,7 @@ namespace Spreads.Native.Tests
 
             Console.WriteLine("-------------------------------");
 
-            var rounds = 10;
+            var rounds = 3;
             var iterations = Iterations / 100;
             for (int r = 0; r < rounds; r++)
             {
@@ -246,7 +246,7 @@ namespace Spreads.Native.Tests
 
             Console.WriteLine("-------------------------------");
 
-            var rounds = 10;
+            var rounds = 3;
             var iterations = Iterations / 100;
             for (int r = 0; r < rounds; r++)
             {
@@ -312,7 +312,7 @@ namespace Spreads.Native.Tests
 
             Console.WriteLine("-------------------------------");
 
-            var rounds = 10;
+            var rounds = 3;
             var iterations = Iterations / 100;
             for (int r = 0; r < rounds; r++)
             {
@@ -378,7 +378,7 @@ namespace Spreads.Native.Tests
 
             Console.WriteLine("-------------------------------");
 
-            var rounds = 10;
+            var rounds = 3;
             var iterations = Iterations / 100;
             for (int r = 0; r < rounds; r++)
             {
