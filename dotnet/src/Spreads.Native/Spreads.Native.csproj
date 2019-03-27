@@ -8,15 +8,15 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <None Include="$(SolutionDir)lib\native\Spreads.Native.targets" Pack="true" PackagePath="\build"/>
-    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build"/>
+    <None Include="$(SolutionDir)lib\native\Spreads.Native.targets" Pack="true" PackagePath="\build" />
+    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build" />
   </ItemGroup>
   <Import Project="..\..\lib\native\Spreads.Native.targets" />
   
   
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
   </ItemGroup>
   

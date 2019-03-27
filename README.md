@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)
+
 # Spreads.Native
 
 **Spreads' native dependencies and low-level IL methods.**
