@@ -16,7 +16,7 @@ steps:
 
 - task: DotNetCoreInstaller@0
   inputs:
-    version: '2.1.300' # replace this value with the version that you need for your project
+    version: '3.0.100-preview4-010538'
 
 - script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj -c Debug -v m
   displayName: 'Test Debug'

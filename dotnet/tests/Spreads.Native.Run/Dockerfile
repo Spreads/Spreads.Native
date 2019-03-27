@@ -1,7 +1,7 @@
-FROM microsoft/dotnet:2.1-runtime AS base
+FROM mcr.microsoft.com/dotnet/core-nightly/runtime:3.0.0-preview4-stretch-slim AS base
 WORKDIR /app
 
-FROM microsoft/dotnet:2.1-sdk AS build
+FROM mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.0-preview4-stretch-slim AS build
 WORKDIR /src
 COPY tests/Spreads.Native.Run/Spreads.Native.Run.csproj tests/Spreads.Native.Run/
 COPY tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj tests/Spreads.Native.Tests/
