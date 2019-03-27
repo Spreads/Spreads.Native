@@ -10,35 +10,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <!--
-  TODO delete this
-  <PropertyGroup>
-    <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win</TargetOsName>
-    <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx</TargetOsName>
-    <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('Linux'))">linux</TargetOsName>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetOsName)' == 'win' OR '$(Configuration)' == 'Debug'">
-    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.dll" />
-    <None Include="@(NativeLibs)">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetOsName)' == 'linux' OR '$(Configuration)' == 'Debug'">
-    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.so" />
-    <None Include="@(NativeLibs)">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetOsName)' == 'osx' OR '$(Configuration)' == 'Debug'">
-    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.dylib" />
-    <None Include="@(NativeLibs)">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>-->
 </Project>

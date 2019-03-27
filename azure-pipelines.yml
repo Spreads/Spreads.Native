@@ -9,16 +9,9 @@ trigger:
 pool:
   vmImage: 'vs2017-win2016'
 
-variables:
-  buildConfiguration: 'Release'
-
 steps:
 
-- task: DotNetCoreInstaller@0
-  inputs:
-    version: '3.0.100-preview4-010538'
-
-- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj -c Debug -v m
+- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.461.csproj -c Debug -v m
   displayName: 'Test Debug'
-- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj -c Release -v m
+- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.461.csproj -c Release -v m
   displayName: 'Test Release'

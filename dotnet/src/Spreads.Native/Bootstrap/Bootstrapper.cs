@@ -32,7 +32,7 @@ namespace Spreads.Native.Bootstrap
         /// <summary>
         ///
         /// </summary>
-        public static string DefaultAppName { get; set; } = "Spreads";
+        public static string DefaultAppName { get; set; }
 
         public string AppFolder { get; internal set; }
 
@@ -88,11 +88,16 @@ namespace Spreads.Native.Bootstrap
 
             if (appName == null && appFolderPath == null)
             {
-                if (string.IsNullOrWhiteSpace(DefaultAppName))
+                if (!string.IsNullOrWhiteSpace(DefaultAppName))
                 {
-                    throw new InvalidOperationException("DefaultAppName must not be empty.");
+                    appName = DefaultAppName;
                 }
-                appName = DefaultAppName;
+                else
+                {
+                    Instance._initialized = true;
+                    return;
+                }
+                
             }
 
             if (appFolderPath != null)
