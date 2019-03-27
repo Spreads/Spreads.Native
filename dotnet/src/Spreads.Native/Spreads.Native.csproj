@@ -12,9 +12,7 @@
   but even CefSharp could not fix it: https://github.com/cefsharp/CefSharp/issues/2456
   -->
   <ItemGroup>
-    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build">
-      <Visible>false</Visible>
-    </None>
+    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build" />
   </ItemGroup>
   <Import Project="..\..\lib\native\Spreads.Native.targets" />
   

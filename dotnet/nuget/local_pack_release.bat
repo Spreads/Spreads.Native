@@ -12,7 +12,6 @@ REM echo fullstamp: "%fullstamp%"
 set "build=build%fullstamp%"
 echo build: "%build%"
 
-dotnet restore ..\src\Spreads.Native\Spreads.Native.csproj
-dotnet pack ..\src\Spreads.Native\Spreads.Native.csproj -c RELEASE -o C:\transient\LocalNuget --no-build --version-suffix "%build%"R
+dotnet pack ..\src\Spreads.Native\Spreads.Native.csproj -c Release -o C:\transient\LocalNuget  --no-build --version-suffix "%build%"R
 
 pause

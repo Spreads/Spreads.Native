@@ -10,8 +10,15 @@ pool:
   vmImage: 'vs2017-win2016'
 
 steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: '3.0.100-preview4-010538'
 
-- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.461.csproj -c Debug -v m
+- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=net461  -v m
   displayName: 'Test Debug'
-- script: dotnet test dotnet/tests/Spreads.Native.Tests/Spreads.Native.Tests.461.csproj -c Release -v m
+- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=net461 -v m
+  displayName: 'Test Release'
+- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
+  displayName: 'Test Debug'
+- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
   displayName: 'Test Release'

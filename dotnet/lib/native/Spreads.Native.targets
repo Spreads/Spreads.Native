@@ -4,7 +4,7 @@
   Also trully x-copyable deployment is nicer. Ideally it should work with framework independent publishing.
   -->
   <ItemGroup>
-    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.*" />
+    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
     <None Include="@(NativeLibs)">
       <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
