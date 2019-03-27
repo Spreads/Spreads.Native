@@ -18,7 +18,7 @@
     <NoWarn>$(NoWarn),1591</NoWarn>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <AssemblyOriginatorKeyFile>..\..\tools\SpreadsKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\build\SpreadsKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>

@@ -192,15 +192,8 @@ docs/content/release-notes.md
 *.so
 *.dylib
 
-
-!lib/Common/*.dll
-!lib/msvcrt/x32/
-!lib/msvcrt/x64/
-!lib/msvcrt/x32/*.zip
-!lib/msvcrt/x64/*.zip
-!lib/*/*/x64/
-
-!lib/Spreads.Unsafe/*.dll
+!dotnet/lib/native/*
+!dotnet/lib/native/x86/*
 
 project.lock.json
 
