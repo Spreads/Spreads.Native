@@ -6,433 +6,180 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Spreads.Native.Bootstrap
 {
-    internal static class Program
+    public class Bootstrapper
     {
-        // when running as console app, init Bootstrapper
-        static Program()
+        // ReSharper disable once InconsistentNaming
+        internal static ABI ABI { get; set; }
+
+        internal static Bootstrapper Instance { get; } = new Bootstrapper();
+
+        static Bootstrapper()
         {
-            if (Bootstrapper.Instance.AppFolder == null)
-            {
-                throw new Exception("Bootstrapper.Instance.AppFolder == null");
-            };
+            ABI = Process.DetectABI();
+        }
+
+        private const string ConfigSubFolder = "config";
+        private const string BinSubFolder = "bin";
+        private const string DataSubFolder = "data";
+
+        private Bootstrapper()
+        {
         }
 
         /// <summary>
         ///
         /// </summary>
-        public static void Main(string[] args)
-        {
-            Run(args);
-        }
+        public static string DefaultAppName { get; set; } = "Spreads";
 
-        private static void Run(string[] args, bool interactive = false)
-        {
-            if (args == null || args.Length == 0)
-            {
-                string line = null;
-                do
-                {
-                    Console.WriteLine("Compress individual files: filePath1 ... filePathN");
-                    //Console.WriteLine("Compress directories: -d dirPath1 ... dirPathN");
-                    Console.WriteLine("Compress files by pattern: -p pattern dirPath1 ... dirPathN");
-                    line = Console.ReadLine();
-                }
-                while (string.IsNullOrWhiteSpace(line));
-                try
-                {
-                    Run(line.Split(' '), true);
-                    Console.WriteLine("Completed successfully");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error: " + e.ToString());
-                }
-                Run(null, true);
-            }
-            else
-            {
-                // directory
-                //if (args[0].ToLower().Trim() == "-d") {
-                //    if (args.Length < 2) {
-                //        var msg = "You must provide at least one directory";
-                //        if (interactive) {
-                //            Console.ForegroundColor = ConsoleColor.Red;
-                //            Console.WriteLine(msg);
-                //            Console.ResetColor();
-                //            Run(null, true);
-                //        } else {
-                //            throw new ArgumentException(msg);
-                //        }
-                //    }
-                //    for (int i = 1; i < args.Length; i++) {
-                //        Loader.CompressFolder(args[i]);
-                //        Console.ForegroundColor = ConsoleColor.Yellow;
-                //        Console.WriteLine($"Compressed directory: {args[i]}");
-                //        Console.ResetColor();
-                //    }
-                //    if (interactive) {
-                //        Run(null, true);
-                //    } else {
-                //        return;
-                //    }
+        public string AppFolder { get; internal set; }
 
-                //}
+        public string _configFolder;
+        public string ConfigFolder => _configFolder ?? (_configFolder = Path.Combine(AppFolder, ConfigSubFolder));
 
-                // pattern
-                if (args[0].ToLower().Trim() == "-p")
-                {
-                    if (args.Length < 2)
-                    {
-                        var msg = "You must provide a search pattern";
-                        if (interactive)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(msg);
-                            Console.ResetColor();
-                            Console.WriteLine();
-                            Run(null, true);
-                        }
-                        else
-                        {
-                            throw new ArgumentException(msg);
-                        }
-                    }
-                    var pattern = args[1];
-                    if (args.Length < 3)
-                    {
-                        var list = args.ToList();
-                        var assemblyFolder = ".";
-                        list.Add(assemblyFolder);
-                        args = list.ToArray();
-                    }
-                    var count = 0;
+        public string _binFolder;
+        public string BinFolder => _binFolder ?? (_binFolder = Path.Combine(AppFolder, BinSubFolder));
 
-                    for (int i = 2; i < args.Length; i++)
-                    {
-                        var path = args[i];
-                        if (!Directory.Exists(path))
-                        {
-                            var msg = $"Directory '{path}' does not exists";
-                            if (interactive)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine(msg);
-                                Console.ResetColor();
-                                Console.WriteLine();
-                                Run(null, true);
-                            }
-                            else
-                            {
-                                throw new ArgumentException(msg);
-                            }
-                        }
+        public string _dataFolder;
+        public string DataFolder => _dataFolder ?? (_dataFolder = Path.Combine(AppFolder, DataSubFolder));
 
-                        var files = Directory.GetFiles(path, pattern, SearchOption.AllDirectories);
-                        foreach (var file in files)
-                        {
-                            Loader.CompressResource(file);
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine($"Compressed file: '{file}'");
-                            Console.ResetColor();
-                            count++;
-                        }
-                    }
-
-                    if (count == 0)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("No matching files");
-                        Console.ResetColor();
-                        Console.WriteLine();
-                    }
-
-                    if (interactive)
-                    {
-                        Run(null, true);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-                // single files
-                if (args.Length < 1)
-                {
-                    var msg = "You must provide at least one file";
-                    if (interactive)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(msg);
-                        Console.ResetColor();
-                        Run(null, true);
-                    }
-                    else
-                    {
-                        throw new ArgumentException(msg);
-                    }
-                }
-
-                foreach (var file in args)
-                {
-                    if (!File.Exists(file))
-                    {
-                        var msg = $"File '{file}' does not exists";
-                        if (interactive)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(msg);
-                            Console.ResetColor();
-                            Console.WriteLine();
-                            Run(null, true);
-                        }
-                        else
-                        {
-                            throw new ArgumentException(msg);
-                        }
-                    }
-
-                    Loader.CompressResource(file);
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"Compressed file: '{file}'");
-                    Console.ResetColor();
-                }
-
-                if (interactive)
-                {
-                    Run(null, true);
-                }
-            }
-        }
-    }
-
-    // TODO internal all members and type if possible
-    public class Bootstrapper
-    {
-        internal static ABI ABI { get; set; }
-
-        private static readonly Bootstrapper instance = new Bootstrapper();
-
-        public static Bootstrapper Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        static Bootstrapper()
-        {
-            ABI = Process.DetectABI();
-
-            //            instance.Bootstrap<Loader>(
-            //                new string[] { }, //
-            //                null, //new[] { "Newtonsoft.Json.dll" },
-            //                null,
-            //                null,
-            //                () =>
-            //                {
-            //#if DEBUG
-            //                    Console.WriteLine("Pre-copy action");
-            //#endif
-            //                },
-            //                () =>
-            //                {
-            //#if DEBUG
-            //                    Console.WriteLine("Post-copy action");
-            //#endif
-            //                },
-            //                () =>
-            //                {
-            //                });
-
-            //new ResolveEventHandler(Loader.ResolveManagedAssembly);
-        }
-
-        private string _baseFolder;
-        private string _dataFolder;
-
-        // Botstrap self
-        public Bootstrapper()
-        {
-            //_assemblyDirectory = GetAssemblyDirectory();
-            _baseFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _dataFolder = Path.Combine(_baseFolder, rootFolder, dataSubFolder);
-
-            if (!Directory.Exists(AppFolder))
-            {
-                Directory.CreateDirectory(AppFolder);
-            }
-
-            //if (!Directory.Exists(Path.Combine(AppFolder, "x32"))) {
-            //    Directory.CreateDirectory(Path.Combine(AppFolder, "x32"));
-            //}
-
-            //if (!Directory.Exists(Path.Combine(AppFolder, "x64"))) {
-            //    Directory.CreateDirectory(Path.Combine(AppFolder, "x64"));
-            //}
-
-            if (!Directory.Exists(AppFolder))
-            {
-                Directory.CreateDirectory(AppFolder);
-            }
-
-            if (!Directory.Exists(ConfigFolder))
-            {
-                Directory.CreateDirectory(ConfigFolder);
-            }
-
-            if (!Directory.Exists(DataFolder))
-            {
-                Directory.CreateDirectory(DataFolder);
-            }
-
-            if (!Directory.Exists(TempFolder))
-            {
-                Directory.CreateDirectory(TempFolder);
-            }
-        }
-
-        /// <summary>
-        /// in AppData and AppDataLocal
-        /// </summary>
-        private const string rootFolder = "Spreads";
-
-        private const string configSubFolder = "config";
-        private const string appSubFolder = "bin";
-        private const string dataSubFolder = "data";
-
-        // TODO next two only in user interactive mode
-        private const string docFolder = "Docs";
-
-        private const string gplFolder = "Libraries";
-
-        //public string AssemblyDirectory {
-        //    get { return _assemblyDirectory; }
-        //}
-
-        public string BaseFolder
-        {
-            get
-            {
-                return _baseFolder;
-            }
-            set
-            {
-                _baseFolder = value;
-            }
-        }
-
-        internal string ConfigFolder
-        {
-            get
-            {
-                return Path.Combine(_baseFolder, rootFolder, configSubFolder);
-            }
-        }
-
-        public string AppFolder
-        {
-            get
-            {
-                return Path.Combine(_baseFolder, rootFolder, appSubFolder);
-            }
-        }
-
-        public string DataFolder
-        {
-            get
-            {
-                return _dataFolder;
-            }
-            set
-            {
-                _dataFolder = value;
-            }
-        }
-
-        private string _tmpFolder = null;
+        internal string _tempFolder;
 
         public string TempFolder
         {
             get
             {
-                if (_tmpFolder == null)
+                if (_tempFolder != null)
                 {
-                    _tmpFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                    return _tempFolder;
                 }
-                return _tmpFolder;
+                // on-demand creation on first access to TempFolder
+                _tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                Directory.CreateDirectory(_tempFolder);
+                return _tempFolder;
             }
         }
 
-        // keep references to avoid GC
-        internal Dictionary<string, NativeLibrary> nativeLibraries = new Dictionary<string, NativeLibrary>();
+        internal Dictionary<string, NativeLibrary> NativeLibraries = new Dictionary<string, NativeLibrary>();
 
-        // thi will block other dlls with the same name from loading
-        // TODO do not store managed, return to resolve method
-        internal Dictionary<string, Assembly> managedLibraries = new Dictionary<string, Assembly>();
-
-        private List<Action> DisposeActions = new List<Action>();
-        //private readonly string _assemblyDirectory;
+        private readonly List<Action> _disposeActions = new List<Action>();
+        private bool _initialized;
 
         /// <summary>
-        /// From assembly with type T load libraries
+        /// If <paramref name="appName"/> if provided then <see cref="AppFolder"/> is set to
+        /// <paramref name="appName"/> inside <see cref="Environment.SpecialFolder.LocalApplicationData"/>.
+        /// If <paramref name="appFolderPath"/> is provided then <see cref="AppFolder"/>  is set to it.
+        /// One one of the parameters could be not null.
         /// </summary>
-        public void Bootstrap<T>(string nativeLibraryName,
-            string[] resourceNames = null,
-            Action preCopyAction = null,
-            Action<NativeLibrary> postCopyAction = null,
-            Action disposeAction = null)
+        /// <param name="appName"></param>
+        /// <param name="appFolderPath"></param>
+        public static void Init(string appName = null, string appFolderPath = null)
         {
-            preCopyAction?.Invoke();
+            if (Instance._initialized)
+            {
+                return;
+            }
+            if (appName != null && appFolderPath != null && !appFolderPath.EndsWith(appName))
+            {
+                throw new InvalidOperationException("Either appName or appFolderPath should be provided, not both.");
+            }
+
+            if (appName == null && appFolderPath == null)
+            {
+                if (string.IsNullOrWhiteSpace(DefaultAppName))
+                {
+                    throw new InvalidOperationException("DefaultAppName must not be empty.");
+                }
+                appName = DefaultAppName;
+            }
+
+            if (appFolderPath != null)
+            {
+                Directory.CreateDirectory(appFolderPath);
+                Instance.AppFolder = appFolderPath;
+            }
+
+            if (appName != null)
+            {
+                Instance.AppFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DefaultAppName);
+            }
+
+            // if exists it's noop
+            Directory.CreateDirectory(Instance.BinFolder);
+            Directory.CreateDirectory(Instance.ConfigFolder);
+            Directory.CreateDirectory(Instance.DataFolder);
+
+            Instance._initialized = true;
+        }
+
+        /// <summary>
+        /// Load libraries from an assembly with type <typeparamref name="T"/>.
+        /// Executes only once. Calls after the first one are noops.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="nativeLibraryName"></param>
+        /// <param name="preLoadAction"></param>
+        /// <param name="postLoadAction"></param>
+        /// <param name="disposeAction"></param>
+        /// <param name="nativeLoadPathOverride">
+        /// Path to a directory with the native library. On Linux DllImport won't work with a custom path
+        /// and you could setup delegates to native methods from <paramref name="postLoadAction"/>.</param>
+        public static void Bootstrap<T>(string nativeLibraryName,
+            Action<Bootstrapper> preLoadAction = null,
+            Action<NativeLibrary> postLoadAction = null,
+            Action disposeAction = null,
+            string nativeLoadPathOverride = null)
+        {
+            if (!Instance._initialized)
+            {
+                Init();
+            }
+
+            if (TypeCache<T>.Done)
+            {
+                return;
+            }
+
+            preLoadAction?.Invoke(Instance);
 
             NativeLibrary nativeLibrary = null;
             if (nativeLibraryName != null)
             {
-                if (!nativeLibraries.ContainsKey(nativeLibraryName))
+                if (!Instance.NativeLibraries.ContainsKey(nativeLibraryName))
                 {
-                    nativeLibrary = Loader.LoadNativeLibrary<T>(nativeLibraryName);
-                    nativeLibraries.Add(nativeLibraryName, nativeLibrary);
+                    nativeLibrary = Loader.LoadNativeLibrary<T>(nativeLibraryName, nativeLoadPathOverride);
+                    Instance.NativeLibraries.Add(nativeLibraryName, nativeLibrary);
                     Trace.TraceInformation("Loaded native library: " + nativeLibraryName);
                 }
             }
 
-            if (resourceNames != null)
-            {
-                foreach (var resourceName in resourceNames)
-                {
-                    Loader.ExtractResource<T>(resourceName);
-                }
-            }
+            postLoadAction?.Invoke(nativeLibrary);
 
-            postCopyAction?.Invoke(nativeLibrary);
+            Instance._disposeActions.Add(disposeAction);
 
-            DisposeActions.Add(disposeAction);
+            TypeCache<T>.Done = true;
         }
 
-        // TODO now it is not working
         ~Bootstrapper()
         {
-            if (DisposeActions.Count > 0)
+            if (_disposeActions.Count > 0)
             {
-                foreach (var action in DisposeActions)
+                foreach (var action in _disposeActions)
                 {
                     try
                     {
                         action.Invoke();
                     }
+                    // ReSharper disable once EmptyGeneralCatchClause
                     catch
                     {
                     }
                 }
             }
 
-            foreach (var loadedLibrary in nativeLibraries)
+            foreach (var loadedLibrary in NativeLibraries)
             {
                 if (loadedLibrary.Value != null)
                 {
@@ -440,6 +187,7 @@ namespace Spreads.Native.Bootstrap
                     {
                         loadedLibrary.Value.Dispose();
                     }
+                    // ReSharper disable once EmptyGeneralCatchClause
                     catch
                     {
                     }
@@ -448,11 +196,22 @@ namespace Spreads.Native.Bootstrap
 
             try
             {
-                Directory.Delete(Instance.TempFolder, true);
+                if (Instance._tempFolder != null)
+                {
+                    Directory.Delete(Instance._tempFolder, true);
+                }
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
             }
+        }
+
+        // ReSharper disable once UnusedTypeParameter
+        private static class TypeCache<T>
+        {
+            // ReSharper disable once StaticMemberInGenericType
+            public static bool Done;
         }
     }
 }

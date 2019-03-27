@@ -1,27 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <TieredCompilation>false</TieredCompilation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DockerTargetOS>Linux</DockerTargetOS>
-    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     <LangVersion>7.2</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
     <Platforms>AnyCPU</Platforms>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <!--<RestoreProjectStyle>PackageReference</RestoreProjectStyle>-->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\Spreads.Native.Tests\Spreads.Native.Tests.csproj" />

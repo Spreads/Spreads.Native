@@ -29,8 +29,15 @@ namespace Spreads.Native
     /// <seealso cref="IDelta{T}"/>
     public interface IInt64Diffable<T> : IComparable<T>
     {
+        /// <summary>
+        /// Add <paramref name="diff"/> to this value as long.
+        /// </summary>
         T Add(long diff);
 
-        long Diff(T other);
+        /// <summary>
+        /// This as long minus <paramref name="subtrahend"/> as long.
+        /// </summary>
+        /// <param name="subtrahend">A value that is subtracted from this value.</param>
+        long Diff(T subtrahend);
     }
 }

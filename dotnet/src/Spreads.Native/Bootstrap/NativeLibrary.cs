@@ -14,15 +14,23 @@ namespace Spreads.Native.Bootstrap
         internal IntPtr _handle;
         internal readonly INativeLibraryLoader _loader;
 
-        internal NativeLibrary(string path, INativeLibraryLoader loader)
+        internal NativeLibrary(string path, INativeLibraryLoader loader, IntPtr handle = default)
         {
             _path = path;
             _loader = loader;
-            _handle = loader.LoadLibrary(path);
+            if (handle != default)
+            {
+                _handle = loader.LoadLibrary(path);
+            }
+            else
+            {
+                _handle = handle;
+            }
+
             if (_handle == IntPtr.Zero)
             {
-                int error = Marshal.GetLastWin32Error();
-                Trace.TraceError("NativeLibrary handle == IntPtr.Zero");
+                var error = loader.LastError();
+                Trace.TraceError("NativeLibrary: handle == IntPtr.Zero, lastError: " + (long)error);
                 throw new DllNotFoundException(path);
             }
         }
@@ -33,7 +41,7 @@ namespace Spreads.Native.Bootstrap
         [Obsolete("Use generic overload instead")]
         public Delegate GetFunction(string name, Type type)
         {
-            IntPtr function = _loader.FindFunction(_handle, name);
+            var function = _loader.FindFunction(_handle, name);
             if (function == IntPtr.Zero)
                 if (function == IntPtr.Zero)
                 {

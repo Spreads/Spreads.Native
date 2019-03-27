@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27110.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
 		build\common.props = build\common.props
+		docs\filterConfig.yml = docs\filterConfig.yml
 		global.json = global.json
 		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
+		lib\native\Spreads.Native.targets = lib\native\Spreads.Native.targets
 		test.bat = test.bat
 	EndProjectSection
 EndProject
@@ -21,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreads.Native.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreads.Native.Run", "tests\Spreads.Native.Run\Spreads.Native.Run.csproj", "{A7E7E004-1C55-4524-96D1-5B74DC2D8C79}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C999E506-898C-41D7-8335-F867FA2F28DF}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "DockerRun", "tests\DockerRun\DockerRun.dcproj", "{C999E506-898C-41D7-8335-F867FA2F28DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{47D43BAF-7DDA-4AE7-83B3-8B41C9A03D71} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{A7E7E004-1C55-4524-96D1-5B74DC2D8C79} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
+		{C999E506-898C-41D7-8335-F867FA2F28DF} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70B77C15-F13A-4AFD-891C-D7857FE8FD18}

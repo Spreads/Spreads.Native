@@ -5,9 +5,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 namespace Spreads.Native.Bootstrap
 {
@@ -27,17 +28,22 @@ namespace Spreads.Native.Bootstrap
     {
         IntPtr INativeLibraryLoader.LoadLibrary(string path)
         {
-            return WindowsLibraryLoader.LoadLibraryW(path);
+            return LoadLibraryW(path);
         }
 
         bool INativeLibraryLoader.UnloadLibrary(IntPtr library)
         {
-            return WindowsLibraryLoader.FreeLibrary(library);
+            return FreeLibrary(library);
         }
 
         IntPtr INativeLibraryLoader.FindFunction(IntPtr library, string function)
         {
-            return WindowsLibraryLoader.GetProcAddress(library, function);
+            return GetProcAddress(library, function);
+        }
+
+        public IntPtr LastError()
+        {
+            return GetLastError();
         }
 
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode, ExactSpelling = true)]
@@ -53,10 +59,8 @@ namespace Spreads.Native.Bootstrap
         [DllImport("kernel32", CharSet = CharSet.Ansi, SetLastError = true)]
         public static extern bool SetDllDirectory(string lpPathName);
 
-        public IntPtr LastError()
-        {
-            throw new NotImplementedException();
-        }
+        [DllImport("kernel32", CharSet = CharSet.Ansi, SetLastError = true)]
+        public static extern IntPtr GetLastError();
     }
 
     internal abstract class UnixLibraryLoader : INativeLibraryLoader
@@ -67,7 +71,7 @@ namespace Spreads.Native.Bootstrap
             try
             {
                 int flags = GetDLOpenFlags();
-                var result = UnixLibraryLoader.dlopen(path, flags);
+                var result = dlopen(path, flags);
                 Trace.WriteLine("Open result: " + result);
                 if (result == IntPtr.Zero)
                 {
@@ -79,7 +83,7 @@ namespace Spreads.Native.Bootstrap
             catch (Exception ex)
             {
                 var lastError = dlerror();
-                Trace.WriteLine($"Failed to load native library \"{path}\".\r\nLast Error:{lastError}\r\nCheck inner exception and\\or windows event log.\r\nInner Exception: {ex.ToString()}");
+                Trace.WriteLine($"Failed to load native library \"{path}\".\r\nLast Error:{lastError}\r\nCheck inner exception and\\or windows event log.\r\nInner Exception: {ex}");
 
                 Trace.WriteLine(ex.ToString());
                 return IntPtr.Zero;
@@ -88,12 +92,12 @@ namespace Spreads.Native.Bootstrap
 
         bool INativeLibraryLoader.UnloadLibrary(IntPtr library)
         {
-            return UnixLibraryLoader.dlclose(library) == 0;
+            return dlclose(library) == 0;
         }
 
         IntPtr INativeLibraryLoader.FindFunction(IntPtr library, string function)
         {
-            return UnixLibraryLoader.dlsym(library, function);
+            return dlsym(library, function);
         }
 
         protected abstract int GetDLOpenFlags();
@@ -148,7 +152,7 @@ namespace Spreads.Native.Bootstrap
 
         public IntPtr LastError()
         {
-            return UnixLibraryLoader.dlerror();
+            return dlerror();
         }
 
         private static class UnixLibraryLoaderNative
@@ -219,284 +223,92 @@ namespace Spreads.Native.Bootstrap
 
     internal class Loader
     {
-        public static NativeLibrary LoadNativeLibrary<T>(string libname)
+        public static NativeLibrary LoadNativeLibrary<T>(string libName, string nativeLoadPathOverride = null)
         {
-            ABI abi = Process.DetectABI();
+            var abi = Process.DetectABI();
             if (abi.Equals(ABI.Unknown))
-                return null;
+            { return null; }
 
-            INativeLibraryLoader loader = GetNativeLibraryLoader(abi);
+            var loader = GetNativeLibraryLoader(abi);
             if (loader == null)
-                return null;
+            { return null; }
 
-            string resource = GetNativeLibraryResource(abi, libname);
-            if (resource == null)
-                return null;
+            var nativeAssemblyPath = nativeLoadPathOverride ?? Path.GetDirectoryName(typeof(T).GetTypeInfo().Assembly.Location);
+            if (nativeAssemblyPath is null)
+            {
+                throw new IOException("nativeAssemblyPath is null");
+            }
+            string libPath = null;
+            var localExists = false;
 
-            string path = ExtractNativeResource<T>(resource, abi);
-            if (path == null)
-                return null;
+            // We need x86 only on Windows due to WoW64 that we actually use in certain situations.
+            //
+            // On Windows, LoadLibrary makes it always available for DllImport regardless of the location.
+            //
+            // On Linux, we need to set LD_LIBRARY_PATH which is not possible to do from
+            // already running app that needs it. But we do not care about x86 Linux at the moment
+            // and keep native library at the app root.
+            //
+            // If we start care then we should copy a relevant lib to the app root. There is no WoW64-like
+            // stuff on Linux and after the first copy the file should always be correct.
+            //
+            // MacOS is only x64 and a native lib should be at the app root.
 
-            return new NativeLibrary(path, loader);
+            if (abi.Equals(ABI.Windows_X86_64) &&
+                    (File.Exists(libPath = Path.Combine(nativeAssemblyPath, libName + (libName.EndsWith(".dll") ? "" : ".dll")))
+                    ||
+                    File.Exists(libPath = Path.Combine(nativeAssemblyPath, "x64", libName + (libName.EndsWith(".dll") ? "" : ".dll")))
+                    ))
+            {
+                localExists = true;
+            }
+            else if (abi.Equals(ABI.Windows_X86) &&
+                     (File.Exists(libPath = Path.Combine(nativeAssemblyPath, "x86", libName + (libName.EndsWith(".dll") ? "" : ".dll")))
+                      ||
+                      File.Exists(libPath = Path.Combine(nativeAssemblyPath, "x86", libName + (libName.EndsWith(".dll") ? "" : ".dll")))
+                     ))
+            {
+                localExists = true;
+            }
+            else if (abi.Equals(ABI.Linux_X86_64) &&
+                     (File.Exists(libPath = Path.Combine(nativeAssemblyPath, libName + (libName.EndsWith(".so") ? "" : ".so")))
+                      ||
+                      File.Exists(libPath = Path.Combine(nativeAssemblyPath, "lib" + libName + (libName.EndsWith(".so") ? "" : ".so")))
+                     ))
+            {
+                localExists = true;
+            }
+            else if (abi.Equals(ABI.OSX_X86_64) &&
+                     (File.Exists(libPath = Path.Combine(nativeAssemblyPath, libName + (libName.EndsWith(".dylib") ? "" : ".dylib")))
+                      ||
+                      File.Exists(libPath = Path.Combine(nativeAssemblyPath, "lib" + libName + (libName.EndsWith(".dylib") ? "" : ".dylib")))
+                     ))
+            {
+                localExists = true;
+            }
+
+            if (localExists)
+            {
+                var handle = loader.LoadLibrary(libPath);
+                if (handle != IntPtr.Zero)
+                {
+                    return new NativeLibrary(libPath, loader, handle);
+                }
+            }
+
+            throw new DllNotFoundException("Cannot find native library: " + libName);
         }
-
-        //internal static Assembly ResolveManagedAssembly(object sender,
-        //                                              ResolveEventArgs args) {
-        //    var assemblyname = new AssemblyName(args.Name).Name;
-        //    var assemblyFileName = Path.Combine(Bootstrapper.Instance.AppFolder, assemblyname + ".dll");
-        //    var assembly = Assembly.LoadFrom(assemblyFileName);
-        //    return assembly;
-        //}
 
         public static INativeLibraryLoader GetNativeLibraryLoader(ABI abi)
         {
             if (abi.IsWindows())
-                return new WindowsLibraryLoader();
-            else if (abi.IsLinux())
-                return new LinuxLibraryLoader();
-            else if (abi.IsOSX())
-                return new OSXLibraryLoader();
-            else
-                return null;
-        }
+            { return new WindowsLibraryLoader(); }
+            if (abi.IsLinux())
+            { return new LinuxLibraryLoader(); }
+            if (abi.IsOSX())
+            { return new OSXLibraryLoader(); }
 
-        private static string GetNativeLibraryResource(ABI abi, string libname)
-        {
-            if (abi.Equals(ABI.Windows_X86))
-                return "win.x32." + libname + ".dll";
-            else if (abi.Equals(ABI.Windows_X86_64))
-                return "win.x64." + libname + ".dll";
-            else if (abi.Equals(ABI.OSX_X86))
-                return "osx.x32." + libname + ".dylib";
-            else if (abi.Equals(ABI.OSX_X86_64))
-                return "osx.x64." + libname + ".dylib";
-            else if (abi.Equals(ABI.Linux_X86))
-                return "lin.x32." + libname + ".so";
-            else if (abi.Equals(ABI.Linux_X86_64))
-                return "lin.x64." + libname + ".so";
-            else if (abi.Equals(ABI.Linux_ARMEL))
-                return "lin.armel." + libname + ".so";
-            else if (abi.Equals(ABI.Linux_ARMHF))
-                return "lin.armhf." + libname + ".so";
-            else
-                return null;
-        }
-
-        private static Stream GetResourceStream<T>(string resource)
-        {
-            var assembly = typeof(T).GetTypeInfo().Assembly;
-            Stream resourceStream;
-            try
-            {
-                resourceStream = assembly.GetManifestResourceStream(resource);
-                if (resourceStream == null) throw new Exception();
-            }
-            catch
-            {
-                try
-                {
-                    resourceStream = assembly.GetManifestResourceStream(resource + ".compressed");
-                    if (resourceStream == null) throw new Exception();
-                }
-                catch
-                {
-                    throw new ArgumentException($"Cannot get resource stream for '{resource}'");
-                }
-            }
-            return resourceStream;
-        }
-
-        public static string ExtractNativeResource<T>(string resource, ABI abi)
-        {
-            var split = resource.Split('.');
-            var basePath = AppDomain.CurrentDomain.BaseDirectory;
-            string path;
-            if (!abi.IsWindows())
-            {
-                // On Windows, LoadLibrary makes it available for DllImport
-                // regardless of the location. On Linux, we need to
-                // set LD_LIBRARY_PATH which is not possible to do from
-                // already running app that needs it. Extracting to the current
-                // directory is the simplest thing:
-                // - we do not support WoW64-like thing on Linux even if it exists, only 64 bit on Linux so far
-                // - location should be writable, while /usr/lib and /usr/local/lib are not writeable
-                // - on Windows there was IIS issue - it was reloading every time content changed,
-                // that is why we used temp folder.
-
-                // TODO currently need <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-                // otherwise managed dll is in NuGet folder, while native is extracted into local bin
-                // folder. This flag is consistent with donet publish behavior that will place all 
-                // dlls in one place, so it's OK for now.
-
-                path = Path.Combine(basePath, split[2] + "." + split[3]);
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
-            else
-            {
-                // On Windows same manages dll could be run from both x32/x64
-                // but LoadLibrary makes P/Invoke "just work" (TM)
-                basePath = Path.Combine(basePath, split[1]);
-                if (!Directory.Exists(basePath))
-                {
-                    Directory.CreateDirectory(basePath);
-                }
-                path = Path.Combine(basePath, split[2] + "." + split[3]);
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
-
-            try
-            {
-                using (Stream resourceStream = GetResourceStream<T>(resource))
-                {
-                    using (DeflateStream deflateStream = new DeflateStream(resourceStream, CompressionMode.Decompress))
-                    {
-                        using (
-                            FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write,
-                                FileShare.ReadWrite))
-                        {
-                            byte[] buffer = new byte[1048576];
-                            int bytesRead;
-                            do
-                            {
-                                bytesRead = deflateStream.Read(buffer, 0, buffer.Length);
-                                if (bytesRead != 0)
-                                    fileStream.Write(buffer, 0, bytesRead);
-                            }
-                            while (bytesRead != 0);
-                        }
-                    }
-                }
-                return path;
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceError(ex.ToString());
-                File.Delete(path);
-                return null;
-            }
-        }
-
-        public static string ExtractResource<T>(string resource)
-        {
-            // [os/][arch/]name.extension
-            var split = resource.Split('.');
-            string path = null;
-            if (split.Length == 2)
-            {
-                // name.extension
-                path = Path.Combine(Bootstrapper.Instance.AppFolder, split[0]);
-            }
-            else if (split.Length == 3 && (split[0].StartsWith("x") || split[0].StartsWith("ar")))
-            {
-                // arch.name.extension
-                path = Path.Combine(Bootstrapper.Instance.AppFolder, split[0], split[1]);
-            }
-            else if (split.Length == 3)
-            {
-                // os.name.extension
-                path = Path.Combine(Bootstrapper.Instance.AppFolder, split[1]);
-            }
-            else if (split.Length == 4)
-            {
-                // os.arch.name.extension, ignore os
-                path = Path.Combine(Bootstrapper.Instance.AppFolder, split[1], split[2]);
-            }
-            else
-            {
-                throw new ArgumentException("wrong resource name");
-            }
-
-            try
-            {
-                Assembly assembly = typeof(T).GetTypeInfo().Assembly;
-                using (Stream resourceStream = assembly.GetManifestResourceStream(resource))
-                {
-                    using (DeflateStream deflateStream = new DeflateStream(resourceStream, CompressionMode.Decompress))
-                    {
-                        using (
-                            FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write,
-                                FileShare.ReadWrite))
-                        {
-                            byte[] buffer = new byte[1048576];
-                            int bytesRead;
-                            do
-                            {
-                                bytesRead = deflateStream.Read(buffer, 0, buffer.Length);
-                                if (bytesRead != 0)
-                                    fileStream.Write(buffer, 0, bytesRead);
-                            }
-                            while (bytesRead != 0);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-            return path;
-        }
-
-        public static void CompressResource(string path)
-        {
-            using (FileStream inFileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                using (
-                    FileStream outFileStream = new FileStream(path + ".compressed", FileMode.Create, FileAccess.Write,
-                        FileShare.ReadWrite))
-                {
-                    using (DeflateStream deflateStream = new DeflateStream(outFileStream, CompressionMode.Compress))
-                    {
-                        byte[] buffer = new byte[1048576];
-                        int bytesRead;
-                        do
-                        {
-                            bytesRead = inFileStream.Read(buffer, 0, buffer.Length);
-                            if (bytesRead != 0)
-                                deflateStream.Write(buffer, 0, bytesRead);
-                        }
-                        while (bytesRead != 0);
-                    }
-                }
-            }
-        }
-
-        public static void CompressFolder(string path)
-        {
-            //if (File.Exists(path + ".zip")) {
-            //    //throw new ApplicationException("File already exists: " + path + ".zip");
-            //}
-            //else {
-            //}
-            try
-            {
-                ZipFile.CreateFromDirectory(path, path + ".zip", CompressionLevel.Optimal, false);
-            }
-            catch (IOException e)
-            {
-                Trace.WriteLine(e.ToString());
-            }
-        }
-
-        public static void ExtractFolder(string path, string targetPath)
-        {
-            //var arch = ZipFile.OpenRead(path);
-            //foreach (var entry in arch.Entries) {
-            //    entry.ExtractToFile(Path.Combine(targetPath, entry.FullName), true);
-            //}
-            try
-            {
-                ZipFile.ExtractToDirectory(path, targetPath);
-            }
-            catch (IOException e)
-            {
-                Trace.WriteLine(e.ToString());
-            }
+            return null;
         }
     }
 }

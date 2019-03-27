@@ -5,51 +5,27 @@
     <AssemblyName>Spreads.Native</AssemblyName>
     <RootNamespace>Spreads.Native</RootNamespace>
     <Description>Spreads Native compression and low-level IL unsafe methods</Description>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <LangVersion>7.3</LangVersion>
-    <DefineConstants>$(DefineConstants);SPREADS</DefineConstants>
-    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
- 
-  <ItemGroup>
-    <EmbeddedResource Include="..\..\lib\w64\spreads_native.dll.compressed">
-      <Link>lib\w64\spreads_native.dll</Link>
-      <LogicalName>win.x64.spreads_native.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\lib\w32\spreads_native.dll.compressed">
-      <Link>lib\w32\spreads_native.dll</Link>
-      <LogicalName>win.x32.spreads_native.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\lib\l64\libspreads_native.compressed">
-      <Link>lib\l64\libspreads_native.so</Link>
-      <LogicalName>lin.x64.spreads_native.so</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
   
   <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <None Include="$(SolutionDir)lib\native\Spreads.Native.targets" Pack="true" PackagePath="\build"/>
+    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build"/>
   </ItemGroup>
-
+  <Import Project="..\..\lib\native\Spreads.Native.targets" />
+  
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+  </ItemGroup>
+  
   <ItemGroup>
     <IL Include="**\*.il" Exclude="**\obj\**\*.il;**\bin\**\*.il" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="System.Slices\**" />
-    <EmbeddedResource Remove="System.Slices\**" />
-    <IL Remove="System.Slices\**" />
-    <None Remove="System.Slices\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <IL Remove="Unsafe.il" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2-servicing-27114-05" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
   </ItemGroup>
 
   <Target Condition=" '$(OS)' == 'Windows_NT' " Name="ProcessILAfterCompile" AfterTargets="Compile">

@@ -12,7 +12,7 @@ REM echo fullstamp: "%fullstamp%"
 set "build=build%fullstamp%"
 echo build: "%build%"
 
-REM dotnet test ..\tests\Spreads.Native.Tests\Spreads.Native.Tests.csproj -c RELEASE --no-build --filter TestCategory=CI -v n
+dotnet test ..\tests\Spreads.Native.Tests\Spreads.Native.Tests.csproj -c RELEASE --no-build --filter TestCategory=CI -v n
 
 dotnet restore ..\src\Spreads.Native\Spreads.Native.csproj
 dotnet pack ..\src\Spreads.Native\Spreads.Native.csproj -c RELEASE -o C:\transient\LocalNuget --no-build --version-suffix "%build%"R

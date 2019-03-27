@@ -2,11 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+using Spreads.Native.Bootstrap;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
-using Spreads.Native.Bootstrap;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
@@ -47,10 +47,11 @@ namespace Spreads.Native
             try
             {
                 // Ensure Bootstrapper is initialized and native libraries are loaded
-                Bootstrapper.Instance.Bootstrap<Compression>(
+                Bootstrapper.Bootstrap<Compression>(
                     NativeLibraryName,
-                    null,
-                    () => { },
+                    instance =>
+                    {
+                    },
                     library =>
                     {
                         compress_lz4_ptr = library.GetFunctionPtr("spreads_compress_lz4");
@@ -129,5 +130,17 @@ namespace Spreads.Native
         public static extern void unshuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination);
 
         #endregion Blosc Internals
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static void shuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination)
+        //{
+        //    UnsafeEx.CalliShuffleUnshuffle(typeSize, length, source, destination, shuffle_ptr);
+        //}
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static void unshuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination)
+        //{
+        //    UnsafeEx.CalliShuffleUnshuffle(typeSize, length, source, destination, unshuffle_ptr);
+        //}
     }
 }
