@@ -6,19 +6,39 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'vs2017-win2016'
+variables:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
-steps:
-- task: DotNetCoreInstaller@0
-  inputs:
-    version: '3.0.100-preview4-010538'
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
 
-- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=net461  -v m
-  displayName: 'Test Debug'
-- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=net461 -v m
-  displayName: 'Test Release'
-- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
-  displayName: 'Test Debug'
-- script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
-  displayName: 'Test Release'
+  steps:
+  - task: DotNetCoreInstaller@0
+    inputs:
+      version: '3.0.100-preview4-010538'
+
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
+    displayName: 'Test Debug'
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
+    displayName: 'Test Release'
+
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - task: DotNetCoreInstaller@0
+    inputs:
+      version: '3.0.100-preview4-010538'
+
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=net461  -v m
+    displayName: 'Test Debug'
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=net461 -v m
+    displayName: 'Test Release'
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
+    displayName: 'Test Debug'
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
+    displayName: 'Test Release'
+
