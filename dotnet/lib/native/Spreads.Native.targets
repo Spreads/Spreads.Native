@@ -7,7 +7,7 @@
     <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
     <None Include="@(NativeLibs)">
       <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>
