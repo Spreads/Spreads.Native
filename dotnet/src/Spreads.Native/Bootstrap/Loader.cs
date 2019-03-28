@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberHidesStaticFromOuterClass
 
@@ -233,7 +234,12 @@ namespace Spreads.Native.Bootstrap
             if (loader == null)
             { return null; }
 
+            var retry = 0;
+
+        RETRY:
+
             var nativeAssemblyPath = nativeLoadPathOverride ?? Path.GetDirectoryName(typeof(T).GetTypeInfo().Assembly.Location);
+
             if (nativeAssemblyPath is null)
             {
                 throw new IOException("nativeAssemblyPath is null");
@@ -296,7 +302,47 @@ namespace Spreads.Native.Bootstrap
                 }
             }
 
-            throw new DllNotFoundException("Cannot find native library: " + libName);
+            //if (retry == 0 && nativeLoadPathOverride == null)
+            //{
+            //    localExists = false;
+
+            //    nativeLoadPathOverride = Path.Combine(nativeAssemblyPath, "../");
+            //    Console.WriteLine("nativeLoadPathOverride:" + nativeLoadPathOverride);
+            //    if (nativeLoadPathOverride.EndsWith("lib")
+            //        && Directory.Exists(nativeLoadPathOverride = Path.Combine(nativeLoadPathOverride, "../runtimes"))
+            //    )
+            //    {
+            //        if (abi.Equals(ABI.Windows_X86_64) &&
+            //            Directory.Exists(nativeLoadPathOverride = Path.Combine(nativeLoadPathOverride, "win-x64/native")))
+            //        {
+            //            localExists = true;
+            //        }
+            //        else if (abi.Equals(ABI.Windows_X86) &&
+            //                 Directory.Exists(nativeLoadPathOverride = Path.Combine(nativeLoadPathOverride, "win-x86/native")))
+            //        {
+            //            localExists = true;
+            //        }
+            //        else if (abi.Equals(ABI.Linux_X86_64) &&
+            //                 Directory.Exists(nativeLoadPathOverride = Path.Combine(nativeLoadPathOverride, "linux-x64/native")))
+            //        {
+            //            localExists = true;
+            //        }
+            //        else if (abi.Equals(ABI.OSX_X86_64) &&
+            //                 Directory.Exists(nativeLoadPathOverride = Path.Combine(nativeLoadPathOverride, "linux-x86/native")))
+            //        {
+            //            localExists = true;
+            //        }
+
+            //        if (localExists)
+            //        {
+            //            retry++;
+            //            goto RETRY;
+            //        }
+            //    }
+            //}
+
+            return null;
+            // throw new DllNotFoundException("Cannot find native library: " + libName);
         }
 
         public static INativeLibraryLoader GetNativeLibraryLoader(ABI abi)

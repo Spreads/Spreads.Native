@@ -97,7 +97,6 @@ namespace Spreads.Native.Bootstrap
                     Instance._initialized = true;
                     return;
                 }
-                
             }
 
             if (appFolderPath != null)
@@ -131,7 +130,7 @@ namespace Spreads.Native.Bootstrap
         /// <param name="nativeLoadPathOverride">
         /// Path to a directory with the native library. On Linux DllImport won't work with a custom path
         /// and you could setup delegates to native methods from <paramref name="postLoadAction"/>.</param>
-        public static void Bootstrap<T>(string nativeLibraryName,
+        public static bool Bootstrap<T>(string nativeLibraryName,
             Action<Bootstrapper> preLoadAction = null,
             Action<NativeLibrary> postLoadAction = null,
             Action disposeAction = null,
@@ -144,7 +143,7 @@ namespace Spreads.Native.Bootstrap
 
             if (TypeCache<T>.Done)
             {
-                return;
+                return false;
             }
 
             preLoadAction?.Invoke(Instance);
@@ -155,8 +154,11 @@ namespace Spreads.Native.Bootstrap
                 if (!Instance.NativeLibraries.ContainsKey(nativeLibraryName))
                 {
                     nativeLibrary = Loader.LoadNativeLibrary<T>(nativeLibraryName, nativeLoadPathOverride);
-                    Instance.NativeLibraries.Add(nativeLibraryName, nativeLibrary);
-                    Trace.TraceInformation("Loaded native library: " + nativeLibraryName);
+                    if (nativeLibrary != null)
+                    {
+                        Instance.NativeLibraries.Add(nativeLibraryName, nativeLibrary);
+                        Trace.TraceInformation("Loaded native library: " + nativeLibraryName);
+                    }
                 }
             }
 
@@ -165,6 +167,7 @@ namespace Spreads.Native.Bootstrap
             Instance._disposeActions.Add(disposeAction);
 
             TypeCache<T>.Done = true;
+            return true;
         }
 
         ~Bootstrapper()

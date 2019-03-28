@@ -21,6 +21,16 @@ namespace Spreads.Native
     {
         internal const string NativeLibraryName = "spreads_native";
 
+        //private static readonly bool Initialized = Bootstrapper.Bootstrap<Compression>(
+        //    NativeLibraryName,
+        //    instance =>
+        //    {
+        //    },
+        //    library =>
+        //    {
+        //    },
+        //    () => { });
+
         internal static IntPtr compress_lz4_ptr;
         internal static IntPtr decompress_lz4_ptr;
 
@@ -47,32 +57,6 @@ namespace Spreads.Native
             try
             {
                 // Ensure Bootstrapper is initialized and native libraries are loaded
-                Bootstrapper.Bootstrap<Compression>(
-                    NativeLibraryName,
-                    instance =>
-                    {
-                    },
-                    library =>
-                    {
-                        compress_lz4_ptr = library.GetFunctionPtr("spreads_compress_lz4");
-                        decompress_lz4_ptr = library.GetFunctionPtr("spreads_decompress_lz4");
-
-                        compress_zstd_ptr = library.GetFunctionPtr("spreads_compress_zstd");
-                        decompress_zstd_ptr = library.GetFunctionPtr("spreads_decompress_zstd");
-
-                        compress_zlib_ptr = library.GetFunctionPtr("spreads_compress_zlib");
-                        decompress_zlib_ptr = library.GetFunctionPtr("spreads_decompress_zlib");
-
-                        compress_deflate_ptr = library.GetFunctionPtr("spreads_compress_deflate");
-                        decompress_deflate_ptr = library.GetFunctionPtr("spreads_decompress_deflate");
-
-                        compress_gzip_ptr = library.GetFunctionPtr("spreads_compress_gzip");
-                        decompress_gzip_ptr = library.GetFunctionPtr("spreads_decompress_gzip");
-
-                        shuffle_ptr = library.GetFunctionPtr("spreads_shuffle");
-                        unshuffle_ptr = library.GetFunctionPtr("spreads_unshuffle");
-                    },
-                    () => { });
             }
             catch (Exception ex)
             {

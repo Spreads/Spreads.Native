@@ -192,8 +192,7 @@ docs/content/release-notes.md
 *.so
 *.dylib
 
-!dotnet/lib/native/*
-!dotnet/lib/native/x86/*
+!dotnet/lib/runtimes/**/*.*
 
 project.lock.json
 

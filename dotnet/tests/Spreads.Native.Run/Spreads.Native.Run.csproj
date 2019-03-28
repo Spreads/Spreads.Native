@@ -24,4 +24,13 @@
     <ProjectReference Include="..\Spreads.Native.Tests\Spreads.Native.Tests.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <NativeLibs Include="..\..\lib\runtimes\**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
+    <None Include="@(NativeLibs)">
+      <Link>%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
+  </ItemGroup>
+  
 </Project>

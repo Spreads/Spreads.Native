@@ -19,12 +19,6 @@ namespace Spreads.Native.Tests
         public const int ItemCount = 1_000;
 
         [Test]
-        public void UnsafeExWorks()
-        {
-            Assert.True(Compression.compress_copy_ptr != IntPtr.Zero);
-        }
-
-        [Test]
         public void CouldShuffleUnshuffle()
         {
             byte itemSize = 16;

@@ -5,16 +5,16 @@
     <AssemblyName>Spreads.Native</AssemblyName>
     <RootNamespace>Spreads.Native</RootNamespace>
     <Description>Spreads Native compression and low-level IL unsafe methods</Description>
+
+    <RuntimeIdentifiers>win-x64;win-x86;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
-  <!-- 
-  So far Vicible attribute is not working. Spreads has a small problem with a few deps, 
-  but even CefSharp could not fix it: https://github.com/cefsharp/CefSharp/issues/2456
-  -->
   <ItemGroup>
-    <None Include="$(SolutionDir)lib\native\**\*.*" Pack="true" PackagePath="\build" />
+    <None Include="..\..\lib\runtimes\**\*.*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes</PackagePath>
+    </None>
   </ItemGroup>
-  <Import Project="..\..\lib\native\Spreads.Native.targets" />
   
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
