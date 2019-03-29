@@ -45,6 +45,7 @@ namespace Spreads.Native.Tests
 
         private static void PrintHeader(string summary, string caller, int? caseLength = null, string unit = null)
         {
+            
             var len = caseLength ?? 20;
             var caseDahes = new string('-', len + 1);
             var dashes = $"{caseDahes,-21}|{new string('-', 8),8}:|{new string('-', 9),9}:|{new string('-', 6),6}:|{new string('-', 6),6}:|{new string('-', 6),6}:|{new string('-', 8),8}:";
