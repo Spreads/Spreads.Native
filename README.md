@@ -1,7 +1,7 @@
 
-|   Linux    |  Windows    | 
-|:----------:|:----------:|
-|   [![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master&jobName=Linux)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)    |  [![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master&jobName=Windows)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)    | 
+|   Linux    |  Windows   |     Mac    |
+|:----------:|:----------:|:----------:|
+|   [![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master&jobName=Linux)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)    |  [![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master&jobName=Windows)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)    | [![Build Status](https://dev.azure.com/DataSpreads/Spreads/_apis/build/status/Spreads.Spreads.Native?branchName=master&jobName=Mac)](https://dev.azure.com/DataSpreads/Spreads/_build/latest?definitionId=7&branchName=master)  |
 
 # Spreads.Native
 
