@@ -19,7 +19,7 @@ namespace Spreads.Native
     [SuppressUnmanagedCodeSecurity]
     public unsafe class Compression
     {
-        internal const string NativeLibraryName = "spreads_native";
+        internal const string NativeLibraryName = "libspreads_native";
 
         //private static readonly bool Initialized = Bootstrapper.Bootstrap<Compression>(
         //    NativeLibraryName,
@@ -114,17 +114,5 @@ namespace Spreads.Native
         public static extern void unshuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination);
 
         #endregion Blosc Internals
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal static void shuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination)
-        //{
-        //    UnsafeEx.CalliShuffleUnshuffle(typeSize, length, source, destination, shuffle_ptr);
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal static void unshuffle(IntPtr typeSize, IntPtr length, byte* source, byte* destination)
-        //{
-        //    UnsafeEx.CalliShuffleUnshuffle(typeSize, length, source, destination, unshuffle_ptr);
-        //}
     }
 }

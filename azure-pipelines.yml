@@ -10,6 +10,22 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
+
+- job: Mac
+  pool:
+    vmImage: 'macOS-10.13'
+
+  steps:
+  - task: DotNetCoreInstaller@0
+    inputs:
+      version: '3.0.100-preview4-010538'
+
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
+    displayName: 'Test Debug netcoreapp3.0'
+  - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
+    displayName: 'Test Release netcoreapp3.0'
+
+
 - job: Linux
   pool:
     vmImage: 'ubuntu-16.04'
@@ -23,6 +39,8 @@ jobs:
     displayName: 'Test Debug netcoreapp3.0'
   - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --framework=netcoreapp3.0 -v m
     displayName: 'Test Release netcoreapp3.0'
+
+
 
 - job: Windows
   pool:

@@ -13,7 +13,6 @@
     <NeutralLanguage>en-US</NeutralLanguage>
 
     <VersionPrefix>"This is invalid placeholder version. Proper version must be set in common.props or with cli command"</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
 
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Spreads/Spreads.git</RepositoryUrl>
