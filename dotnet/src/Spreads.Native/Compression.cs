@@ -21,16 +21,6 @@ namespace Spreads.Native
     {
         internal const string NativeLibraryName = "libspreads_native";
 
-        //private static readonly bool Initialized = Bootstrapper.Bootstrap<Compression>(
-        //    NativeLibraryName,
-        //    instance =>
-        //    {
-        //    },
-        //    library =>
-        //    {
-        //    },
-        //    () => { });
-
         internal static IntPtr compress_lz4_ptr;
         internal static IntPtr decompress_lz4_ptr;
 

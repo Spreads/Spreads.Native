@@ -24,7 +24,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <NativeLibs Include="..\..\lib\runtimes\**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
+    <NativeLibs Include="..\..\lib\runtimes\win-x64\native\*.*" />
+    <None Include="@(NativeLibs)">
+      <Link>%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
+    <NativeLibs Include="..\..\lib\runtimes\linux-x64\native\*.*"/>
+    <None Include="@(NativeLibs)">
+      <Link>%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
+    <NativeLibs Include="..\..\lib\runtimes\osx-x64\native\*.*" />
     <None Include="@(NativeLibs)">
       <Link>%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
