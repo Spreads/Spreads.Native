@@ -794,9 +794,10 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get<T>(int index)
         {
-            if (unchecked((uint)index) >= unchecked((uint)_length) ||
-                VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId
-                )
+            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
+                ||
+                (unchecked((uint)index) >= unchecked((uint)_length))
+            )
             {
                 ThrowWrongLengthOrType<T>(index);
             }
@@ -810,8 +811,10 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetRef<T>(int index)
         {
-            if (unchecked((uint)index) >= unchecked((uint)_length) ||
-                VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId != _runtimeTypeId)
+            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
+                || 
+                (unchecked((uint)index) >= unchecked((uint)_length))
+                )
             {
                 ThrowWrongLengthOrType<T>(index);
             }
