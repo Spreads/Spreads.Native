@@ -188,20 +188,20 @@ namespace Spreads.Native.Tests
                     }
                 }
 
-                using (Benchmark.Run("Vec.GetGetter<T>", count * mult))
-                {
-                    var getter = vec.GetItemGetter<int>();
+                //using (Benchmark.Run("Vec.GetGetter<T>", count * mult))
+                //{
+                //    var getter = vec.GetItemGetter<int>();
 
-                    for (int m = 0; m < mult; m++)
-                    {
-                        for (int j = 0; j < count; j++)
-                        {
-                            int value = 0;
-                            getter(j, ref value);
-                            sum += value;
-                        }
-                    }
-                }
+                //    for (int m = 0; m < mult; m++)
+                //    {
+                //        for (int j = 0; j < count; j++)
+                //        {
+                //            int value = 0;
+                //            getter(j, ref value);
+                //            sum += value;
+                //        }
+                //    }
+                //}
 
                 //using (Benchmark.Run("Vec", count * mult))
                 //{
