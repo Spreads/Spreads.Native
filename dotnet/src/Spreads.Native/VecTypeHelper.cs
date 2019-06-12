@@ -117,8 +117,11 @@ namespace Spreads.Native
         }
     }
 
-    internal static class VecTypeHelper<T>
+    public static class VecTypeHelper<T>
     {
-        public static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
+        internal static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
+
+        // ReSharper disable once StaticMemberInGenericType
+        public static readonly int RuntimeTypeId = RuntimeVecInfo.RuntimeTypeId;
     }
 }

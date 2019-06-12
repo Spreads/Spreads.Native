@@ -73,10 +73,15 @@ namespace Spreads.Native.Tests
             Assert.IsTrue(vecT.Span.SequenceEqual(vec.AsSpan<int>()));
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining
+#if NETCOREAPP3_0
+                    | MethodImplOptions.AggressiveOptimization
+#endif   
+                    )]
         [Test, Explicit("long running")]
         public void ForEachBench()
         {
-            var count = 50_000_000;
+            var count = 10_000_000;
             var arr = new int[count];
             IList arrO = arr;
             var vecT = new Vec<int>(arr);
@@ -94,7 +99,7 @@ namespace Spreads.Native.Tests
             //}
 
             long sum = 0;
-            var rounds = 20;
+            var rounds = 10;
             var mult = 10;
 
             for (int r = 0; r < rounds; r++)
@@ -154,7 +159,7 @@ namespace Spreads.Native.Tests
                 //        var z = count - 1;
                 //        for (int j = 1; j < z; j++)
                 //        {
-                //            sum += vecT.DangerousGet(j - 1);
+                //            sum += vecT.Get(j - 1);
                 //        }
                 //    }
                 //}
@@ -178,7 +183,22 @@ namespace Spreads.Native.Tests
                     {
                         for (int j = 0; j < count; j++)
                         {
-                            sum += vec.DangerousGet<int>(j);
+                            sum += vec.Get<int>(j);
+                        }
+                    }
+                }
+
+                using (Benchmark.Run("Vec.GetGetter<T>", count * mult))
+                {
+                    var getter = vec.GetItemGetter<int>();
+
+                    for (int m = 0; m < mult; m++)
+                    {
+                        for (int j = 0; j < count; j++)
+                        {
+                            int value = 0;
+                            getter(j, ref value);
+                            sum += value;
                         }
                     }
                 }

@@ -23,20 +23,21 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
+            
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            //var test = new VecTests();
-            //test.CouldUseVec();
+            var test = new VecTests();
+            test.ForEachBench();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;
             //Console.WriteLine("Offset: " + offset);
             //Console.WriteLine("Size: " + size);
 
-            var test = new CompressionTests();
+            //var test = new CompressionTests();
 
-            Console.WriteLine("----------- Shuffle -----------");
-            test.CouldShuffleUnshuffle();
+            //Console.WriteLine("----------- Shuffle -----------");
+            //test.CouldShuffleUnshuffle();
 
             //Console.WriteLine("----------- LZ4 -----------");
             //test.Lz4Benchmark();

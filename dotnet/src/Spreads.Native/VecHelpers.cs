@@ -156,7 +156,7 @@ namespace Spreads.Native
             return false;
         }
 
-        public unsafe static void ClearLessThanPointerSized(byte* ptr, UIntPtr byteLength)
+        public static unsafe void ClearLessThanPointerSized(byte* ptr, UIntPtr byteLength)
         {
             if (sizeof(UIntPtr) == sizeof(uint))
             {
@@ -207,7 +207,7 @@ namespace Spreads.Native
             }
         }
 
-        public unsafe static void ClearPointerSizedWithoutReferences(ref byte b, UIntPtr byteLength)
+        public static unsafe void ClearPointerSizedWithoutReferences(ref byte b, UIntPtr byteLength)
         {
             // TODO: Perhaps do switch casing to improve small size perf
 
@@ -282,7 +282,7 @@ namespace Spreads.Native
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static bool LessThanEqual(this IntPtr index, UIntPtr length)
+        private static unsafe bool LessThanEqual(this IntPtr index, UIntPtr length)
         {
             return (sizeof(UIntPtr) == sizeof(uint))
                 ? (int)index <= (int)length

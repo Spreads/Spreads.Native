@@ -496,6 +496,11 @@ namespace Spreads.Native
     }
 
     /// <summary>
+    /// Delegate type to get a value.
+    /// </summary>
+    public delegate void ItemGetter<T>(int index, ref T value);
+
+    /// <summary>
     /// Untyped native or managed vector.
     /// </summary>
     /// <remarks>Not thread safe and not safe at all</remarks>
@@ -706,13 +711,13 @@ namespace Spreads.Native
             get => _pinnable == null;
         }
 
-        internal int RuntimeTypeId
+        public int RuntimeTypeId
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _runtimeTypeId;
         }
 
-        internal Type Type
+        public Type ItemType
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => VecTypeHelper.GetInfo(_runtimeTypeId).Type;
@@ -765,24 +770,67 @@ namespace Spreads.Native
             UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
         }
 
+        public ItemGetter<T> GetItemGetter<T>()
+        {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
+            {
+                VecThrowHelper.ThrowWrongCastType<T>();
+            }
+
+            var t = this;
+            return (int index, ref T value) =>
+            {
+                if (unchecked((uint)index) >= unchecked((uint)t._length))
+                {
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
+                }
+                value = t.DangerousGetRef<T>(index);
+            };
+        }
+
         /// <summary>
         /// Returns the element at the specified index.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get<T>(int index)
         {
+            if (unchecked((uint)index) >= unchecked((uint)_length) ||
+                VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId
+                )
+            {
+                ThrowWrongLengthOrType<T>(index);
+            }
+
+            return UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
+        }
+
+        /// <summary>
+        /// Get a typed reference to a value at index.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetRef<T>(int index)
+        {
+            if (unchecked((uint)index) >= unchecked((uint)_length) ||
+                VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId != _runtimeTypeId)
+            {
+                ThrowWrongLengthOrType<T>(index);
+            }
+
+            return ref UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowWrongLengthOrType<T>(int index)
+        {
             if (unchecked((uint)index) >= unchecked((uint)_length))
             {
                 VecThrowHelper.ThrowIndexOutOfRangeException();
             }
 
-            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            if (vtidx != _runtimeTypeId)
+            if (VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId != _runtimeTypeId)
             {
                 VecThrowHelper.ThrowWrongCastType<T>();
             }
-
-            return DangerousGetRef<T>(index);
         }
 
         /// <summary>
@@ -792,21 +840,6 @@ namespace Spreads.Native
         public T DangerousGet<T>(int index)
         {
             return DangerousGetRef<T>(index);
-        }
-
-        /// <summary>
-        /// Get a typed reference to a value at index.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetRef<T>(int index)
-        {
-            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            if (vtidx != _runtimeTypeId)
-            {
-                VecThrowHelper.ThrowWrongCastType<T>();
-            }
-
-            return ref DangerousGetRef<T>(index);
         }
 
         /// <summary>
@@ -875,7 +908,7 @@ namespace Spreads.Native
         /// </summary>
         public override string ToString()
         {
-            return $"Spreads.Vec[{_length}] of {Type.Name}";
+            return $"Spreads.Vec[{_length}] of {ItemType.Name}";
         }
 
         /// <summary>
