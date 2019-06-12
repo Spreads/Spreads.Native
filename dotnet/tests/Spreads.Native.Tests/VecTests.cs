@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
 // ReSharper disable UnusedVariable
 
 namespace Spreads.Native.Tests
@@ -49,6 +50,13 @@ namespace Spreads.Native.Tests
             Assert.AreEqual(123, vec[2]);
 
             Assert.Throws<IndexOutOfRangeException>(() => { vecT[3] = 42; });
+
+            // TODO uncomment when NuGet is updated, GetRef did not have type check
+            //Assert.Throws<IndexOutOfRangeException>(() => { vec.GetRef<int>(3) = 42; });
+            //Assert.Throws<InvalidOperationException>(() => { vec.GetRef<long>(2) = 42; });
+
+            Assert.Throws<IndexOutOfRangeException>(() => { Console.WriteLine(vec.Get<int>(3)); });
+            Assert.Throws<InvalidOperationException>(() => { Console.WriteLine(vec.Get<long>(2)); });
         }
 
         [Test]
@@ -69,14 +77,13 @@ namespace Spreads.Native.Tests
 
             Assert.IsTrue(vec.As<int>().ReferenceEquals(vecT));
 
-
             Assert.IsTrue(vecT.Span.SequenceEqual(vec.AsSpan<int>()));
         }
 
         [MethodImpl(MethodImplOptions.NoInlining
 #if NETCOREAPP3_0
                     | MethodImplOptions.AggressiveOptimization
-#endif   
+#endif
                     )]
         [Test, Explicit("long running")]
         public void ForEachBench()

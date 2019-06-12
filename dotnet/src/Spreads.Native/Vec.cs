@@ -812,7 +812,7 @@ namespace Spreads.Native
         public ref T GetRef<T>(int index)
         {
             if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
-                || 
+                ||
                 (unchecked((uint)index) >= unchecked((uint)_length))
                 )
             {
