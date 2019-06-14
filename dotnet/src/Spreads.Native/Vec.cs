@@ -496,11 +496,6 @@ namespace Spreads.Native
     }
 
     /// <summary>
-    /// Delegate type to get a value.
-    /// </summary>
-    public delegate void ItemGetter<T>(int index, ref T value);
-
-    /// <summary>
     /// Untyped native or managed vector.
     /// </summary>
     /// <remarks>Not thread safe and not safe at all</remarks>
@@ -768,24 +763,6 @@ namespace Spreads.Native
         {
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
             UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
-        }
-
-        public ItemGetter<T> GetItemGetter<T>()
-        {
-            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
-            {
-                VecThrowHelper.ThrowWrongCastType<T>();
-            }
-
-            var t = this;
-            return (int index, ref T value) =>
-            {
-                if (unchecked((uint)index) >= unchecked((uint)t._length))
-                {
-                    VecThrowHelper.ThrowIndexOutOfRangeException();
-                }
-                value = t.DangerousGetRef<T>(index);
-            };
         }
 
         /// <summary>

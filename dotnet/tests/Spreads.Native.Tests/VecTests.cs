@@ -12,6 +12,50 @@ using System.Runtime.CompilerServices;
 
 namespace Spreads.Native.Tests
 {
+    internal sealed class Container
+    {
+        // only field or byref access keeps perf
+        private readonly Vec vec;
+
+        public ref readonly Vec Vec
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ref vec;
+        }
+
+        public Container(Vec vec)
+        {
+            this.vec = vec;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Get<T>(int index)
+        {
+            return Vec.Get<T>(index);
+        }
+    }
+
+    internal sealed class Container2
+    {
+        private Container container;
+
+        public Container Container
+        {
+            get { return container; }
+        }
+
+        public Container2(Container container)
+        {
+            this.container = container;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Get<T>(int index)
+        {
+            return Container.Get<T>(index);
+        }
+    }
+
     [Category("CI")]
     [TestFixture]
     public class VecTests
@@ -93,17 +137,19 @@ namespace Spreads.Native.Tests
             IList arrO = arr;
             var vecT = new Vec<int>(arr);
             var vec = new Vec(arr);
+            var cont = new Container(vec);
+            var cont2 = new Container2(cont);
             var mem = (Memory<int>)arr;
             var list = new List<int>(arr);
 
-            //for (int i = 0; i < count; i++)
-            //{
-            //    vecT[i] = i;
-            //    //if ((int)vec[i] != vecT[i])
-            //    //{
-            //    //    throw new Exception("(int)vec[i] != vecT[i]");
-            //    //}
-            //}
+            for (int i = 0; i < count; i++)
+            {
+                vecT[i] = i;
+                //if ((int)vec[i] != vecT[i])
+                //{
+                //    throw new Exception("(int)vec[i] != vecT[i]");
+                //}
+            }
 
             long sum = 0;
             var rounds = 10;
@@ -184,31 +230,7 @@ namespace Spreads.Native.Tests
                 //    }
                 //}
 
-                using (Benchmark.Run("Vec.Get<T>", count * mult))
-                {
-                    for (int m = 0; m < mult; m++)
-                    {
-                        for (int j = 0; j < count; j++)
-                        {
-                            sum += vec.Get<int>(j);
-                        }
-                    }
-                }
-
-                //using (Benchmark.Run("Vec.GetGetter<T>", count * mult))
-                //{
-                //    var getter = vec.GetItemGetter<int>();
-
-                //    for (int m = 0; m < mult; m++)
-                //    {
-                //        for (int j = 0; j < count; j++)
-                //        {
-                //            int value = 0;
-                //            getter(j, ref value);
-                //            sum += value;
-                //        }
-                //    }
-                //}
+                sum = VecGetT_Loop(count, mult, sum, vec);
 
                 //using (Benchmark.Run("Vec", count * mult))
                 //{
@@ -235,6 +257,27 @@ namespace Spreads.Native.Tests
 
             Benchmark.Dump();
             Console.WriteLine(sum);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining
+#if NETCOREAPP3_0
+                    | MethodImplOptions.AggressiveOptimization
+#endif
+        )]
+        private static long VecGetT_Loop(int count, int mult, long sum, Vec vec)
+        {
+            using (Benchmark.Run("Vec.Get<T>", count * mult))
+            {
+                for (int m = 0; m < mult; m++)
+                {
+                    for (int j = 0; j < count; j++)
+                    {
+                        sum += vec.Get<int>(j);
+                    }
+                }
+            }
+
+            return sum;
         }
     }
 }
