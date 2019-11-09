@@ -11,6 +11,7 @@ fn main() {
         .ctypes_prefix("libc")
         .whitelist_function(".*compress.*")
         .whitelist_function(".*shuffle.*")
+        .rustfmt_bindings(true)
         .generate()
         .expect("Unable to generate bindings");
 

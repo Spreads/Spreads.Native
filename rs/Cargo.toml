@@ -2,7 +2,7 @@
 name = "spreads-native"
 homepage = "https://github.com/Spreads"
 repository = "https://github.com/Spreads/Spreads.Native"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
 description = "Spreads's native utils"
 license = "MPL-2.0"

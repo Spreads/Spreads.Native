@@ -30,6 +30,12 @@
     <IL Remove="Unsafe.il" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="..\..\lib\runtimes\win-x64\native\libspreads_native.dll" Link="libspreads_native.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Condition=" '$(OS)' == 'Windows_NT' " Name="ProcessILAfterCompile" AfterTargets="Compile">
     <CallTarget Targets="InitializeIL; CoreDecompile; CoreCompileIL" />
   </Target>
