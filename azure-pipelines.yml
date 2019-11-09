@@ -18,7 +18,7 @@ jobs:
   steps:
   - task: DotNetCoreInstaller@0
     inputs:
-      version: '3.0.100-preview4-010538'
+      version: '3.0.100'
 
   - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
     displayName: 'Test Debug netcoreapp3.0'
@@ -33,7 +33,7 @@ jobs:
   steps:
   - task: DotNetCoreInstaller@0
     inputs:
-      version: '3.0.100-preview4-010538'
+      version: '3.0.100'
 
   - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=netcoreapp3.0 -v m
     displayName: 'Test Debug netcoreapp3.0'
@@ -49,7 +49,7 @@ jobs:
   steps:
   - task: DotNetCoreInstaller@0
     inputs:
-      version: '3.0.100-preview4-010538'
+      version: '3.0.100'
 
  # - script: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Debug --framework=net461  -v m  -- RunConfiguration.TargetPlatform=x64
  #   displayName: 'Test Debug net461'
