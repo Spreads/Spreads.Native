@@ -18,10 +18,10 @@ rustflags = ["-C", "target-feature=+crt-static"]
 # This works until you do a rustup update then rust-mingw will be back, and you'll have to start over.
 
 # Works without this but MinGW should be in PATH
-# linker = "C:/tools/mingw64/bin/gcc.exe"
-# ar = "C:/tools/mingw64/bin/ar.exe"
+# linker = "/tools/mingw64/bin/gcc.exe"
+# ar = "/tools/mingw64/bin/ar.exe"
 
 [target.i686-pc-windows-gnu]
 rustflags = ["-C", "target-feature=+crt-static"]
-linker = "C:/tools/mingw32/bin/gcc.exe"
-ar = "C:/tools/mingw32/bin/ar.exe"
+linker = "/tools/mingw32/bin/gcc.exe"
+ar = "/tools/mingw32/bin/ar.exe"
