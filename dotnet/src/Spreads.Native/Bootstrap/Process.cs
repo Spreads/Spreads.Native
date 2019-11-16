@@ -6,6 +6,8 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
+// ReSharper disable All
+
 namespace Spreads.Native.Bootstrap
 {
     internal class Process

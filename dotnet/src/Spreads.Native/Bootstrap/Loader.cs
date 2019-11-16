@@ -7,9 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-
-// ReSharper disable InconsistentNaming
-// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable All
 
 namespace Spreads.Native.Bootstrap
 {
@@ -234,9 +232,8 @@ namespace Spreads.Native.Bootstrap
             if (loader == null)
             { return null; }
 
-            var retry = 0;
-
-        RETRY:
+//            var retry = 0;
+//        RETRY:
 
             var nativeAssemblyPath = nativeLoadPathOverride ?? Path.GetDirectoryName(typeof(T).GetTypeInfo().Assembly.Location);
 

@@ -177,8 +177,8 @@ namespace Spreads.Native
         {
             MethodInfo method = typeof(UnsafeEx).GetMethod("GetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
-            MethodInfo generic = method.MakeGenericMethod(ty);
-            return (IntPtr)generic.Invoke(null, null);
+            MethodInfo generic = method!.MakeGenericMethod(ty);
+            return (IntPtr)generic.Invoke(null, null)!;
         }
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
@@ -225,8 +225,8 @@ namespace Spreads.Native
         {
             var method = typeof(UnsafeEx).GetMethod("SetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
-            var generic = method.MakeGenericMethod(ty);
-            return (IntPtr)generic.Invoke(null, null);
+            var generic = method!.MakeGenericMethod(ty);
+            return (IntPtr)generic.Invoke(null, null)!;
         }
 
         /// <summary>
@@ -240,6 +240,7 @@ namespace Spreads.Native
         // for reflection 
         internal static int ArrayOffsetAdjustment<T>()
         {
+            // ReSharper disable once RedundantOverflowCheckingContext
             return checked((int)VecHelpers.PerTypeValues<T>.ArrayAdjustment);
         }
 
@@ -247,8 +248,8 @@ namespace Spreads.Native
         {
             var method = typeof(UnsafeEx).GetMethod("ArrayOffsetAdjustment", BindingFlags.Static | BindingFlags.NonPublic);
             // ReSharper disable once PossibleNullReferenceException
-            var genericMethod = method.MakeGenericMethod(ty);
-            return (int)genericMethod.Invoke(null, null);
+            var genericMethod = method!.MakeGenericMethod(ty);
+            return (int)genericMethod.Invoke(null, null)!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -261,8 +262,8 @@ namespace Spreads.Native
         {
             var method = typeof(UnsafeEx).GetMethod("IsReferenceOrContainsReferences", BindingFlags.Static | BindingFlags.Public);
             // ReSharper disable once PossibleNullReferenceException
-            var genericMethod = method.MakeGenericMethod(ty);
-            return (bool)genericMethod.Invoke(null, null);
+            var genericMethod = method!.MakeGenericMethod(ty);
+            return (bool)genericMethod.Invoke(null, null)!;
         }
 
         // needed for reflection below
@@ -276,8 +277,8 @@ namespace Spreads.Native
         {
             var method = typeof(UnsafeEx).GetMethod("ElemSize", BindingFlags.Static | BindingFlags.NonPublic);
             // ReSharper disable once PossibleNullReferenceException
-            var genericMethod = method.MakeGenericMethod(ty);
-            return (int)genericMethod.Invoke(null, null);
+            var genericMethod = method!.MakeGenericMethod(ty)!;
+            return (int)genericMethod!.Invoke(null, null)!;
         }
     }
 }

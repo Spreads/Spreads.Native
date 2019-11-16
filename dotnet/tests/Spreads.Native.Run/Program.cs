@@ -1,5 +1,4 @@
-﻿using Spreads.Native.Tests;
-using System;
+﻿using System;
 using System.Diagnostics;
 
 namespace Spreads.Native.Run
@@ -26,7 +25,7 @@ namespace Spreads.Native.Run
             
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            var test = new VecTests();
+            var test = new Tests.VecTests();
             test.ForEachBench();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;

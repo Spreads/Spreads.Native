@@ -10,6 +10,10 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
+
 namespace Spreads.Native
 {
     /// <summary>
@@ -51,7 +55,8 @@ namespace Spreads.Native
                 return; // returns default
             }
 
-            if (default(T) == null && array.GetType() != typeof(T[]))
+
+            if (default(T) is null && array.GetType() != typeof(T[]))
             {
                 VecThrowHelper.ThrowArrayTypeMismatchException();
             }
@@ -75,11 +80,11 @@ namespace Spreads.Native
                     VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
                 return default;
             }
-            if (default(T) == null && array.GetType() != typeof(T[]))
+            if (default(T) is null && array.GetType() != typeof(T[]))
                 VecThrowHelper.ThrowArrayTypeMismatchException();
             if (unchecked((uint)start) > unchecked((uint)array.Length))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
-
+            
             IntPtr byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
             int length = array.Length - start;
             return new Vec<T>(pinnable: Unsafe.As<Pinnable<T>>(array), byteOffset: byteOffset, length: length, runtimeTypeId: VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId);
@@ -107,9 +112,10 @@ namespace Spreads.Native
                 this = default;
                 return; // returns default
             }
-            if (default(T) == null && array.GetType() != typeof(T[]))
+            if (default(T) is null && array.GetType() != typeof(T[]))
             { VecThrowHelper.ThrowArrayTypeMismatchException(); }
-            if (unchecked((uint)start) > unchecked((uint)array.Length) || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
+            if (unchecked((uint)start) > unchecked((uint)array.Length) 
+                || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
             { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
 
             _length = length;
@@ -315,6 +321,13 @@ namespace Spreads.Native
             IntPtr newOffset = _byteOffset.Add<T>(start);
             return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Vec<T> DangerousSlice(int start, int length)
+        {
+            IntPtr newOffset = _byteOffset.Add<T>(start);
+            return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
+        }
 
         /// <summary>
         /// Copies the contents of this span into a new array.  This heap
@@ -340,9 +353,9 @@ namespace Spreads.Native
                 {
                     return ref Unsafe.AsRef<T>(_byteOffset.ToPointer());
                 }
-                return ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset);
+                return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset);
             }
-            return ref Unsafe.AsRef<T>(null);
+            return ref Unsafe.AsRef<T>(source: null);
         }
 
         /// <summary>
@@ -357,7 +370,7 @@ namespace Spreads.Native
             if (_pinnable == null)
             { return ref Unsafe.AsRef<T>(_byteOffset.ToPointer()); }
             else
-            { return ref Unsafe.AddByteOffset<T>(ref _pinnable.Data, _byteOffset); }
+            { return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset); }
         }
 
         /// <summary>
@@ -420,7 +433,7 @@ namespace Spreads.Native
         public bool ReferenceEquals(Vec<T> other)
         {
             return _length == other._length
-                   && Unsafe.AreSame<T>(ref DangerousGetPinnableReference(), ref other.DangerousGetPinnableReference())
+                   && Unsafe.AreSame(ref DangerousGetPinnableReference(), ref other.DangerousGetPinnableReference())
                    && _runtimeTypeId == other._runtimeTypeId;
         }
 
@@ -429,6 +442,7 @@ namespace Spreads.Native
         /// </summary>
         public override string ToString()
         {
+            // ReSharper disable once HeapView.BoxingAllocation
             return $"Spreads.Vec<{typeof(T).Name}>[{_length}]";
         }
 
@@ -443,11 +457,13 @@ namespace Spreads.Native
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            // ReSharper disable once HeapView.BoxingAllocation
             return GetEnumerator();
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
+            // ReSharper disable once HeapView.BoxingAllocation
             return GetEnumerator();
         }
 
@@ -473,6 +489,7 @@ namespace Spreads.Native
                 get => _vec.DangerousGet(_position);
             }
 
+            // ReSharper disable once HeapView.BoxingAllocation
             object IEnumerator.Current => Current;
 
             public void Dispose()
@@ -888,6 +905,7 @@ namespace Spreads.Native
         /// </summary>
         public override string ToString()
         {
+            // ReSharper disable once HeapView.BoxingAllocation
             return $"Spreads.Vec[{_length}] of {ItemType.Name}";
         }
 
@@ -901,6 +919,7 @@ namespace Spreads.Native
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            // ReSharper disable once HeapView.BoxingAllocation
             return GetEnumerator();
         }
 

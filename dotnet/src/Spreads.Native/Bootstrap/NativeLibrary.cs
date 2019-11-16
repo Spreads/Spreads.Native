@@ -6,6 +6,8 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable All
+
 namespace Spreads.Native.Bootstrap
 {
     public class NativeLibrary : IDisposable
@@ -30,7 +32,7 @@ namespace Spreads.Native.Bootstrap
             if (_handle == IntPtr.Zero)
             {
                 var error = loader.LastError();
-                Trace.TraceError("NativeLibrary: handle == IntPtr.Zero, lastError: " + (long)error);
+                Trace.TraceError("NativeLibrary: handle == IntPtr.Zero, lastError: " + (long) error);
                 throw new DllNotFoundException(path);
             }
         }
@@ -47,6 +49,7 @@ namespace Spreads.Native.Bootstrap
                 {
                     throw new EntryPointNotFoundException(name);
                 }
+
             return Marshal.GetDelegateForFunctionPointer(function, type);
         }
 
@@ -57,6 +60,7 @@ namespace Spreads.Native.Bootstrap
             {
                 throw new EntryPointNotFoundException(name);
             }
+
             return Marshal.GetDelegateForFunctionPointer<TDelegate>(function);
         }
 
@@ -84,6 +88,7 @@ namespace Spreads.Native.Bootstrap
                 _loader.UnloadLibrary(_handle);
                 _handle = IntPtr.Zero;
             }
+
             if (_path != null)
             {
                 try
@@ -93,6 +98,7 @@ namespace Spreads.Native.Bootstrap
                 catch
                 {
                 }
+
                 _path = null;
             }
         }

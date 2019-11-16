@@ -5,6 +5,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Buffers;
+// ReSharper disable All
 
 namespace Spreads.Native
 {

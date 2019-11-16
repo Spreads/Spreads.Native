@@ -302,10 +302,12 @@ namespace Spreads.Native
             // Latch to ensure that excruciatingly expensive validation check for constructing a Span around a raw pointer is done
             // only once per type.
             //
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public static readonly bool IsReferenceOrContainsReferences = IsReferenceOrContainsReferencesCore(typeof(T));
 
             public static readonly T[] EmptyArray = new T[0];
 
+            // ReSharper disable once StaticMemberInGenericType
             public static readonly IntPtr ArrayAdjustment = MeasureArrayAdjustment();
 
             // Array header sizes are a runtime implementation detail and aren't the same across all runtimes. (The CLR made a tweak after 4.5, and Mono has an extra Bounds pointer.)

@@ -23,5 +23,26 @@ namespace Spreads.Native
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec AsVec(this Array array, int start) => Vec.Create(array, start);
+
+        /// <summary>
+        /// Move a block of values inside vector. Source and destination could overlap.
+        /// </summary>
+        public static void MoveBlock<T>(this Vec vec, int start, int length, int destination)
+        {
+            if ((uint)start > (uint)vec._length || (uint)length > (uint)(vec._length - start))
+            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+
+            var span = vec.AsSpan<T>();
+            span.Slice(start, length).CopyTo(span.Slice(destination, length));
+        }
+
+        /// <summary>
+        /// Move a block of values inside vector. Source and destination could overlap.
+        /// </summary>
+        public static void MoveBlock<T>(this Vec<T> vec, int start, int length, int destination)
+        {
+            var span = vec.Span;
+            span.Slice(start, length).CopyTo(span.Slice(destination, length));
+        }
     }
 }

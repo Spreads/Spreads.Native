@@ -2,13 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-using Spreads.Native.Bootstrap;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 
-// ReSharper disable InconsistentNaming
+// ReSharper disable All
+
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace Spreads.Native
@@ -21,40 +20,10 @@ namespace Spreads.Native
     {
         internal const string NativeLibraryName = "libspreads_native";
 
-        internal static IntPtr compress_lz4_ptr;
-        internal static IntPtr decompress_lz4_ptr;
-
-        internal static IntPtr compress_zstd_ptr;
-        internal static IntPtr decompress_zstd_ptr;
-
-        internal static IntPtr compress_zlib_ptr;
-        internal static IntPtr decompress_zlib_ptr;
-
-        internal static IntPtr compress_deflate_ptr;
-        internal static IntPtr decompress_deflate_ptr;
-
-        internal static IntPtr compress_gzip_ptr;
-        internal static IntPtr decompress_gzip_ptr;
-
-        internal static IntPtr shuffle_ptr;
-        internal static IntPtr unshuffle_ptr;
-
         internal static IntPtr compress_copy_ptr = UnsafeEx.CopyCompressMethod();
         internal static IntPtr decompress_copy_ptr = UnsafeEx.CopyDecompressMethod();
 
-        static Compression()
-        {
-            try
-            {
-                // Ensure Bootstrapper is initialized and native libraries are loaded
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceError($"Error in BloscMethods Init: {ex}");
-                throw;
-            }
-        }
-
+        
         #region Blosc Internals
 
         [DllImport(NativeLibraryName, EntryPoint = "spreads_compress_lz4", CallingConvention = CallingConvention.Cdecl)]

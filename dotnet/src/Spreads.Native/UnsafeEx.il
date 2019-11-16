@@ -1,6 +1,8 @@
 ﻿
+// Metadata version: v4.0.30319
+
 .class public abstract auto ansi sealed beforefieldinit Spreads.Native.UnsafeEx
-       extends [System.Runtime]System.Object
+       extends [netstandard]System.Object
 {
   
   .method private hidebysig static int32 CopyWrapper(void* source, native int sourceLength, void* destination, native int destinationLength, int32 clevel) cil managed aggressiveinlining
@@ -10,12 +12,12 @@
         ldarg.2
 		ldarg.0
         ldarg.1
-        call int32 [mscorlib]System.IntPtr::op_Explicit(native int)
+        call int32 [netstandard]System.IntPtr::op_Explicit(native int)
 		conv.ovf.u4
         unaligned. 0x1
         cpblk
 		ldarg.1
-		call int32 [mscorlib]System.IntPtr::op_Explicit(native int)
+		call int32 [netstandard]System.IntPtr::op_Explicit(native int)
         ret
   }
 
@@ -26,12 +28,12 @@
         ldarg.2
 		ldarg.0
         ldarg.1
-        call int32 [mscorlib]System.IntPtr::op_Explicit(native int)
+        call int32 [netstandard]System.IntPtr::op_Explicit(native int)
 		conv.ovf.u4
         unaligned. 0x1
         cpblk
 		ldarg.1
-		call int32 [mscorlib]System.IntPtr::op_Explicit(native int)
+		call int32 [netstandard]System.IntPtr::op_Explicit(native int)
         ret
   } 
 
@@ -255,7 +257,7 @@
     IL_0001:  ldarg.1
     IL_0002:  ldobj      !!T
     IL_0007:  constrained. !!T
-    IL_000d:  callvirt   instance int32 class [System.Runtime]System.IComparable`1<!!T>::CompareTo(!0)
+    IL_000d:  callvirt   instance int32 class [netstandard]System.IComparable`1<!!T>::CompareTo(!0)
     IL_0012:  ret
   } // end of method Unsafe::CompareToConstrained
 
@@ -270,7 +272,7 @@
     IL_0001:  ldarg.1
     IL_0002:  ldobj      !!T
     IL_0007:  constrained. !!T
-    IL_000d:  callvirt   instance bool class [System.Runtime]System.IEquatable`1<!!T>::Equals(!0)
+    IL_000d:  callvirt   instance bool class [netstandard]System.IEquatable`1<!!T>::Equals(!0)
     IL_0012:  ret
   } // end of method Unsafe::EqualsConstrained
 
@@ -282,7 +284,7 @@
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  constrained. !!T
-    IL_0007:  callvirt   instance int32 [System.Runtime]System.Object::GetHashCode()
+    IL_0007:  callvirt   instance int32 [netstandard]System.Object::GetHashCode()
     IL_000c:  ret
   } // end of method Unsafe::GetHashCodeConstrained
 
@@ -294,7 +296,7 @@
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  constrained. !!T
-    IL_0007:  callvirt   instance void [System.Runtime]System.IDisposable::Dispose()
+    IL_0007:  callvirt   instance void [netstandard]System.IDisposable::Dispose()
     IL_000c:  ret
   } // end of method Unsafe::DisposeConstrained
 
@@ -406,9 +408,9 @@
 } // end of class
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute
-       extends [System.Runtime]System.Attribute
+       extends [netstandard]System.Attribute
 {
-  .custom instance void [System.Runtime]System.AttributeUsageAttribute::.ctor(valuetype [System.Runtime]System.AttributeTargets) = ( 01 00 6C 00 00 00 02 00 54 02 0D 41 6C 6C 6F 77   // ..l.....T..Allow
+  .custom instance void [netstandard]System.AttributeUsageAttribute::.ctor(valuetype [netstandard]System.AttributeTargets) = ( 01 00 6C 00 00 00 02 00 54 02 0D 41 6C 6C 6F 77   // ..l.....T..Allow
                                                                                                                                      4D 75 6C 74 69 70 6C 65 00 54 02 09 49 6E 68 65   // Multiple.T..Inhe
                                                                                                                                      72 69 74 65 64 00 )                               // rited.
   .method public hidebysig specialname rtspecialname 
@@ -417,7 +419,7 @@
     // 
     .maxstack  1
     IL_0000:  ldarg.0
-    IL_0001:  call       instance void [System.Runtime]System.Attribute::.ctor()
+    IL_0001:  call       instance void [netstandard]System.Attribute::.ctor()
     IL_0006:  ret
   } // end of method NonVersionableAttribute::.ctor
 
