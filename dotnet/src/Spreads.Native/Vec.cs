@@ -198,7 +198,7 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Returns true if Vec is created via a pointer. Vec could still be manually pinned if it was create with an array of blittable types.
+        /// Returns true if Vec is created via a pointer. Vec could still be manually pinned if it was created with an array of blittable types.
         /// </summary>
         public bool IsPinned
         {

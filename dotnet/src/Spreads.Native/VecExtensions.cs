@@ -31,7 +31,7 @@ namespace Spreads.Native
         {
             if ((uint)start > (uint)vec._length || (uint)length > (uint)(vec._length - start))
             { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
-
+            // TODO MemoryMarshal.CreateReadOnlySpan and manual bound ckecks
             var span = vec.AsSpan<T>();
             span.Slice(start, length).CopyTo(span.Slice(destination, length));
         }
