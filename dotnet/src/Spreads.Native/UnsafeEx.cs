@@ -162,12 +162,7 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern long DiffLongConstrained<T>(ref T left, ref T right);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object GetAsObject<T>(object obj, IntPtr offset, int index)
-        {
-            var t = GetRef<T>(obj, offset, index);
-            return t;
-        }
+        
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedTypeParameter
@@ -197,16 +192,24 @@ namespace Spreads.Native
         {
             if (obj == null)
             {
-                return ref Unsafe.Add<T>(ref Unsafe.AsRef<T>(byteOffset.ToPointer()), index);
+                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*)byteOffset), index);
             }
             
             return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object GetAsObject<T>(object obj, IntPtr offset, int index)
+        {
+            var t = Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref GetRef<T>(obj, offset, index)));
+            return t;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetAsObject<T>(object obj, IntPtr offset, int index, object val)
         {
-            GetRef<T>(obj, offset, index) = (dynamic)val;
+            T value = (dynamic) val;
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref GetRef<T>(obj, offset, index)), value);
         }
 
         /// <summary>

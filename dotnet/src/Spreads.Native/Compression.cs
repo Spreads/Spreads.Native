@@ -23,7 +23,6 @@ namespace Spreads.Native
         internal static IntPtr compress_copy_ptr = UnsafeEx.CopyCompressMethod();
         internal static IntPtr decompress_copy_ptr = UnsafeEx.CopyDecompressMethod();
 
-        
         #region Blosc Internals
 
         [DllImport(NativeLibraryName, EntryPoint = "spreads_compress_lz4", CallingConvention = CallingConvention.Cdecl)]

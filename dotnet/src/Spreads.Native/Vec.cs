@@ -230,8 +230,7 @@ namespace Spreads.Native
                 {
                     VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
-
-                DangerousGetRef(index) = value;
+                DangerousSetUnaligned(index, value);
             }
         }
 
@@ -245,7 +244,7 @@ namespace Spreads.Native
             {
                 VecThrowHelper.ThrowIndexOutOfRangeException();
             }
-            return DangerousGetRef(index);
+            return DangerousGetUnaligned(index);
         }
 
         /// <summary>
@@ -255,6 +254,18 @@ namespace Spreads.Native
         public T DangerousGet(int index)
         {
             return DangerousGetRef(index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T DangerousGetUnaligned(int index)
+        {
+            return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref DangerousGetRef(index)));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DangerousSetUnaligned(int index, T value)
+        {
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref DangerousGetRef(index)), value);
         }
 
         /// <summary>
@@ -278,7 +289,7 @@ namespace Spreads.Native
         {
             if (_pinnable == null)
             {
-                return ref Unsafe.Add(ref Unsafe.AsRef<T>(_byteOffset.ToPointer()), index);
+                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*)_byteOffset), index);
             }
             else
             {
@@ -351,7 +362,7 @@ namespace Spreads.Native
             {
                 if (_pinnable == null)
                 {
-                    return ref Unsafe.AsRef<T>(_byteOffset.ToPointer());
+                    return ref Unsafe.AsRef<T>((void*)_byteOffset);
                 }
                 return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset);
             }
@@ -368,7 +379,7 @@ namespace Spreads.Native
         internal ref T DangerousGetPinnableReference()
         {
             if (_pinnable == null)
-            { return ref Unsafe.AsRef<T>(_byteOffset.ToPointer()); }
+            { return ref Unsafe.AsRef<T>((void*)_byteOffset); }
             else
             { return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset); }
         }
@@ -772,6 +783,7 @@ namespace Spreads.Native
         public object DangerousGet(int index)
         {
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
+            // GetIndirect uses GetAsObject, which uses unaligned read
             return UnsafeEx.GetIndirect(_pinnable, _byteOffset, index, vti.UnsafeGetterPtr);
         }
 
@@ -779,6 +791,7 @@ namespace Spreads.Native
         public void DangerousSet(int index, object value)
         {
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
+            // SetIndirect uses SetAsObject, which uses unaligned write
             UnsafeEx.SetIndirect(_pinnable, _byteOffset, index, value, vti.UnsafeSetterPtr);
         }
 
@@ -813,7 +826,7 @@ namespace Spreads.Native
                 ThrowWrongLengthOrType<T>(index);
             }
 
-            return ref UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
+            return ref DangerousGetRef<T>(index);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -837,6 +850,29 @@ namespace Spreads.Native
         public T DangerousGet<T>(int index)
         {
             return DangerousGetRef<T>(index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T DangerousGetUnaligned<T>(int index)
+        {
+            return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref DangerousGetRef<T>(index)));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DangerousSetUnaligned<T>(int index, T value)
+        {
+            // For blittables it just works as casting pointers/refs is simple
+            // For ref/non-blittable types it's more complicated: 
+            // As<T, byte> is a simple `ret` instruction, so we get
+            // ```
+            // unaligned. 0x01
+            // stobj !!T
+            // ```
+            // to !!T&
+            // ECMA-335 doesn't say anything about that .unaligned could only
+            // be applied to value types.
+
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref DangerousGetRef<T>(index)), value);
         }
 
         /// <summary>
