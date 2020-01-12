@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,10 +11,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
-#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
 
 namespace Spreads.Native
 {
@@ -55,7 +53,6 @@ namespace Spreads.Native
                 return; // returns default
             }
 
-
             if (default(T) is null && array.GetType() != typeof(T[]))
             {
                 VecThrowHelper.ThrowArrayTypeMismatchException();
@@ -84,7 +81,7 @@ namespace Spreads.Native
                 VecThrowHelper.ThrowArrayTypeMismatchException();
             if (unchecked((uint)start) > unchecked((uint)array.Length))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
-            
+
             IntPtr byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
             int length = array.Length - start;
             return new Vec<T>(pinnable: Unsafe.As<Pinnable<T>>(array), byteOffset: byteOffset, length: length, runtimeTypeId: VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId);
@@ -114,7 +111,7 @@ namespace Spreads.Native
             }
             if (default(T) is null && array.GetType() != typeof(T[]))
             { VecThrowHelper.ThrowArrayTypeMismatchException(); }
-            if (unchecked((uint)start) > unchecked((uint)array.Length) 
+            if (unchecked((uint)start) > unchecked((uint)array.Length)
                 || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
             { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
 
@@ -332,7 +329,7 @@ namespace Spreads.Native
             IntPtr newOffset = _byteOffset.Add<T>(start);
             return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Vec<T> DangerousSlice(int start, int length)
         {
@@ -861,16 +858,18 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DangerousSetUnaligned<T>(int index, T value)
         {
-            // For blittables it just works as casting pointers/refs is simple
-            // For ref/non-blittable types it's more complicated: 
-            // As<T, byte> is a simple `ret` instruction, so we get
+            // For underlying pointers it just works as casting pointers/refs is simple.
+            // For refs/non-blittable types it's more complicated:
+            // `As<T, byte>` is a simple `ret` instruction, so we get
             // ```
             // unaligned. 0x01
             // stobj !!T
             // ```
             // to !!T&
             // ECMA-335 doesn't say anything about that .unaligned could only
-            // be applied to value types.
+            // be applied to value types. "The operation of the stobj
+            // instruction can be altered by an immediately preceding unaligned. prefix instruction."
+            // This should work fine: https://github.com/dotnet/runtime/issues/1650
 
             Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref DangerousGetRef<T>(index)), value);
         }
