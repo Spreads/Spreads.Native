@@ -218,7 +218,14 @@ namespace Spreads.Native
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Get(index);
+            get
+            {
+                if (unchecked((uint)index) >= unchecked((uint)_length))
+                {
+                    VecThrowHelper.ThrowIndexOutOfRangeException();
+                }
+                return DangerousGetUnaligned(index);
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
@@ -229,28 +236,6 @@ namespace Spreads.Native
                 }
                 DangerousSetUnaligned(index, value);
             }
-        }
-
-        /// <summary>
-        /// Returns the element at the specified index.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Get(int index)
-        {
-            if (unchecked((uint)index) >= unchecked((uint)_length))
-            {
-                VecThrowHelper.ThrowIndexOutOfRangeException();
-            }
-            return DangerousGetUnaligned(index);
-        }
-
-        /// <summary>
-        /// Returns the element at the specified index without bound checks.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T DangerousGet(int index)
-        {
-            return DangerousGetRef(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -494,7 +479,7 @@ namespace Spreads.Native
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _vec.DangerousGet(_position);
+                get => _vec.DangerousGetUnaligned(_position);
             }
 
             // ReSharper disable once HeapView.BoxingAllocation
@@ -806,7 +791,21 @@ namespace Spreads.Native
                 ThrowWrongLengthOrType<T>(index);
             }
 
-            return UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
+            return DangerousGetUnaligned<T>(index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Set<T>(int index, T value)
+        {
+            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
+                ||
+                (unchecked((uint)index) >= unchecked((uint)_length))
+            )
+            {
+                ThrowWrongLengthOrType<T>(index);
+            }
+
+            DangerousSetUnaligned<T>(index, value);
         }
 
         /// <summary>
@@ -838,15 +837,6 @@ namespace Spreads.Native
             {
                 VecThrowHelper.ThrowWrongCastType<T>();
             }
-        }
-
-        /// <summary>
-        /// Returns the element at the specified index without type or bounds check.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T DangerousGet<T>(int index)
-        {
-            return DangerousGetRef<T>(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
