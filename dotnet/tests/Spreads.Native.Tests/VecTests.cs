@@ -124,6 +124,30 @@ namespace Spreads.Native.Tests
             Assert.IsTrue(vecT.Span.SequenceEqual(vec.AsSpan<int>()));
         }
 
+        [Test]
+        public unsafe void ArrayAndPointerCtorsHaveSameBehavior()
+        {
+            var arr = new int[1000];
+            var pin = arr.AsMemory().Pin();
+
+            var vArr = new Vec(arr, 500, 500);
+            var vPtr = new Vec((byte*)pin.Pointer + 500 * 4, 500, typeof(int));
+
+            Assert.AreEqual(vArr.Length, vPtr.Length);
+
+            for (int i = 0; i < 1000; i++)
+            {
+                arr[i] = i;
+            }
+
+            for (int i = 0; i < 500; i++)
+            {
+                Assert.AreEqual(vArr.Get<int>(i), vPtr.Get<int>(i));
+            }
+
+            pin.Dispose();
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining
 #if NETCOREAPP3_0
                     | MethodImplOptions.AggressiveOptimization

@@ -212,6 +212,18 @@ namespace Spreads.Native
             Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref GetRef<T>(obj, offset, index)), value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ReadUnaligned<T>(ref T source)
+        {
+            return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref source));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteUnaligned<T>(ref T destination, T value)
+        {
+            Unsafe.WriteUnaligned<T>(ref Unsafe.As<T, byte>(ref destination), value);
+        }
+
         /// <summary>
         /// Get a native method pointer to <see cref="SetAsObject{T}"/> method for type <typeparamref name="T"/>.
         /// The pointer should be used with <see cref="SetIndirect"/> method.
