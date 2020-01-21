@@ -1,0 +1,21 @@
+[package]
+name = "spreads-pal"
+version = "0.1.0"
+authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
+description = "Platform abstraction layer."
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "spreads_pal"
+test = true
+doctest = false
+harness = true
+
+[dependencies]
+libc = "0.2.66"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.8", features = ["winnt", "ntstatus", "minwindef",
+    "winerror", "winbase", "errhandlingapi", "handleapi"] }

@@ -4,9 +4,13 @@ version = "0.1.0"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
 description = "Spreads's C-Blosc bindings for Rust."
 build = "build.rs"
+edition = "2018"
 
 [lib]
 name = "spreads_blosc_sys"
+test = true
+doctest = false
+harness = true
 # crate-type = ["staticlib", "rlib"] # dylib, rlib, staticlib, cdylib
 
 [dependencies]
@@ -16,11 +20,11 @@ libc = { version = "*"}
 cmake = "*"
 bindgen = "*"
 
-[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = true
-debug-assertions = false
-codegen-units = 1
-panic = 'abort'
+# [profile.release]
+# opt-level = 3
+# debug = false
+# rpath = false
+# lto = true
+# debug-assertions = false
+# codegen-units = 1
+# panic = 'abort'

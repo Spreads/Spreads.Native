@@ -14,6 +14,19 @@ using System.Runtime.InteropServices;
 
 namespace Spreads.Native
 {
+
+    // This is based on slow Span<T> implementation.
+    // 1. Working with untyped/unconstrained generic Vec/Vec<T> is simpler
+    //    than using ifs everywhere.
+    // 2. There is one if on every path, but if we always use native memory
+    //    for blittable types then this if should be predicted perfectly.
+    //    Every generic method has it's own compilation for value types
+    //    and shared path for reference types, for CPU they are different
+    //    branches that are predicted independently.
+    // 3. One day Span<T> could be stored as a field of a normal (not ref)
+    //    struct and we will only need to change Vec implementation.
+
+
     /// <summary>
     /// Typed native or managed vector.
     /// </summary>

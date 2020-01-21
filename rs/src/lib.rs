@@ -2,6 +2,7 @@
 
 extern crate libc;
 extern crate spreads_blosc_sys;
+pub extern crate spreads_pal;
 
 #[no_mangle]
 pub extern "C" fn hello_spreads() -> *const u8 {
@@ -144,9 +145,9 @@ pub extern "C" fn spreads_unshuffle(
 #[test]
 pub fn could_set_threads() {
     unsafe {
-        blosc_set_nthreads(8);
-        let threads = blosc_get_nthreads();
+        spreads_blosc_sys::blosc_set_nthreads(8);
+        let threads = spreads_blosc_sys::blosc_get_nthreads();
         assert_eq!(threads, 8);
-        println!("Hello, Blosc with N-threads: {}", threads);
+        // println!("Hello, Blosc with N-threads: {}", threads);
     }
 }

@@ -9,16 +9,21 @@ license = "MPL-2.0"
 edition = "2018"
 
 [dependencies]
-spreads-blosc-sys = { version = "0.1.0", path = "spreads-blosc-sys" }
+spreads-blosc-sys = { path = "spreads-blosc-sys" }
+spreads-pal = { path = "spreads-pal" }
 libc = { version = "*"}
 
 [lib]
 name = "spreads_native"
+test = true
+doctest = false
+harness = true
 crate-type = ["cdylib"] # dylib, rlib, staticlib, cdylib
 
 [workspace]
 members = [
-    "spreads-blosc-sys"
+    "spreads-blosc-sys",
+    "spreads-pal"
 ]
 
 [profile.release]

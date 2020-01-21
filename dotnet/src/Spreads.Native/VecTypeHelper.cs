@@ -83,7 +83,7 @@ namespace Spreads.Native
         /// <typeparam name="T"></typeparam>
         internal class AppendOnlyStorage<T>
         {
-            internal T[] _storage = new T[4];
+            internal T[] _storage = new T[16];
             private int _counter;
 
             public int Add(T value)
