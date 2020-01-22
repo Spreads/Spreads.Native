@@ -9,7 +9,7 @@ pub extern "C" fn spreads_get_cpu_number() -> libc::c_int {
 mod tests {
     #[test]
     #[cfg(any(windows,linux, unix))]
-    fn can_get_cpu_number() {
+    fn can_get_cpu_number_current() {
         // TODO xplat set affinity
         let result = super::spreads_get_cpu_number();
         println!("CPU number: {}", result);
