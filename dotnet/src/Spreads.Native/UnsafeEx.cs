@@ -19,6 +19,8 @@ namespace Spreads.Native
     /// <seealso cref="System.Runtime.CompilerServices.Unsafe"/>
     public static unsafe class UnsafeEx
     {
+        internal const string NativeLibraryName = "libspreads_native";
+        
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         // ReSharper disable once UnusedMember.Local

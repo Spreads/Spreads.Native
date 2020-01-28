@@ -1,9 +1,9 @@
-mod cpu;
+pub mod cpu;
 
-#[no_mangle]
-pub extern "C" fn spreads_get_cpu_number() -> libc::c_int {
-    return cpu::get_cpu_number();
-}
+// #[no_mangle]
+// pub extern "C" fn spreads_get_cpu_number() -> libc::c_int {
+//     return cpu::get_cpu_number();
+// }
 
 #[cfg(test)]
 mod tests {
@@ -11,7 +11,7 @@ mod tests {
     #[cfg(any(windows,linux, unix))]
     fn can_get_cpu_number_current() {
         // TODO xplat set affinity
-        let result = super::spreads_get_cpu_number();
+        let result = super::cpu::spreads_get_cpu_number();
         println!("CPU number: {}", result);
         assert!(result >= 0);
     }
@@ -33,7 +33,7 @@ mod tests {
                 std::io::Error::last_os_error()
             );
         }
-        let result = super::spreads_get_cpu_number();
+        let result = super::cpu::spreads_get_cpu_number();
         println!("CPU number: {}", result);
         assert_eq!(cpu_num as i32, result);
     }
