@@ -26,11 +26,12 @@ members = [
     "spreads-pal"
 ]
 
+[profile.dev]
+debug-assertions = true
+
 [profile.release]
-opt-level = 3
 debug = false
 rpath = false
-lto = true
 debug-assertions = false
-codegen-units = 16
 panic = 'abort'
+lto = true

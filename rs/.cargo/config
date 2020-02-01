@@ -1,27 +1,12 @@
-[target.x86_64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+#[build]
+rustflags = ["-Clinker-plugin-lto", "-Clinker=clang", "-Clink-arg=-fuse-ld=lld"]
 
-[target.i686-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+[target.'cfg(windows)']
+rustflags = ["-Ctarget-feature=+crt-static", "-Clinker=lld-link", "-Clinker-plugin-lto"]
 
-[target.x86_64-pc-windows-gnu]
-rustflags = ["-C", "target-feature=+crt-static"]
-# https://github.com/racer-rust/racer/issues/919#issuecomment-413536972
-# So basically you have two ways to workaround this issue.
-#
-# Somehow get yourself an environment the same with those mingw-build files Rust ships, e.g. GCC 7.x etc.. (Hard)
-#
-#  a. remove rust-mingw component. (edit multirust-channel-manifest.toml to change rust-mingw from component to extensions, then rustup component remove rust-mingw).
-#  b. replace crt2.o and crt2dll.o with the ones from MINGW64/MINGW32 of MSYS2.
-#  c. build your crate.
+# Other options
+# "-Ccodegen-units=1", "-Ccodegen-units=1", "-Copt-level=3", "-Clink-arg=-fuse-ld=lld" "-L."
 
-# This works until you do a rustup update then rust-mingw will be back, and you'll have to start over.
-
-# Works without this but MinGW should be in PATH
-# linker = "/tools/mingw64/bin/gcc.exe"
-# ar = "/tools/mingw64/bin/ar.exe"
-
-[target.i686-pc-windows-gnu]
-rustflags = ["-C", "target-feature=+crt-static"]
-linker = "/tools/mingw32/bin/gcc.exe"
-ar = "/tools/mingw32/bin/ar.exe"
+# https://github.com/rust-lang/cargo/issues/5777
+# [target.'cfg(debug_assertions)']
+# rustflags = ["-Ctarget-feature=-crt-static"]

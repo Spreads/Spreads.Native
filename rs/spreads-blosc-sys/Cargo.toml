@@ -3,6 +3,7 @@ name = "spreads-blosc-sys"
 version = "0.1.0"
 authors = ["Victor Baybekov <vbaybekov@gmail.com>"]
 description = "Spreads's C-Blosc bindings for Rust."
+# links = "libblosc"
 build = "build.rs"
 edition = "2018"
 
@@ -11,7 +12,7 @@ name = "spreads_blosc_sys"
 test = true
 doctest = false
 harness = true
-# crate-type = ["staticlib", "rlib"] # dylib, rlib, staticlib, cdylib
+# crate-type = ["staticlib"] # dylib, rlib, staticlib, cdylib
 
 [dependencies]
 libc = { version = "*"}

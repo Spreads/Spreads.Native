@@ -1,10 +1,5 @@
 pub mod cpu;
 
-// #[no_mangle]
-// pub extern "C" fn spreads_get_cpu_number() -> libc::c_int {
-//     return cpu::get_cpu_number();
-// }
-
 #[cfg(test)]
 mod tests {
     #[test]

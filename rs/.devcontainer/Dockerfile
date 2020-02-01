@@ -23,15 +23,17 @@ RUN apt-get update \
     # Verify git, needed tools installed
     && apt-get -y install git iproute2 procps lsb-release \
     #
-    # Install lldb, vadimcn.vscode-lldb VSCode extension dependencies
-    && apt-get install -y lldb python3-minimal libpython3.7 \
-    #
     # Install clang
-    # From https://gist.github.com/twlz0ne/9faf00346a2acf10044c54f9ba0b9805#file-dockerfile
     && apt-get update && apt-get install -y gnupg wget software-properties-common \
-    && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
-    && apt-add-repository "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-6.0 main" \
-    && apt-get update && apt-get install -y clang-6.0 \
+    && bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" \
+    && ln -s /usr/bin/clang-9 /usr/bin/clang \
+    #
+    # Install Ninja
+    #
+    && apt-get install ninja-build \
+    #
+    # Install vadimcn.vscode-lldb VSCode extension dependencies (other than lldb)
+    && apt-get install -y python3-minimal libpython3.7 \
     #
     # Install CMake
     && wget https://cmake.org/files/v3.16/cmake-3.16.3-Linux-x86_64.sh \
