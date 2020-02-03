@@ -30,8 +30,10 @@ members = [
 debug-assertions = true
 
 [profile.release]
+opt-level = 3
 debug = false
 rpath = false
-debug-assertions = false
-panic = 'abort'
 lto = true
+debug-assertions = false
+codegen-units = 16
+panic = 'abort'

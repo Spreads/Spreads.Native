@@ -1,5 +1,5 @@
 #include "./c-blosc/blosc/blosc-export.h"
-#include <stdlib.h>
+// #include <stdlib.h>
 
 /**
   Initialize the Blosc library environment.

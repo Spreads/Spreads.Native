@@ -25,13 +25,14 @@ fn main() {
     let mut config = cmake::Config::new("c-blosc");
 
     let mut final_config = 
-        config.generator("Ninja")
-        .define("CMAKE_C_COMPILER", "clang")
-        .define("CMAKE_CXX_COMPILER", "clang")
-        .define("CMAKE_C_COMPILER_ID", "Clang")
-        .define("CMAKE_CXX_COMPILER_ID", "Clang")
-        .define("CMAKE_C_FLAGS", "-v -flto=thin -fuse-ld=lld -O3")
-        .define("CMAKE_CXX_FLAGS", " -v -flto=thin -fuse-ld=lld -O3")
+        config
+        // .generator("Ninja")
+        // .define("CMAKE_C_COMPILER", "clang")
+        // .define("CMAKE_CXX_COMPILER", "clang")
+        // .define("CMAKE_C_COMPILER_ID", "Clang")
+        // .define("CMAKE_CXX_COMPILER_ID", "Clang")
+        // .define("CMAKE_C_FLAGS", "-v -flto=thin -fuse-ld=lld -O3")
+        // .define("CMAKE_CXX_FLAGS", " -v -flto=thin -fuse-ld=lld -O3")
         // Blosc defines below
         .define("BUILD_STATIC", "ON")
         .define("BUILD_SHARED", "OFF")
@@ -49,9 +50,9 @@ fn main() {
 
     if cfg!(windows) {
         final_config = final_config
-            .define("CMAKE_SYSTEM_NAME", "Generic")
-            .define("CMAKE_SYSTEM_PROCESSOR", "AMD64")
-            .define("WIN32", "true")
+            // .define("CMAKE_SYSTEM_NAME", "Generic")
+            // .define("CMAKE_SYSTEM_PROCESSOR", "AMD64")
+            // .define("WIN32", "true")
             .static_crt(true);       
     }
 
@@ -62,10 +63,10 @@ fn main() {
     let mut libname = "blosc";
 
     if cfg!(windows) {
-        let src = format!("{}/libblosc.a", dir);
-        let dest = format!("{}/libblosc.lib", dir);
-        let msg = format!("Should copy file: {} to {}", src, dest);
-        std::fs::rename(src, dest).expect(&msg);
+        // let src = format!("{}/libblosc.a", dir);
+        // let dest = format!("{}/libblosc.lib", dir);
+        // let msg = format!("Should copy file: {} to {}", src, dest);
+        // std::fs::rename(src, dest).expect(&msg);
         libname = "libblosc";
     }
     

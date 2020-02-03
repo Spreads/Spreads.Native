@@ -1,8 +1,15 @@
-#[build]
-rustflags = ["-Clinker-plugin-lto", "-Clinker=clang", "-Clink-arg=-fuse-ld=lld"]
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
 
-[target.'cfg(windows)']
-rustflags = ["-Ctarget-feature=+crt-static", "-Clinker=lld-link", "-Clinker-plugin-lto"]
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+#[build]
+#rustflags = ["-Clinker-plugin-lto", "-Clinker=clang", "-Clink-arg=-fuse-ld=lld"]
+
+#[target.'cfg(windows)']
+#rustflags = ["-Ctarget-feature=+crt-static", "-Clinker=lld-link", "-Clinker-plugin-lto"]
+#rustflags = ["-Ctarget-feature=+crt-static"]
 
 # Other options
 # "-Ccodegen-units=1", "-Ccodegen-units=1", "-Copt-level=3", "-Clink-arg=-fuse-ld=lld" "-L."
