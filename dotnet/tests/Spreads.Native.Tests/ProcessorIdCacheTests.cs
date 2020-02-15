@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Spreads.Native.Tests
 {
+    [Category("CI")]
     [TestFixture]
     public class ProcessorIdCacheTests
     {

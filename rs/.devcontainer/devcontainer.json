@@ -26,6 +26,7 @@
 		"bungcip.better-toml",
 		"vadimcn.vscode-lldb",
 		"hdevalke.rust-test-lens",
-		"swellaby.vscode-rust-test-adapter"
+		"swellaby.vscode-rust-test-adapter",
+		"matklad.rust-analyzer"
 	]
 }

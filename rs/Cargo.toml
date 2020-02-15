@@ -10,6 +10,7 @@ edition = "2018"
 
 [dependencies]
 spreads-blosc-sys = { path = "spreads-blosc-sys" }
+spreads-mimalloc-sys = { path = "spreads-mimalloc-sys" }
 spreads-pal = { path = "spreads-pal" }
 libc = { version = "*"}
 
@@ -23,17 +24,14 @@ crate-type = ["cdylib"] # dylib, rlib, staticlib, cdylib
 [workspace]
 members = [
     "spreads-blosc-sys",
+    "spreads-mimalloc-sys",
     "spreads-pal"
 ]
 
 [profile.dev]
-debug-assertions = true
+debug = true
 
 [profile.release]
-opt-level = 3
 debug = false
-rpath = false
 lto = true
-debug-assertions = false
-codegen-units = 16
 panic = 'abort'

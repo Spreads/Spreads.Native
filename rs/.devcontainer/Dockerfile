@@ -1,9 +1,5 @@
-#-------------------------------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
-#-------------------------------------------------------------------------------------------------------------
-
-FROM rust:1
+#FROM rustlang/rust:nightly
+FROM rust:1.41.0
 
 # This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
 # property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
@@ -43,7 +39,8 @@ RUN apt-get update \
     #
     # Install Rust components
     && rustup update \
-    && rustup component add rls rust-analysis rust-src rustfmt clippy \
+    && rustup component add rust-analysis rust-src rustfmt clippy \ 
+    # rls
     #
     # Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
     && groupadd --gid $USER_GID $USERNAME \
@@ -54,12 +51,17 @@ RUN apt-get update \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     #
     # Install Node & NPM
-    && sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
-    && apt-get install -y nodejs \
+    # && sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
+    # && apt-get install -y nodejs \
     #
     # install rust-analyzer
-    && git clone https://github.com/rust-analyzer/rust-analyzer && cd rust-analyzer \
-    && cargo xtask install; exit 0 \
+    # && git clone https://github.com/rust-analyzer/rust-analyzer --depth=1 && cd rust-analyzer \
+    # && cargo xtask install --server \
+    # && cargo install --path ./crates/ra_lsp_server \
+    #
+    # Set Rust back to stable, nightly only needed for rust-analyzer
+    # && rustup default stable \
+    # && rustup component add rls rust-analysis rust-src rustfmt clippy \
     #
     # Clean up
     && apt-get autoremove -y \

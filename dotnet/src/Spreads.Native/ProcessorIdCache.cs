@@ -13,22 +13,21 @@ namespace Spreads.Native
     {
         private const string NativeLibraryName = UnsafeEx.NativeLibraryName;
 
-        [DllImport(NativeLibraryName, EntryPoint = "spreads_get_cpu_number",
+        [DllImport(NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
-        private static extern int spreads_get_cpu_number();
+        private static extern int spreads_pal_get_cpu_number();
 
         public static int get_cpu_number()
         {
             try
             {
-                return spreads_get_cpu_number();
+                return spreads_pal_get_cpu_number();
             }
             catch
             {
                 return -1;
             }
         }
-
 
         // The upper bits of t_currentProcessorIdCache are the currentProcessorId. The lower bits of
         // the t_currentProcessorIdCache are counting down to get it periodically refreshed.

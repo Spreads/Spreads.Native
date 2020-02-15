@@ -1,19 +1,19 @@
 pub mod cpu;
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     #[test]
-    #[cfg(any(windows,linux, unix))]
-    fn can_get_cpu_number_current() {
+    #[cfg(any(windows, linux, unix))]
+    pub fn can_get_cpu_number_current() {
         // TODO xplat set affinity
-        let result = super::cpu::spreads_get_cpu_number();
-        println!("CPU number: {}", result);
+        let result = super::cpu::spreads_pal_get_cpu_number();
+            println!("CPU number: {}", result);
         assert!(result >= 0);
     }
 
     #[test]
     #[cfg(any(linux, unix))]
-    fn can_get_cpu_number_with_affinity() {
+    pub fn can_get_cpu_number_with_affinity() {
         let cpu_num = 3;
         unsafe {
             let mut cpu_set: libc::cpu_set_t = std::mem::zeroed();
@@ -28,7 +28,7 @@ mod tests {
                 std::io::Error::last_os_error()
             );
         }
-        let result = super::cpu::spreads_get_cpu_number();
+        let result = super::cpu::spreads_pal_get_cpu_number();
         println!("CPU number: {}", result);
         assert_eq!(cpu_num as i32, result);
     }

@@ -2,3 +2,7 @@
 	path = rs/spreads-blosc-sys/c-blosc
 	url = https://github.com/Spreads/c-blosc.git
 	branch = master
+[submodule "rs/spreads-mimalloc-sys/mimalloc"]
+	path = rs/spreads-mimalloc-sys/mimalloc
+	url = https://github.com/microsoft/mimalloc.git
+	branch = master

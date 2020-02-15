@@ -1,8 +1,5 @@
-extern crate bindgen;
+// extern crate bindgen;
 extern crate cmake;
-
-// use std::env;
-// use std::path::PathBuf;
 
 fn main() {
     // let bindings = bindgen::Builder::default()
@@ -17,7 +14,7 @@ fn main() {
     //     .expect("Unable to generate bindings");
 
     // // Write the bindings to the $OUT_DIR/bindings.rs file.
-    // let out_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    // let out_path = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
     // bindings
     //     .write_to_file(out_path.join("src/lib.rs"))
     //     .expect("Couldn't write bindings!");
