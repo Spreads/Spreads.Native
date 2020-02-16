@@ -7,6 +7,7 @@ fn main() {
     //     .use_core()
     //     .ctypes_prefix("libc")
     //     .whitelist_function("mi_.*")
+    //     .size_t_is_usize(true)
     //     .rustfmt_bindings(true)
     //     .generate()
     //     .expect("Unable to generate bindings");

@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>7.2</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>x64</Platforms>
     <!--<RestoreProjectStyle>PackageReference</RestoreProjectStyle>-->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OutputType>Exe</OutputType>

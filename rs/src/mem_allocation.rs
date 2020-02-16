@@ -216,7 +216,7 @@ pub extern "C" fn spreads_mem_good_size(size: usize) -> usize {
 
 #[no_mangle]
 pub extern "C" fn spreads_mem_register_deferred_free(
-    deferred_free: ::core::option::Option<unsafe extern "C" fn()>,
+    deferred_free: mi_deferred_free_fun,
     arg: *mut libc::c_void,
 ) {
     unsafe {
@@ -225,20 +225,14 @@ pub extern "C" fn spreads_mem_register_deferred_free(
 }
 
 #[no_mangle]
-pub extern "C" fn spreads_mem_register_output(
-    out: ::core::option::Option<unsafe extern "C" fn()>,
-    arg: *mut libc::c_void,
-) {
+pub extern "C" fn spreads_mem_register_output(out: mi_output_fun, arg: *mut libc::c_void) {
     unsafe {
         return mi_register_output(out, arg);
     }
 }
 
 #[no_mangle]
-pub extern "C" fn spreads_mem_register_error(
-    fun: ::core::option::Option<unsafe extern "C" fn()>,
-    arg: *mut libc::c_void,
-) {
+pub extern "C" fn spreads_mem_register_error(fun: mi_error_fun, arg: *mut libc::c_void) {
     unsafe {
         return mi_register_error(fun, arg);
     }
@@ -255,6 +249,32 @@ pub extern "C" fn spreads_mem_collect(force: bool) {
 pub extern "C" fn spreads_mem_mialloc_version() -> libc::c_int {
     unsafe {
         return mi_version();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_stats_reset() {
+    unsafe {
+        return mi_stats_reset();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_stats_merge() {
+    unsafe {
+        return mi_stats_merge();
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_stats_print() {
+    unsafe {
+        return mi_stats_print(0 as *mut libc::c_void); // out is ignored
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_stats_print_out(out: mi_output_fun, arg: *mut libc::c_void) {
+    unsafe {
+        return mi_stats_print_out(out, arg);
     }
 }
 
@@ -277,10 +297,7 @@ pub extern "C" fn spreads_mem_thread_done() {
     }
 }
 #[no_mangle]
-pub extern "C" fn spreads_mem_thread_stats_print_out(
-    out: ::core::option::Option<unsafe extern "C" fn()>,
-    arg: *mut libc::c_void,
-) {
+pub extern "C" fn spreads_mem_thread_stats_print_out(out: mi_output_fun, arg: *mut libc::c_void) {
     unsafe {
         return mi_thread_stats_print_out(out, arg);
     }
@@ -361,19 +378,6 @@ pub extern "C" fn spreads_mem_realloc_aligned_at(
 }
 
 #[no_mangle]
-pub extern "C" fn spreads_mem_heap_get_default() -> *mut mi_heap_t {
-    unsafe {
-        return mi_heap_get_default();
-    }
-}
-#[no_mangle]
-pub extern "C" fn spreads_mem_heap_get_backing() -> *mut mi_heap_t {
-    unsafe {
-        return mi_heap_get_backing();
-    }
-}
-
-#[no_mangle]
 pub extern "C" fn spreads_mem_rezalloc(p: *mut libc::c_void, newsize: usize) -> *mut libc::c_void {
     unsafe {
         return mi_rezalloc(p, newsize);
@@ -441,25 +445,6 @@ pub extern "C" fn spreads_mem_check_owned(p: *const libc::c_void) -> bool {
     }
 }
 #[no_mangle]
-pub extern "C" fn spreads_mem_heap_visit_blocks(
-    heap: *const mi_heap_t,
-    visit_all_blocks: bool,
-    visitor: ::core::option::Option<unsafe extern "C" fn() -> bool>,
-    arg: *mut libc::c_void,
-) -> bool {
-    unsafe {
-        return mi_heap_visit_blocks(heap, visit_all_blocks, visitor, arg);
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn spreads_mem_is_in_heap_region(p: *const libc::c_void) -> bool {
-    unsafe {
-        return mi_is_in_heap_region(p);
-    }
-}
-
-#[no_mangle]
 pub extern "C" fn spreads_mem_reserve_huge_os_pages_interleave(
     pages: usize,
     numa_nodes: usize,
@@ -508,6 +493,7 @@ pub extern "C" fn spreads_mem_option_disable(option: mi_option_t) {
         return mi_option_disable(option);
     }
 }
+
 #[no_mangle]
 pub extern "C" fn spreads_mem_option_set_enabled(option: mi_option_t, enable: bool) {
     unsafe {
@@ -539,9 +525,354 @@ pub extern "C" fn spreads_mem_option_set_default(option: mi_option_t, value: lib
     }
 }
 
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_new() -> *mut mi_heap_t {
+    unsafe {
+        return mi_heap_new();
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_delete(heap: *mut mi_heap_t) {
+    unsafe {
+        return mi_heap_delete(heap);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_destroy(heap: *mut mi_heap_t) {
+    unsafe {
+        return mi_heap_destroy(heap);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_set_default(heap: *mut mi_heap_t) -> *mut mi_heap_t {
+    unsafe {
+        return mi_heap_set_default(heap);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_get_default() -> *mut mi_heap_t {
+    unsafe {
+        return mi_heap_get_default();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_get_backing() -> *mut mi_heap_t {
+    unsafe {
+        return mi_heap_get_backing();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_visit_blocks(
+    heap: *const mi_heap_t,
+    visit_all_blocks: bool,
+    visitor: mi_block_visit_fun,
+    arg: *mut libc::c_void,
+) -> bool {
+    unsafe {
+        return mi_heap_visit_blocks(heap, visit_all_blocks, visitor, arg);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_is_in_heap_region(p: *const libc::c_void) -> bool {
+    unsafe {
+        return mi_is_in_heap_region(p);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_collect(heap: *mut mi_heap_t, force: bool) {
+    unsafe {
+        return mi_heap_collect(heap, force);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_malloc(heap: *mut mi_heap_t, size: usize) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_malloc(heap, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_zalloc(heap: *mut mi_heap_t, size: usize) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_zalloc(heap, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_calloc(
+    heap: *mut mi_heap_t,
+    count: usize,
+    size: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_calloc(heap, count, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_mallocn(
+    heap: *mut mi_heap_t,
+    count: usize,
+    size: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_mallocn(heap, count, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_malloc_small(
+    heap: *mut mi_heap_t,
+    size: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_malloc_small(heap, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_realloc(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_realloc(heap, p, newsize);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_reallocn(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    count: usize,
+    size: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_reallocn(heap, p, count, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_reallocf(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_reallocf(heap, p, newsize);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_strdup(
+    heap: *mut mi_heap_t,
+    s: *const libc::c_char,
+) -> *mut libc::c_char {
+    unsafe {
+        return mi_heap_strdup(heap, s);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_strndup(
+    heap: *mut mi_heap_t,
+    s: *const libc::c_char,
+    n: usize,
+) -> *mut libc::c_char {
+    unsafe {
+        return mi_heap_strndup(heap, s, n);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_realpath(
+    heap: *mut mi_heap_t,
+    fname: *const libc::c_char,
+    resolved_name: *mut libc::c_char,
+) -> *mut libc::c_char {
+    unsafe {
+        return mi_heap_realpath(heap, fname, resolved_name);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_malloc_aligned(
+    heap: *mut mi_heap_t,
+    size: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_malloc_aligned(heap, size, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_malloc_aligned_at(
+    heap: *mut mi_heap_t,
+    size: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_malloc_aligned_at(heap, size, alignment, offset);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_zalloc_aligned(
+    heap: *mut mi_heap_t,
+    size: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_zalloc_aligned(heap, size, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_zalloc_aligned_at(
+    heap: *mut mi_heap_t,
+    size: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_zalloc_aligned_at(heap, size, alignment, offset);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_calloc_aligned(
+    heap: *mut mi_heap_t,
+    count: usize,
+    size: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_calloc_aligned(heap, count, size, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_calloc_aligned_at(
+    heap: *mut mi_heap_t,
+    count: usize,
+    size: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_calloc_aligned_at(heap, count, size, alignment, offset);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_realloc_aligned(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_realloc_aligned(heap, p, newsize, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_realloc_aligned_at(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_realloc_aligned_at(heap, p, newsize, alignment, offset);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_rezalloc(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_rezalloc(heap, p, newsize);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_recalloc(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newcount: usize,
+    size: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_recalloc(heap, p, newcount, size);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_rezalloc_aligned(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_rezalloc_aligned(heap, p, newsize, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_rezalloc_aligned_at(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newsize: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_rezalloc_aligned_at(heap, p, newsize, alignment, offset);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_recalloc_aligned(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newcount: usize,
+    size: usize,
+    alignment: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_recalloc_aligned(heap, p, newcount, size, alignment);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_recalloc_aligned_at(
+    heap: *mut mi_heap_t,
+    p: *mut libc::c_void,
+    newcount: usize,
+    size: usize,
+    alignment: usize,
+    offset: usize,
+) -> *mut libc::c_void {
+    unsafe {
+        return mi_heap_recalloc_aligned_at(heap, p, newcount, size, alignment, offset);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_contains_block(
+    heap: *mut mi_heap_t,
+    p: *const libc::c_void,
+) -> bool {
+    unsafe {
+        return mi_heap_contains_block(heap, p);
+    }
+}
+#[no_mangle]
+pub extern "C" fn spreads_mem_heap_check_owned(
+    heap: *mut mi_heap_t,
+    p: *const libc::c_void,
+) -> bool {
+    unsafe {
+        return mi_heap_check_owned(heap, p);
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    extern crate alloc;
+
     use super::*;
+    use alloc::boxed::Box;
 
     #[test]
     fn it_frees_allocated_memory() {
@@ -581,5 +912,35 @@ mod tests {
     fn it_could_call_mimalloc() {
         let x = spreads_mem_malloc(10);
         spreads_mem_free(x);
+        spreads_mem_collect(true);
+    }
+
+    #[test]
+    fn it_could_print_stats() {
+        spreads_mem_stats_print();
+    }
+
+    // A list of C functions that are being imported
+    extern "C" {
+        pub fn printf(format: *const u8, ...) -> i32;
+    }
+
+    #[no_mangle]
+    pub extern "C" fn test_print_out(msg: *const libc::c_char, arg: *mut libc::c_void) {
+        unsafe {
+            printf(msg as *const u8);
+        }
+    }
+
+    #[test]
+    fn it_could_print_out_stats() {
+        // spreads_mem_register_output(Option::Some(test_print_out), 0 as *mut libc::c_void);
+        // spreads_mem_option_set(mi_option_e_mi_option_show_stats, 0);
+        // spreads_mem_option_set_default(mi_option_e_mi_option_show_stats, 0);
+        // spreads_mem_option_set_enabled_default(mi_option_e_mi_option_show_stats, false);
+        spreads_mem_option_disable(mi_option_e_mi_option_show_stats);
+        spreads_mem_option_disable(mi_option_e_mi_option_verbose);
+        // spreads_mem_option_set_enabled(mi_option_e_mi_option_show_stats, false);
+        spreads_mem_stats_print_out(Option::Some(test_print_out), 0 as *mut libc::c_void);
     }
 }

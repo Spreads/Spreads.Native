@@ -120,13 +120,13 @@ mi_decl_nodiscard mi_decl_export size_t mi_good_size(size_t size)     mi_attr_no
 // Internals
 // ------------------------------------------------------
 
-typedef void (mi_cdecl mi_deferred_free_fun)(bool force, unsigned long long heartbeat, void* arg);
+typedef void mi_deferred_free_fun(bool force, unsigned long long heartbeat, void* arg);
 mi_decl_export void mi_register_deferred_free(mi_deferred_free_fun* deferred_free, void* arg) mi_attr_noexcept;
 
-typedef void (mi_cdecl mi_output_fun)(const char* msg, void* arg);
+typedef void mi_output_fun(const char* msg, void* arg);
 mi_decl_export void mi_register_output(mi_output_fun* out, void* arg) mi_attr_noexcept;
 
-typedef void (mi_cdecl mi_error_fun)(int err, void* arg);
+typedef void mi_error_fun(int err, void* arg);
 mi_decl_export void mi_register_error(mi_error_fun* fun, void* arg);
 
 mi_decl_export void mi_collect(bool force)    mi_attr_noexcept;
@@ -239,7 +239,7 @@ typedef struct mi_heap_area_s {
   size_t block_size;  // size in bytes of each block
 } mi_heap_area_t;
 
-typedef bool (mi_cdecl mi_block_visit_fun)(const mi_heap_t* heap, const mi_heap_area_t* area, void* block, size_t block_size, void* arg);
+typedef bool mi_block_visit_fun(const mi_heap_t* heap, const mi_heap_area_t* area, void* block, size_t block_size, void* arg);
 
 mi_decl_export bool mi_heap_visit_blocks(const mi_heap_t* heap, bool visit_all_blocks, mi_block_visit_fun* visitor, void* arg);
 

@@ -51,23 +51,21 @@ extern "C" {
 extern "C" {
     pub fn mi_good_size(size: usize) -> usize;
 }
+pub type mi_deferred_free_fun = ::core::option::Option<
+    unsafe extern "C" fn(force: bool, heartbeat: libc::c_ulonglong, arg: *mut libc::c_void),
+>;
 extern "C" {
-    pub fn mi_register_deferred_free(
-        deferred_free: ::core::option::Option<unsafe extern "C" fn()>,
-        arg: *mut libc::c_void,
-    );
+    pub fn mi_register_deferred_free(deferred_free: mi_deferred_free_fun, arg: *mut libc::c_void);
 }
+pub type mi_output_fun =
+    ::core::option::Option<unsafe extern "C" fn(msg: *const libc::c_char, arg: *mut libc::c_void)>;
 extern "C" {
-    pub fn mi_register_output(
-        out: ::core::option::Option<unsafe extern "C" fn()>,
-        arg: *mut libc::c_void,
-    );
+    pub fn mi_register_output(out: mi_output_fun, arg: *mut libc::c_void);
 }
+pub type mi_error_fun =
+    ::core::option::Option<unsafe extern "C" fn(err: libc::c_int, arg: *mut libc::c_void)>;
 extern "C" {
-    pub fn mi_register_error(
-        fun: ::core::option::Option<unsafe extern "C" fn()>,
-        arg: *mut libc::c_void,
-    );
+    pub fn mi_register_error(fun: mi_error_fun, arg: *mut libc::c_void);
 }
 extern "C" {
     pub fn mi_collect(force: bool);
@@ -85,10 +83,7 @@ extern "C" {
     pub fn mi_stats_print(out: *mut libc::c_void);
 }
 extern "C" {
-    pub fn mi_stats_print_out(
-        out: ::core::option::Option<unsafe extern "C" fn()>,
-        arg: *mut libc::c_void,
-    );
+    pub fn mi_stats_print_out(out: mi_output_fun, arg: *mut libc::c_void);
 }
 extern "C" {
     pub fn mi_process_init();
@@ -100,10 +95,7 @@ extern "C" {
     pub fn mi_thread_done();
 }
 extern "C" {
-    pub fn mi_thread_stats_print_out(
-        out: ::core::option::Option<unsafe extern "C" fn()>,
-        arg: *mut libc::c_void,
-    );
+    pub fn mi_thread_stats_print_out(out: mi_output_fun, arg: *mut libc::c_void);
 }
 extern "C" {
     pub fn mi_malloc_aligned(size: usize, alignment: usize) -> *mut libc::c_void;
@@ -386,11 +378,93 @@ extern "C" {
 extern "C" {
     pub fn mi_check_owned(p: *const libc::c_void) -> bool;
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mi_heap_area_s {
+    pub blocks: *mut libc::c_void,
+    pub reserved: usize,
+    pub committed: usize,
+    pub used: usize,
+    pub block_size: usize,
+}
+#[test]
+fn bindgen_test_layout_mi_heap_area_s() {
+    assert_eq!(
+        ::core::mem::size_of::<mi_heap_area_s>(),
+        40usize,
+        concat!("Size of: ", stringify!(mi_heap_area_s))
+    );
+    assert_eq!(
+        ::core::mem::align_of::<mi_heap_area_s>(),
+        8usize,
+        concat!("Alignment of ", stringify!(mi_heap_area_s))
+    );
+    assert_eq!(
+        unsafe { &(*(::core::ptr::null::<mi_heap_area_s>())).blocks as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mi_heap_area_s),
+            "::",
+            stringify!(blocks)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::core::ptr::null::<mi_heap_area_s>())).reserved as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mi_heap_area_s),
+            "::",
+            stringify!(reserved)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::core::ptr::null::<mi_heap_area_s>())).committed as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mi_heap_area_s),
+            "::",
+            stringify!(committed)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::core::ptr::null::<mi_heap_area_s>())).used as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mi_heap_area_s),
+            "::",
+            stringify!(used)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::core::ptr::null::<mi_heap_area_s>())).block_size as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mi_heap_area_s),
+            "::",
+            stringify!(block_size)
+        )
+    );
+}
+pub type mi_heap_area_t = mi_heap_area_s;
+pub type mi_block_visit_fun = ::core::option::Option<
+    unsafe extern "C" fn(
+        heap: *const mi_heap_t,
+        area: *const mi_heap_area_t,
+        block: *mut libc::c_void,
+        block_size: usize,
+        arg: *mut libc::c_void,
+    ) -> bool,
+>;
 extern "C" {
     pub fn mi_heap_visit_blocks(
         heap: *const mi_heap_t,
         visit_all_blocks: bool,
-        visitor: ::core::option::Option<unsafe extern "C" fn() -> bool>,
+        visitor: mi_block_visit_fun,
         arg: *mut libc::c_void,
     ) -> bool;
 }

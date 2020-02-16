@@ -25,8 +25,8 @@ namespace Spreads.Native.Run
             
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            var test = new Tests.VecTests();
-            test.ForEachBench();
+            var test = new Tests.MemTests();
+            test.MimallocAllocFreePerf();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;

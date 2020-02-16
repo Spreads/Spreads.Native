@@ -32,6 +32,7 @@ members = [
 debug = true
 
 [profile.release]
-debug = false
+opt-level = 3
 lto = true
+debug = false
 panic = 'abort'
