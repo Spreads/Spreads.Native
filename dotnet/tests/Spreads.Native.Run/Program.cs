@@ -22,11 +22,11 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            
+            Console.WriteLine("CPU ID: " + CpuIdCache.GetCurrentCpuId());
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            var test = new Tests.MemTests();
-            test.MimallocAllocFreePerf();
+            var test = new Tests.ProcessorIdCacheTests();
+            test.CpuNumberPerformance();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;
@@ -53,7 +53,7 @@ namespace Spreads.Native.Run
             //Console.WriteLine("\n\n\n-------------------------------");
 
             Console.WriteLine("Finished, press enter to exit...");
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }

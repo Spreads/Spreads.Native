@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
