@@ -22,7 +22,7 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            Console.WriteLine("CPU ID: " + CpuIdCache.GetCurrentCpuId());
+            Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
             var test = new Tests.ProcessorIdCacheTests();

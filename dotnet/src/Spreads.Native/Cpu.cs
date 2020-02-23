@@ -11,8 +11,15 @@ using System.Threading;
 namespace Spreads.Native
 {
     [SuppressUnmanagedCodeSecurity]
-    public static class CpuIdCache
+    public static class Cpu
     {
+        public const int MaxCores = 128;
+        
+        /// <summary>
+        /// The number of cpu cores available for the current process, capped at <see cref="MaxCores"/>.
+        /// </summary>
+        public static readonly int CoreCount = Math.Min(Environment.ProcessorCount, MaxCores);
+        
         [DllImport(UnsafeEx.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
         private static extern int spreads_pal_get_cpu_number();
@@ -38,10 +45,10 @@ namespace Spreads.Native
 
         private const int CacheCountDownMask = (1 << CacheShift) - 1;
 
-        private const int RefreshRate = 500;
+        private const int RefreshRate = 1000;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int RefreshCurrentCpuId()
+        private static int RefreshCurrentCoreId()
         {
             int currentProcessorId = get_cpu_number();
 
@@ -52,8 +59,8 @@ namespace Spreads.Native
             if (currentProcessorId < 0)
                 currentProcessorId = Environment.CurrentManagedThreadId;
 
-            // Add offset to make it clear that it is not guaranteed to be 0-based processor number
-            currentProcessorId += 100;
+            // Make CPU id a valid index from [0, CoreCount]
+            currentProcessorId %= CoreCount;
 
             // Mask with int.MaxValue to ensure the execution Id is not negative
             _currentProcessorIdCache = ((currentProcessorId << CacheShift) & int.MaxValue) |
@@ -62,13 +69,17 @@ namespace Spreads.Native
             return currentProcessorId;
         }
 
+        /// <summary>
+        /// Returns a cached id of the current core. The value is always
+        /// valid as an index of an array with a length of <see cref="CoreCount"/>
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetCurrentCpuId()
+        public static int GetCurrentCoreId()
         {
             int currentProcessorIdCache = _currentProcessorIdCache--;
             if ((currentProcessorIdCache & CacheCountDownMask) == 0)
             {
-                return RefreshCurrentCpuId();
+                return RefreshCurrentCoreId();
             }
 
             return currentProcessorIdCache >> CacheShift;
@@ -98,7 +109,7 @@ namespace Spreads.Native
             // if(result)
             //     return;
             semaphoreSlim.Wait();
-            CpuIdCache.FlushCurrentCpuId();
+            Cpu.FlushCurrentCpuId();
         }
     }
 }

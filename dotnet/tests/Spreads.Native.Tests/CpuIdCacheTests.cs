@@ -13,10 +13,10 @@ namespace Spreads.Native.Tests
         [Test]
         public void CouldGetCpuNumberFromCache()
         {
-            var nativeCpuId = CpuIdCache.get_cpu_number();
+            var nativeCpuId = Cpu.get_cpu_number();
             Console.WriteLine($"native: {nativeCpuId}");
 
-            var cpuId = CpuIdCache.GetCurrentCpuId();
+            var cpuId = Cpu.GetCurrentCoreId();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -66,7 +66,7 @@ namespace Spreads.Native.Tests
             var x = 0L;
             for (int i = 0; i < count; i++)
             {
-                x += CpuIdCache.GetCurrentCpuId();
+                x += Cpu.GetCurrentCoreId();
                 // CpuIdCache.FlushCurrentCpuId();
             }
 
