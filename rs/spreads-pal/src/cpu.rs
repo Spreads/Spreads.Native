@@ -2,7 +2,9 @@
 #[no_mangle]
 pub extern "C" fn spreads_pal_get_cpu_number() -> libc::c_int {
     unsafe {
-        return winapi::um::processthreadsapi::GetCurrentProcessorNumber() as i32;
+        let mut processor_number =  core::mem::MaybeUninit::<winapi::um::winnt::PROCESSOR_NUMBER>::uninit();
+        winapi::um::processthreadsapi::GetCurrentProcessorNumberEx(processor_number.as_mut_ptr());
+        return (processor_number.assume_init().Group as i32) << 6 | (processor_number.assume_init().Number as i32);
     }
 }
 
