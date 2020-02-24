@@ -16,6 +16,21 @@
 * Compression: LZ4, Zstd, Zlib/GZip/Deflate compression/decompression. 
 Currently works on Windows x64/x86 and Linux x64 (tested on WSL & Docker Ubuntu). Targets `netstandard2.0`.
 
+## Mimalloc
+
+Full [mimalloc](https://github.com/microsoft/mimalloc) API in .NET.
+
+## Cpu.GetCurrentCoreId method
+
+Equivalent of [Thread.GetCurrentProcessorId](https://docs.microsoft.com/en-us/dotnet/api/system.threading.thread.getcurrentprocessorid?view=netcore-3.1) method
+that works on .NET Standard 2.0 and guarantees that the returned value could be used directly
+as an index in arrays with Cpu.CoreCount length. This allows to avoid expensive modulo 
+operation in the most common use cases of per-core data structures.
+
+## `Vec<T>` and `Vec`
+
+Non-ref `Span<T>`-like structs that could be stored as fields and are almost as fast.
+
 ## UnsafeEx
 
 [UnsafeEx](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.UnsafeEx.html) class contains unsafe IL helper methods that we cannot implement in C#.
@@ -147,19 +162,6 @@ Another benchmark with a key as a [custom 16-bytes `Symbol` struct](http://docs.
 ---------------      |--------:|---------:|------:|------:|------:|--------:
 FastDictionary       |   63.69 |   157 ms |   0.0 |   0.0 |   0.0 | 0.000 MB
 Dictionary           |   43.29 |   231 ms |   0.0 |   0.0 |   0.0 | 0.000 MB
-
-
-## Discussion
----------------
-
-There was an [interesting discussion](https://github.com/dotnet/coreclr/issues/6520) about intrinsifying `EqualityComparer<T>`,  
-aiming to achieve a similar goal of inlining calls when possible. However, the [last comment](https://github.com/dotnet/coreclr/issues/6688#issuecomment-295340599) from a CoreCLR member says that:
-
-> I am not aware of anybody working on this right now, so it is pretty unlikely [that it has a chance to appear in .NET Core 2.0].
-
-Later devirtualization support for `EqualityComparer<T>.Default` [was added](https://github.com/dotnet/coreclr/pull/14125). 
-But there is no support for comparers and especially for custom interfaces. Future versions of .NET Core may have much faster 
-comparers, but for existing code and platforms `Spreads.Native.UnsafeEx` gives the required performance right here and now.
 
 ## License
 
