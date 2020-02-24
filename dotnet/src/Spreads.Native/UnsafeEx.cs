@@ -193,10 +193,8 @@ namespace Spreads.Native
         public static ref T GetRef<T>(object obj, IntPtr byteOffset, int index)
         {
             if (obj == null)
-            {
-                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*)byteOffset), index);
-            }
-            
+                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) byteOffset), index);
+
             return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
         }
 
@@ -254,11 +252,10 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern void SetIndirect(object obj, IntPtr offset, int index, object val, IntPtr functionPtr);
 
-        // for reflection 
+        // needed for reflection below
         internal static int ArrayOffsetAdjustment<T>()
         {
-            // ReSharper disable once RedundantOverflowCheckingContext
-            return checked((int)VecHelpers.PerTypeValues<T>.ArrayAdjustment);
+            return (int)VecTypeHelper<T>.MeasureArrayAdjustment();
         }
 
         internal static int ArrayOffsetAdjustmentOfType(Type ty)
@@ -267,20 +264,6 @@ namespace Spreads.Native
             // ReSharper disable once PossibleNullReferenceException
             var genericMethod = method!.MakeGenericMethod(ty);
             return (int)genericMethod.Invoke(null, null)!;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsReferenceOrContainsReferences<T>()
-        {
-            return VecHelpers.IsReferenceOrContainsReferences<T>();
-        }
-
-        public static bool IsReferenceOrContainsReferencesOfType(Type ty)
-        {
-            var method = typeof(UnsafeEx).GetMethod("IsReferenceOrContainsReferences", BindingFlags.Static | BindingFlags.Public);
-            // ReSharper disable once PossibleNullReferenceException
-            var genericMethod = method!.MakeGenericMethod(ty);
-            return (bool)genericMethod.Invoke(null, null)!;
         }
 
         // needed for reflection below

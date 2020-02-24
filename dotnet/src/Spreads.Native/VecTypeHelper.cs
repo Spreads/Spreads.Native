@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -19,14 +20,12 @@ namespace Spreads.Native
         internal IntPtr UnsafeSetterPtr;
         public int RuntimeTypeId;
         public short ElemSize;
-        public byte ArrayOffsetAdjustment;
+        public int ArrayOffsetAdjustment;
         public bool IsReferenceOrContainsReferences;
     }
 
     internal static class VecTypeHelper
     {
-        public static readonly object NullSentinel = new int[1];
-
         // this is basically a manual vtable for a particular use case
         // cannot make untyped delegates to perform at least on par with indirect calls
         private static readonly AppendOnlyStorage<RuntimeVecInfo> Info = new AppendOnlyStorage<RuntimeVecInfo>();
@@ -59,9 +58,9 @@ namespace Spreads.Native
                         Type = tNew,
                         UnsafeGetterPtr = UnsafeEx.GetterMethodPointerForType(tNew),
                         UnsafeSetterPtr = UnsafeEx.SetterMethodPointerForType(tNew),
-                        ElemSize = checked((short)UnsafeEx.ElemSizeOfType(tNew)),
-                        ArrayOffsetAdjustment = checked((byte)UnsafeEx.ArrayOffsetAdjustmentOfType(tNew)),
-                        IsReferenceOrContainsReferences = UnsafeEx.IsReferenceOrContainsReferencesOfType(tNew)
+                        ElemSize = checked((short) UnsafeEx.ElemSizeOfType(tNew)),
+                        ArrayOffsetAdjustment = UnsafeEx.ArrayOffsetAdjustmentOfType(tNew),
+                        IsReferenceOrContainsReferences = IsReferenceOrContainsReferences(tNew)
                     });
                     ref var infoNew = ref Info[idxNew];
                     infoNew.RuntimeTypeId = idxNew;
@@ -69,6 +68,46 @@ namespace Spreads.Native
                 }
             });
             return ref Info[idx];
+        }
+
+        internal static bool IsReferenceOrContainsReferences(Type type)
+        {
+#if HAS_ISREF
+            var method = typeof(RuntimeHelpers).GetMethod("IsReferenceOrContainsReferences", BindingFlags.Static | BindingFlags.Public);
+            // ReSharper disable once PossibleNullReferenceException
+            var genericMethod = method!.MakeGenericMethod(type);
+            return (bool) genericMethod.Invoke(null, null)!;
+#else
+            return IsReferenceOrContainsReferencesManual(type);
+#endif
+            
+        }
+
+        internal static bool IsReferenceOrContainsReferencesManual(Type type)
+        {
+            if (type.GetTypeInfo().IsPrimitive) // This is hopefully the common case. All types that return true for this are value types w/out embedded references.
+                return false;
+
+            if (!type.GetTypeInfo().IsValueType)
+                return true;
+
+            // If type is a Nullable<> of something, unwrap it first.
+            Type underlyingNullable = Nullable.GetUnderlyingType(type);
+            if (underlyingNullable != null)
+                type = underlyingNullable;
+
+            if (type.GetTypeInfo().IsEnum)
+                return false;
+
+            foreach (FieldInfo field in type.GetTypeInfo().DeclaredFields)
+            {
+                if (field.IsStatic)
+                    continue;
+                if (IsReferenceOrContainsReferences(field.FieldType))
+                    return true;
+            }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -119,9 +158,19 @@ namespace Spreads.Native
 
     public static class VecTypeHelper<T>
     {
-        internal static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
+        internal static readonly T[] ArrayWithTwoElements = new T[2];
+        
+        private static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
 
         // ReSharper disable once StaticMemberInGenericType
         public static readonly int RuntimeTypeId = RuntimeVecInfo.RuntimeTypeId;
+        public static readonly bool IsReferenceOrContainsReferences = RuntimeVecInfo.IsReferenceOrContainsReferences;
+        public static readonly int ArrayOffsetAdjustment = RuntimeVecInfo.ArrayOffsetAdjustment;
+
+        // Array header sizes are a runtime implementation detail and aren't the same across all runtimes. (The CLR made a tweak after 4.5, and Mono has an extra Bounds pointer.)
+        internal static IntPtr MeasureArrayAdjustment()
+        {
+            return Unsafe.ByteOffset(ref Unsafe.As<Pinnable<T>>(ArrayWithTwoElements).Data, ref ArrayWithTwoElements[0]);
+        }
     }
 }

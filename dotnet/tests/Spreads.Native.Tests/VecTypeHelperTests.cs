@@ -12,7 +12,7 @@ namespace Spreads.Native.Tests
 {
     [Category("CI")]
     [TestFixture]
-    public unsafe class VecTypeHelperTests
+    public class VecTypeHelperTests
     {
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         private struct MyStruct
@@ -30,9 +30,29 @@ namespace Spreads.Native.Tests
         }
 
         [Test]
+        public void IsRef()
+        {
+            Assert.AreEqual(false, VecTypeHelper.IsReferenceOrContainsReferences(typeof(MyStruct)));
+            Assert.AreEqual(false, VecTypeHelper.IsReferenceOrContainsReferencesManual(typeof(MyStruct)));
+
+            Assert.AreEqual(true, VecTypeHelper.IsReferenceOrContainsReferences(typeof(MyStructWithRef)));
+            Assert.AreEqual(true, VecTypeHelper.IsReferenceOrContainsReferencesManual(typeof(MyStructWithRef)));
+        }
+
+        [Test]
+        public void ArrayAdjustment()
+        {
+            Console.WriteLine($"ArrayOffsetAdjustment: {(byte) VecTypeHelper<int>.ArrayOffsetAdjustment}");
+            Console.WriteLine($"UnsafeEx.ArrayOffsetAdjustmentOfType: {UnsafeEx.ArrayOffsetAdjustmentOfType(typeof(int))}");
+            Console.WriteLine($"UnsafeEx.ArrayOffsetAdjustment: {UnsafeEx.ArrayOffsetAdjustment<int>()}");
+
+            Assert.IsTrue((byte) VecTypeHelper<int>.ArrayOffsetAdjustment > 0);
+        }
+
+        [Test]
         public void CouldGetRuntimeVecInfo()
         {
-            var types = new[] { typeof(int), typeof(decimal), typeof(MyStruct), typeof(MyStructWithRef), typeof(string), typeof(object) };
+            var types = new[] {typeof(int), typeof(decimal), typeof(MyStruct), typeof(MyStructWithRef), typeof(string), typeof(object)};
 
             foreach (var type in types)
             {
@@ -45,6 +65,7 @@ namespace Spreads.Native.Tests
                 Assert.AreEqual(vti.UnsafeGetterPtr, vti2.UnsafeGetterPtr);
                 Assert.AreEqual(vti.UnsafeSetterPtr, vti2.UnsafeSetterPtr);
                 Assert.AreEqual(vti.RuntimeTypeId, vti2.RuntimeTypeId);
+                Assert.AreEqual(vti.IsReferenceOrContainsReferences, vti2.IsReferenceOrContainsReferences);
                 Console.WriteLine("TYPE: " + type.Name);
                 Console.WriteLine("vti.RuntimeTypeId: " + vti.RuntimeTypeId);
                 Console.WriteLine("vti.ElemOffset: " + vti.ArrayOffsetAdjustment);

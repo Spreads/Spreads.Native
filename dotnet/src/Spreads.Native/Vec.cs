@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 
 namespace Spreads.Native
 {
-
     // This is based on slow Span<T> implementation.
     // 1. Working with untyped/unconstrained generic Vec/Vec<T> is simpler
     //    than using ifs everywhere.
@@ -25,7 +24,6 @@ namespace Spreads.Native
     //    branches that are predicted independently.
     // 3. One day Span<T> could be stored as a field of a normal (not ref)
     //    struct and we will only need to change Vec implementation.
-
 
     /// <summary>
     /// Typed native or managed vector.
@@ -67,15 +65,13 @@ namespace Spreads.Native
             }
 
             if (default(T) is null && array.GetType() != typeof(T[]))
-            {
                 VecThrowHelper.ThrowArrayTypeMismatchException();
-            }
 
             _length = array.Length;
             _pinnable = Unsafe.As<Pinnable<T>>(array);
-            _byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment;
+            _byteOffset = (IntPtr) VecTypeHelper<T>.ArrayOffsetAdjustment;
 
-            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            _runtimeTypeId = VecTypeHelper<T>.RuntimeTypeId;
         }
 
         // This is a constructor that takes an array and start but not length. The reason we expose it as a static method as a constructor
@@ -90,14 +86,15 @@ namespace Spreads.Native
                     VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
                 return default;
             }
+
             if (default(T) is null && array.GetType() != typeof(T[]))
                 VecThrowHelper.ThrowArrayTypeMismatchException();
-            if (unchecked((uint)start) > unchecked((uint)array.Length))
+            if (unchecked((uint) start) > unchecked((uint) array.Length))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
-            IntPtr byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
+            IntPtr byteOffset = (IntPtr) Unsafe.Add<T>((byte*) VecTypeHelper<T>.ArrayOffsetAdjustment, start);
             int length = array.Length - start;
-            return new Vec<T>(pinnable: Unsafe.As<Pinnable<T>>(array), byteOffset: byteOffset, length: length, runtimeTypeId: VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId);
+            return new Vec<T>(pinnable: Unsafe.As<Pinnable<T>>(array), byteOffset: byteOffset, length: length, runtimeTypeId: VecTypeHelper<T>.RuntimeTypeId);
         }
 
         /// <summary>
@@ -122,16 +119,17 @@ namespace Spreads.Native
                 this = default;
                 return; // returns default
             }
+
             if (default(T) is null && array.GetType() != typeof(T[]))
-            { VecThrowHelper.ThrowArrayTypeMismatchException(); }
-            if (unchecked((uint)start) > unchecked((uint)array.Length)
-                || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+                VecThrowHelper.ThrowArrayTypeMismatchException();
+
+            if (unchecked((uint) start) > unchecked((uint) array.Length) || unchecked((uint) length) > unchecked((uint) (array.Length - start)))
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             _length = length;
             _pinnable = Unsafe.As<Pinnable<T>>(array);
-            _byteOffset = VecHelpers.PerTypeValues<T>.ArrayAdjustment.Add<T>(start);
-            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            _byteOffset = (IntPtr) Unsafe.Add<T>((byte*) VecTypeHelper<T>.ArrayOffsetAdjustment, start);
+            _runtimeTypeId = VecTypeHelper<T>.RuntimeTypeId;
         }
 
         /// <summary>
@@ -151,16 +149,17 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec(void* pointer, int length)
         {
-            if (VecHelpers.IsReferenceOrContainsReferences<T>())
-            { VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(typeof(T)); }
+            if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
+                VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(typeof(T));
+
             if (length < 0)
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             _length = length;
             _pinnable = null;
             _byteOffset = new IntPtr(pointer);
             // negative
-            _runtimeTypeId = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
+            _runtimeTypeId = VecTypeHelper<T>.RuntimeTypeId;
         }
 
         // Constructor for internal use only.
@@ -190,11 +189,21 @@ namespace Spreads.Native
             get
             {
                 if (_pinnable == null)
-                {
-                    return new Span<T>((void*)_byteOffset, _length);
-                }
+                    return new Span<T>((void*) _byteOffset, _length);
 
-                return new Span<T>(Unsafe.As<T[]>(_pinnable), (int)(checked((uint)_byteOffset - VecTypeHelper<T>.RuntimeVecInfo.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+                return new Span<T>(Unsafe.As<T[]>(_pinnable), (int) (checked((uint) _byteOffset - VecTypeHelper<T>.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+            }
+        }
+
+        internal Span<T> UnsafeSpan
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
+                    return new Span<T>(Unsafe.As<T[]>(_pinnable), (int) (checked((uint) _byteOffset - VecTypeHelper<T>.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+
+                return new Span<T>((void*) _byteOffset, _length);
             }
         }
 
@@ -233,22 +242,52 @@ namespace Spreads.Native
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (unchecked((uint)index) >= unchecked((uint)_length))
+                if (unchecked((uint) index) >= unchecked((uint) _length))
                 {
                     VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
+
                 return DangerousGetUnaligned(index);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if (unchecked((uint)index) >= unchecked((uint)_length))
+                if (unchecked((uint) index) >= unchecked((uint) _length))
                 {
                     VecThrowHelper.ThrowIndexOutOfRangeException();
                 }
+
                 DangerousSetUnaligned(index, value);
             }
+        }
+
+        /// <summary>
+        /// Returns a reference to a value at index.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetRef(int index)
+        {
+            if (unchecked((uint) index) >= unchecked((uint) _length))
+            {
+                VecThrowHelper.ThrowIndexOutOfRangeException();
+            }
+
+            return ref DangerousGetRef(index);
+        }
+
+        /// <summary>
+        /// Returns a reference to a value at index without bound checks.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T DangerousGetRef(int index)
+        {
+            if (_pinnable == null)
+            {
+                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) _byteOffset), index);
+            }
+
+            return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -264,32 +303,38 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Returns a reference to a value at index.
+        /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
+        [Obsolete("Know what you are doing, read the description, guarantee the contract.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetRef(int index)
+        internal ref T UnsafeGetRef(int index)
         {
-            if (unchecked((uint)index) >= unchecked((uint)_length))
-            {
-                VecThrowHelper.ThrowIndexOutOfRangeException();
-            }
-            return ref DangerousGetRef(index);
+            if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
+                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
+
+            return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) _byteOffset), index);
         }
 
         /// <summary>
-        /// Returns a reference to a value at index without bound checks.
+        /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T DangerousGetRef(int index)
+        internal T UnsafeGetUnaligned(int index)
         {
-            if (_pinnable == null)
-            {
-                return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*)_byteOffset), index);
-            }
-            else
-            {
-                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
-            }
+#pragma warning disable 618
+            return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref UnsafeGetRef(index)));
+#pragma warning restore 618
+        }
+
+        /// <summary>
+        /// See <see cref="Vec.UnsafeGetRef{T}"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UnsafeSetUnaligned(int index, T value)
+        {
+#pragma warning disable 618
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref UnsafeGetRef(index)), value);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -302,10 +347,12 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec<T> Slice(int start)
         {
-            if ((uint)start > (uint)_length)
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+            if ((uint) start > (uint) _length)
+            {
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+            }
 
-            IntPtr newOffset = _byteOffset.Add<T>(start);
+            IntPtr newOffset = (IntPtr) Unsafe.Add<T>((byte*) _byteOffset, start);
             int length = _length - start;
             return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
         }
@@ -321,17 +368,19 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec<T> Slice(int start, int length)
         {
-            if ((uint)start > (uint)_length || (uint)length > (uint)(_length - start))
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+            if ((uint) start > (uint) _length || (uint) length > (uint) (_length - start))
+            {
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+            }
 
-            IntPtr newOffset = _byteOffset.Add<T>(start);
+            IntPtr newOffset = (IntPtr) Unsafe.Add<T>((byte*) _byteOffset, start);
             return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Vec<T> DangerousSlice(int start, int length)
         {
-            IntPtr newOffset = _byteOffset.Add<T>(start);
+            IntPtr newOffset = (IntPtr) Unsafe.Add<T>((byte*) _byteOffset, start);
             return new Vec<T>(_pinnable, newOffset, length, _runtimeTypeId);
         }
 
@@ -357,10 +406,12 @@ namespace Spreads.Native
             {
                 if (_pinnable == null)
                 {
-                    return ref Unsafe.AsRef<T>((void*)_byteOffset);
+                    return ref Unsafe.AsRef<T>((void*) _byteOffset);
                 }
+
                 return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset);
             }
+
             return ref Unsafe.AsRef<T>(source: null);
         }
 
@@ -374,9 +425,13 @@ namespace Spreads.Native
         internal ref T DangerousGetPinnableReference()
         {
             if (_pinnable == null)
-            { return ref Unsafe.AsRef<T>((void*)_byteOffset); }
+            {
+                return ref Unsafe.AsRef<T>((void*) _byteOffset);
+            }
             else
-            { return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset); }
+            {
+                return ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset);
+            }
         }
 
         /// <summary>
@@ -398,7 +453,7 @@ namespace Spreads.Native
         internal void FillNonGeneric(object value)
         {
             // ReSharper disable once RedundantCast
-            Span.Fill((T)(dynamic)value);
+            Span.Fill((T) (dynamic) value);
         }
 
         /// <summary>
@@ -414,7 +469,9 @@ namespace Spreads.Native
         public void CopyTo(Vec<T> destination)
         {
             if (!TryCopyTo(destination))
-            { VecThrowHelper.ThrowArgumentException_DestinationTooShort(); }
+            {
+                VecThrowHelper.ThrowArgumentException_DestinationTooShort();
+            }
         }
 
         /// <summary>
@@ -479,8 +536,8 @@ namespace Spreads.Native
         /// </summary>
         public struct Enumerator : IEnumerator<T>
         {
-            private int _position;  // The current position.
-            private Vec<T> _vec;    // The slice being enumerated.
+            private int _position; // The current position.
+            private Vec<T> _vec; // The slice being enumerated.
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Enumerator(Vec<T> vec)
@@ -546,15 +603,13 @@ namespace Spreads.Native
             }
 
             if (array.Rank != 1 || array.GetLowerBound(0) != 0)
-            {
                 VecThrowHelper.ThrowInvalidOperationException_ArrayNotVector();
-            }
 
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
             _length = array.Length;
             _pinnable = array;
-            _byteOffset = (IntPtr)vti.ArrayOffsetAdjustment;
+            _byteOffset = (IntPtr) vti.ArrayOffsetAdjustment;
 
             _runtimeTypeId = vti.RuntimeTypeId;
         }
@@ -573,16 +628,14 @@ namespace Spreads.Native
             }
 
             if (array.Rank != 1 || array.GetLowerBound(0) != 0)
-            {
                 VecThrowHelper.ThrowInvalidOperationException_ArrayNotVector();
-            }
 
-            if (unchecked((uint)start) > unchecked((uint)array.Length))
+            if (unchecked((uint) start) > unchecked((uint) array.Length))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
-            IntPtr byteOffset = (IntPtr)(vti.ArrayOffsetAdjustment + start * vti.ElemSize);
+            IntPtr byteOffset = (IntPtr) (vti.ArrayOffsetAdjustment + start * vti.ElemSize);
             int length = array.Length - start;
             return new Vec(array: array, byteOffset: byteOffset, length: length, runtimeTypeId: vti.RuntimeTypeId);
         }
@@ -610,19 +663,17 @@ namespace Spreads.Native
             }
 
             if (array.Rank != 1 || array.GetLowerBound(0) != 0)
-            {
                 VecThrowHelper.ThrowInvalidOperationException_ArrayNotVector();
-            }
 
             // ReSharper disable once PossibleNullReferenceException
             ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
 
-            if (unchecked((uint)start) > unchecked((uint)array.Length) || unchecked((uint)length) > unchecked((uint)(array.Length - start)))
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+            if (unchecked((uint) start) > unchecked((uint) array.Length) || unchecked((uint) length) > unchecked((uint) (array.Length - start)))
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             _length = length;
             _pinnable = array;
-            _byteOffset = (IntPtr)(vti.ArrayOffsetAdjustment + start * vti.ElemSize);
+            _byteOffset = (IntPtr) (vti.ArrayOffsetAdjustment + start * vti.ElemSize);
             _runtimeTypeId = vti.RuntimeTypeId;
         }
 
@@ -644,22 +695,19 @@ namespace Spreads.Native
             ref var vti = ref VecTypeHelper.GetInfo(elementType);
 
             if (vti.IsReferenceOrContainsReferences)
-            { VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(elementType); }
+                VecThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(elementType);
+
             if (length < 0)
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             if (pointer == null && length != 0)
-            {
                 VecThrowHelper.ThrowNullPointer();
-            }
 
             if (elementType == null)
-            {
                 VecThrowHelper.ThrowTypeIsNull();
-            }
 
             _pinnable = null;
-            _byteOffset = (IntPtr)pointer;
+            _byteOffset = (IntPtr) pointer;
             _length = length;
             _runtimeTypeId = vti.RuntimeTypeId;
         }
@@ -685,11 +733,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec<T> As<T>()
         {
-            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            if (vtidx != _runtimeTypeId)
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
                 VecThrowHelper.ThrowVecTypeMismatchException();
-            }
 
             return new Vec<T>(Unsafe.As<Pinnable<T>>(_pinnable), _byteOffset, _length, _runtimeTypeId);
         }
@@ -697,18 +742,24 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<T> AsSpan<T>()
         {
-            var vtidx = VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId;
-            if (vtidx != _runtimeTypeId)
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
                 VecThrowHelper.ThrowVecTypeMismatchException();
-            }
 
             if (_pinnable == null)
-            {
-                return new Span<T>((void*)_byteOffset, _length);
-            }
+                return new Span<T>((void*) _byteOffset, _length);
 
-            return new Span<T>(Unsafe.As<T[]>(_pinnable), (int)(checked((uint)_byteOffset - VecTypeHelper<T>.RuntimeVecInfo.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+            return new Span<T>(Unsafe.As<T[]>(_pinnable), (int) (checked((uint) _byteOffset - VecTypeHelper<T>.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<T> UnsafeAsSpan<T>()
+        {
+            Debug.Assert(VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId);
+
+            if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
+                return new Span<T>(Unsafe.As<T[]>(_pinnable), (int) (checked((uint) _byteOffset - VecTypeHelper<T>.ArrayOffsetAdjustment)) / Unsafe.SizeOf<T>(), _length);
+
+            return new Span<T>((void*) _byteOffset, _length);
         }
 
         /// <summary>
@@ -752,20 +803,16 @@ namespace Spreads.Native
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (unchecked((uint)index) >= unchecked((uint)_length))
-                {
+                if (unchecked((uint) index) >= unchecked((uint) _length))
                     VecThrowHelper.ThrowIndexOutOfRangeException();
-                }
 
                 return DangerousGet(index);
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if (unchecked((uint)index) >= unchecked((uint)_length))
-                {
+                if (unchecked((uint) index) >= unchecked((uint) _length))
                     VecThrowHelper.ThrowIndexOutOfRangeException();
-                }
 
                 DangerousSet(index, value);
             }
@@ -796,13 +843,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get<T>(int index)
         {
-            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
-                ||
-                (unchecked((uint)index) >= unchecked((uint)_length))
-            )
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId || unchecked((uint) index) >= unchecked((uint) _length))
                 ThrowWrongLengthOrType<T>(index);
-            }
 
             return DangerousGetUnaligned<T>(index);
         }
@@ -810,13 +852,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set<T>(int index, T value)
         {
-            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
-                ||
-                (unchecked((uint)index) >= unchecked((uint)_length))
-            )
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId || unchecked((uint) index) >= unchecked((uint) _length))
                 ThrowWrongLengthOrType<T>(index);
-            }
 
             DangerousSetUnaligned<T>(index, value);
         }
@@ -827,13 +864,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetRef<T>(int index)
         {
-            if ((VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
-                ||
-                (unchecked((uint)index) >= unchecked((uint)_length))
-                )
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId || unchecked((uint) index) >= unchecked((uint) _length))
                 ThrowWrongLengthOrType<T>(index);
-            }
 
             return ref DangerousGetRef<T>(index);
         }
@@ -841,15 +873,20 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void ThrowWrongLengthOrType<T>(int index)
         {
-            if (unchecked((uint)index) >= unchecked((uint)_length))
-            {
+            if (unchecked((uint) index) >= unchecked((uint) _length))
                 VecThrowHelper.ThrowIndexOutOfRangeException();
-            }
 
-            if (VecTypeHelper<T>.RuntimeVecInfo.RuntimeTypeId != _runtimeTypeId)
-            {
+            if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId)
                 VecThrowHelper.ThrowWrongCastType<T>();
-            }
+        }
+
+        /// <summary>
+        /// Get a typed reference to a value at index without type or bounds check.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T DangerousGetRef<T>(int index)
+        {
+            return ref UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -878,12 +915,42 @@ namespace Spreads.Native
         }
 
         /// <summary>
-        /// Get a typed reference to a value at index without type or bounds check.
+        /// This method assumes that types without references are always backed with pinned/native memory (pointer != null).
+        /// The reference check is done via <see cref="VecTypeHelper{T}.IsReferenceOrContainsReferences"/>.
+        /// This check should be JIT-time constant and the performance should be closer to native <see cref="Span{T}"/>.
+        /// Dangerous-prefixed methods only skip bounds check while this method is *very unsafe*.
+        /// It should be used together with Spreads.Buffers.PrivateMemory. 
+        /// </summary>
+        [Obsolete("Know what you are doing, read the description, guarantee the contract.")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ref T UnsafeGetRef<T>(int index)
+        {
+            if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
+                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(_pinnable).Data, _byteOffset), index);
+
+            return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) _byteOffset), index);
+        }
+
+        /// <summary>
+        /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T DangerousGetRef<T>(int index)
+        internal T UnsafeGetUnaligned<T>(int index)
         {
-            return ref UnsafeEx.GetRef<T>(_pinnable, _byteOffset, index);
+#pragma warning disable 618
+            return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref UnsafeGetRef<T>(index)));
+#pragma warning restore 618
+        }
+
+        /// <summary>
+        /// See <see cref="Vec.UnsafeGetRef{T}"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UnsafeSetUnaligned<T>(int index, T value)
+        {
+#pragma warning disable 618
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref UnsafeGetRef<T>(index)), value);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -896,8 +963,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec Slice(int start)
         {
-            if ((uint)start > (uint)_length)
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+            if ((uint) start > (uint) _length)
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
 
@@ -917,8 +984,8 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vec Slice(int start, int length)
         {
-            if ((uint)start > (uint)_length || (uint)length > (uint)(_length - start))
-            { VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start); }
+            if ((uint) start > (uint) _length || (uint) length > (uint) (_length - start))
+                VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
             ref var vti = ref VecTypeHelper.GetInfo(_runtimeTypeId);
 
@@ -967,7 +1034,7 @@ namespace Spreads.Native
         /// </summary>
         public struct Enumerator : IEnumerator<object>
         {
-            private Vec _vec;    // The slice being enumerated.
+            private Vec _vec; // The slice being enumerated.
             private int _position; // The current position.
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

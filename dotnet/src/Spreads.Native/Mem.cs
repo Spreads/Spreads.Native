@@ -10,7 +10,7 @@ namespace Spreads.Native
     public class Mem
     {
         private const string NativeLibraryName = UnsafeEx.NativeLibraryName;
-        
+
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true), SuppressUnmanagedCodeSecurity]
         public unsafe delegate void DeferredFreeFun(bool force, ulong heartbeat, void* arg);
 
@@ -22,7 +22,6 @@ namespace Spreads.Native
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true), SuppressUnmanagedCodeSecurity]
         public unsafe delegate bool BlockVisitFun(void* heap, void* area, void* block, UIntPtr blockSize, void* arg);
-
 
         public enum Option
         {
@@ -137,7 +136,7 @@ namespace Spreads.Native
         /// <param name="newsize">	the new required size in bytes.</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_reallocf", CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* Reallocf(byte* p, UIntPtr newsize);
-        
+
         /// <summary>
         /// Try to re-allocate memory to <paramref name="newsize"/>  bytes in place.
         /// Returns a pointer to the re-allocated memory of <paramref name="newsize"/>
@@ -152,7 +151,7 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_expand",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* Expand(byte* p, UIntPtr newsize);
-        
+
         /// <summary>
         /// Returns the available bytes in the memory block, or 0 if p was NULL.
         /// The returned size can be used to call <see cref="Expand"/> successfully.
@@ -182,23 +181,23 @@ namespace Spreads.Native
         /// <param name="force">If true, aggressively return memory to the OS (can be expensive!).</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_collect", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Collect(bool force);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_mialloc_version",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern int MimallocVersion();
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_malloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* MallocAligned(UIntPtr size, UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_malloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* MallocAlignedAt(UIntPtr size, UIntPtr alignment, UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_zalloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* ZallocAligned(UIntPtr size, UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_zalloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* ZallocAlignedAt(UIntPtr size, UIntPtr alignment, UIntPtr offset);
@@ -206,11 +205,11 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_calloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* CallocAligned(UIntPtr count, UIntPtr size, UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_calloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* CallocAlignedAt(UIntPtr count, UIntPtr size, UIntPtr alignment, UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_realloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* ReallocAligned(byte* p, UIntPtr newsize, UIntPtr alignment);
@@ -219,7 +218,7 @@ namespace Spreads.Native
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* ReallocAlignedAt(byte* p, UIntPtr newsize, UIntPtr alignment,
             UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_rezalloc", CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* Rezalloc(byte* p, UIntPtr newsize);
 
@@ -234,17 +233,17 @@ namespace Spreads.Native
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* RezallocAlignedAt(byte* p, UIntPtr newsize, UIntPtr alignment,
             UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_recalloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* RecallocAligned(byte* p, UIntPtr newcount, UIntPtr size,
             UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_recalloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* RecallocAlignedAt(byte* p, UIntPtr newcount, UIntPtr size,
             UIntPtr alignment, UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_stats_reset",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern void StatsReset();
@@ -341,19 +340,19 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_collect",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe void HeapCollect(void* heap, bool force);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_malloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapMalloc(void* heap, UIntPtr size);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_zalloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapZalloc(void* heap, UIntPtr size);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_calloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapCalloc(void* heap, UIntPtr count, UIntPtr size);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_mallocn",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapMallocn(void* heap, UIntPtr count, UIntPtr size);
@@ -361,7 +360,7 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_malloc_small",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapMallocSmall(void* heap, UIntPtr size);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_realloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRealloc(void* heap, byte* p, UIntPtr size);
@@ -377,11 +376,11 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_strdup",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapStrdup(void* heap, byte* s);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_strndup",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapStrndup(void* heap, byte* s, UIntPtr n);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_realpath",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRealpath(void* heap, byte* fname, byte* resolvedName);
@@ -423,20 +422,20 @@ namespace Spreads.Native
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapReallocAlignedAt(void* heap, byte* p, UIntPtr newsize,
             UIntPtr alignment, UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_rezalloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRezalloc(void* heap, byte* p, UIntPtr newsize);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_recalloc",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRecalloc(void* heap, byte* p, UIntPtr newcount, UIntPtr size);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_rezalloc_aligned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRezallocAligned(void* heap, byte* p, UIntPtr newsize,
             UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_rezalloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRezallocAlignedAt(void* heap, byte* p, UIntPtr newsize,
@@ -446,37 +445,18 @@ namespace Spreads.Native
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRecallocAligned(void* heap, byte* p, UIntPtr newcount,
             UIntPtr size, UIntPtr alignment);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_recalloc_aligned_at",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* HeapRecallocAlignedAt(void* heap, byte* p, UIntPtr newcount,
             UIntPtr size, UIntPtr alignment, UIntPtr offset);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_contains_block",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe bool HeapContainsBlock(void* heap, byte* p);
-        
+
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_check_owned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe bool HeapCheckOwned(void* heap, byte* p);
-
-
-        // public static Task Gc = Task.Run(async () =>
-        // {
-        //     while (true)
-        //     {
-        //         try
-        //         {
-        //             Collect(true);
-        //             Console.WriteLine("COLLECTED");
-        //         }
-        //         catch
-        //         {
-        //             // TODO log
-        //         }
-        //
-        //         await Task.Delay(500);
-        //     }
-        // });
     }
 }
