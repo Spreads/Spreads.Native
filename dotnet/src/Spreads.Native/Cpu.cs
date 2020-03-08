@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -14,21 +15,29 @@ namespace Spreads.Native
     public static class Cpu
     {
         public const int MaxCores = 128;
-        
+
         /// <summary>
         /// The number of cpu cores available for the current process, capped at <see cref="MaxCores"/>.
         /// </summary>
         public static readonly int CoreCount = Math.Min(Environment.ProcessorCount, MaxCores);
-        
+
         [DllImport(UnsafeEx.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
         private static extern int spreads_pal_get_cpu_number();
+        
+        // internal delegate int GetCurrentProcessorNumber();
+        // private static GetCurrentProcessorNumber GetCurrentProcessorNumberDelegate = CreateDelegate();
+        // private static GetCurrentProcessorNumber CreateDelegate()
+        // {
+        //     var method = typeof(Thread).GetMethod("GetCurrentProcessorNumber", BindingFlags.Static | BindingFlags.NonPublic);
+        //     return (GetCurrentProcessorNumber)method?.CreateDelegate(typeof(GetCurrentProcessorNumber));
+        // }
 
         internal static int get_cpu_number()
         {
             try
             {
-                return spreads_pal_get_cpu_number();
+                return spreads_pal_get_cpu_number(); // GetCurrentProcessorNumberDelegate(); // 
             }
             catch
             {
@@ -45,7 +54,7 @@ namespace Spreads.Native
 
         private const int CacheCountDownMask = (1 << CacheShift) - 1;
 
-        private const int RefreshRate = 1000;
+        private const int RefreshRate = 500;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int RefreshCurrentCoreId()

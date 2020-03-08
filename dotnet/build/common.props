@@ -3,7 +3,7 @@
   <Import Project="Spreads.props" />
   
   <PropertyGroup>
-    <PackageTags>Spreads Native LZ4 Zstd Zlib GZip Unsafe shuffle SIMD pinvoke </PackageTags>
+    <PackageTags>Spreads Native LZ4 Zstd Zlib GZip Unsafe shuffle SIMD pinvoke mimalloc</PackageTags>
     <PackageProjectUrl>http://docs.dataspreads.io/spreads/libs/native/api/README.html</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Spreads/Spreads.Native.git</RepositoryUrl>
   </PropertyGroup>
@@ -14,7 +14,7 @@
     <QVersion>1</QVersion>
 
     <!-- Overrides -->
-    <MMDDVersion>224</MMDDVersion>
+    <MMDDVersion>308</MMDDVersion>
     <PackageHHMMSSSuffix></PackageHHMMSSSuffix>
     
   </PropertyGroup>

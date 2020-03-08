@@ -305,9 +305,8 @@ namespace Spreads.Native
         /// <summary>
         /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
-        [Obsolete("Know what you are doing, read the description, guarantee the contract.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ref T UnsafeGetRef(int index)
+        internal ref T UnsafeGetRef(IntPtr index)
         {
             if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
                 return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
@@ -319,22 +318,18 @@ namespace Spreads.Native
         /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal T UnsafeGetUnaligned(int index)
+        internal T UnsafeGetUnaligned(IntPtr index)
         {
-#pragma warning disable 618
             return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref UnsafeGetRef(index)));
-#pragma warning restore 618
         }
 
         /// <summary>
         /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UnsafeSetUnaligned(int index, T value)
+        internal void UnsafeSetUnaligned(IntPtr index, T value)
         {
-#pragma warning disable 618
             Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref UnsafeGetRef(index)), value);
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -921,9 +916,8 @@ namespace Spreads.Native
         /// Dangerous-prefixed methods only skip bounds check while this method is *very unsafe*.
         /// It should be used together with Spreads.Buffers.PrivateMemory. 
         /// </summary>
-        [Obsolete("Know what you are doing, read the description, guarantee the contract.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ref T UnsafeGetRef<T>(int index)
+        internal ref T UnsafeGetRef<T>(IntPtr index)
         {
             if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
                 return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(_pinnable).Data, _byteOffset), index);
@@ -935,22 +929,18 @@ namespace Spreads.Native
         /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal T UnsafeGetUnaligned<T>(int index)
+        internal T UnsafeGetUnaligned<T>(IntPtr index)
         {
-#pragma warning disable 618
             return Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref UnsafeGetRef<T>(index)));
-#pragma warning restore 618
         }
 
         /// <summary>
         /// See <see cref="Vec.UnsafeGetRef{T}"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UnsafeSetUnaligned<T>(int index, T value)
+        internal void UnsafeSetUnaligned<T>(IntPtr index, T value)
         {
-#pragma warning disable 618
             Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref UnsafeGetRef<T>(index)), value);
-#pragma warning restore 618
         }
 
         /// <summary>
