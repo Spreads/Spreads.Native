@@ -280,5 +280,195 @@ namespace Spreads.Native
             var genericMethod = method!.MakeGenericMethod(ty)!;
             return (int)genericMethod!.Invoke(null, null)!;
         }
+        
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Ceq(int first, int second);
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Cgt(int first, int second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Clt(int first, int second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Ceq(long first, long second);
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Cgt(long first, long second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Clt(long first, long second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Ceq(IntPtr first, IntPtr second);
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Cgt(IntPtr first, IntPtr second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Clt(IntPtr first, IntPtr second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern bool CgtB(IntPtr first, IntPtr second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern bool CltB(IntPtr first, IntPtr second);
+
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern void SkipInit<T>(out T value);
+
+        /// <summary>
+        /// +
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Add(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// +
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Add(IntPtr first, int second);
+     
+        /// <summary>
+        /// -
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Sub(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// -
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Sub(IntPtr first, int second);
+        
+        /// <summary>
+        /// *
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Mul(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// *
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Mul(IntPtr first, int second);
+        
+        /// <summary>
+        /// -
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Neg(IntPtr value);
+     
+        /// <summary>
+        /// &
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr And(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// &
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr And(IntPtr first, int second);
+        
+        /// <summary>
+        /// |
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Or(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// |
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Or(IntPtr first, int second);
+        
+        /// <summary>
+        /// ^
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Xor(IntPtr first, IntPtr second);
+     
+        /// <summary>
+        /// ^
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Xor(IntPtr first, int second);
+
+        /// <summary>
+        /// ~
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Not(IntPtr value);
+        
+        /// <summary>
+        /// (int) >>
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Shr(IntPtr toBeShifted, IntPtr shiftBy);
+     
+        /// <summary>
+        /// (int) >>
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Shr(IntPtr toBeShifted, int shiftBy);
+        
+        /// <summary>
+        /// (uint) >>
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr ShrUn(IntPtr toBeShifted, IntPtr shiftBy);
+     
+        /// <summary>
+        /// (uint) >>
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr ShrUn(IntPtr toBeShifted, int shiftBy);
+        
+        /// <summary>
+        /// <<
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Shl(IntPtr toBeShifted, IntPtr shiftBy);
+     
+        /// <summary>
+        /// <<
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern IntPtr Shl(IntPtr toBeShifted, int shiftBy);
     }
 }

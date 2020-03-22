@@ -4,43 +4,140 @@
 
 using NUnit.Framework;
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 // ReSharper disable PossibleNullReferenceException
 
 namespace Spreads.Native.Tests
 {
-
     [Category("CI")]
     [TestFixture]
     public unsafe class UnsafeExTests
     {
         public static object NullObj = null;
 
-        
         public static readonly int ElemSize = Unsafe.SizeOf<int>();
-        
 
-        //[Test]
-        //public void UnsafeExWorks()
-        //{
-        //    var arr = new int[] { 1, 2, 3 };
-        //    object obj = arr;
-        //    var offset = (int)UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
+        [Test]
+        public void CeqCgtCltWork()
+        {
+            // int32
+            Assert.AreEqual(1, UnsafeEx.Ceq(1, 1));
+            Assert.AreEqual(0, UnsafeEx.Ceq(1, 2));
 
-        //    //var offsetO = (int) UnsafeEx.ElemOffset(new int[1]);
-        //    //var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
-        //    //var fpa = offsetO - offsetA;
-        //    var snd = UnsafeEx.Get<int>(ref obj, (IntPtr)(offset), 1);
-        //    Assert.AreEqual(2, snd);
+            Assert.AreEqual(1, UnsafeEx.Cgt(2, 1));
+            Assert.AreEqual(0, UnsafeEx.Cgt(1, 1));
+            Assert.AreEqual(0, UnsafeEx.Cgt(0, 1));
 
-        //    UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
+            Assert.AreEqual(1, UnsafeEx.Clt(1, 2));
+            Assert.AreEqual(0, UnsafeEx.Clt(1, 1));
+            Assert.AreEqual(0, UnsafeEx.Clt(1, 0));
 
-        //    snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1);
-        //    Assert.AreEqual(42, snd);
-        //}
+            // int64
+            Assert.AreEqual(1, UnsafeEx.Ceq(1L, 1L));
+            Assert.AreEqual(0, UnsafeEx.Ceq(1L, 2L));
+
+            Assert.AreEqual(1, UnsafeEx.Cgt(2L, 1L));
+            Assert.AreEqual(0, UnsafeEx.Cgt(1L, 1L));
+            Assert.AreEqual(0, UnsafeEx.Cgt(0L, 1L));
+
+            Assert.AreEqual(1, UnsafeEx.Clt(1L, 2L));
+            Assert.AreEqual(0, UnsafeEx.Clt(1L, 1L));
+            Assert.AreEqual(0, UnsafeEx.Clt(1L, 0L));
+
+            // explicit int32 -> int64
+            Assert.AreEqual(1, UnsafeEx.Ceq(1, 1L));
+            Assert.AreEqual(0, UnsafeEx.Ceq(1, 2L));
+
+            Assert.AreEqual(1, UnsafeEx.Cgt(2, 1L));
+            Assert.AreEqual(0, UnsafeEx.Cgt(1, 1L));
+            Assert.AreEqual(0, UnsafeEx.Cgt(0, 1L));
+
+            Assert.AreEqual(1, UnsafeEx.Clt(1, 2L));
+            Assert.AreEqual(0, UnsafeEx.Clt(1, 1L));
+            Assert.AreEqual(0, UnsafeEx.Clt(1, 0L));
+
+            // IntPtr
+            Assert.AreEqual(1, UnsafeEx.Ceq((IntPtr) 1, (IntPtr) 1));
+            Assert.AreEqual(0, UnsafeEx.Ceq((IntPtr) 1, (IntPtr) 2));
+
+            Assert.AreEqual(1, UnsafeEx.Cgt((IntPtr) 2, (IntPtr) 1));
+            Assert.AreEqual(0, UnsafeEx.Cgt((IntPtr) 1, (IntPtr) 1));
+            Assert.AreEqual(0, UnsafeEx.Cgt((IntPtr) 0, (IntPtr) 1));
+
+            Assert.AreEqual(1, UnsafeEx.Clt((IntPtr) 1, (IntPtr) 2));
+            Assert.AreEqual(0, UnsafeEx.Clt((IntPtr) 1, (IntPtr) 1));
+            Assert.AreEqual(0, UnsafeEx.Clt((IntPtr) 1, (IntPtr) 0));
+            
+            Assert.AreEqual(true, UnsafeEx.CgtB((IntPtr) 2, (IntPtr) 1));
+            Assert.AreEqual(false, UnsafeEx.CgtB((IntPtr) 1, (IntPtr) 1));
+            Assert.AreEqual(false, UnsafeEx.CgtB((IntPtr) 0, (IntPtr) 1));
+
+            Assert.AreEqual(true, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 2));
+            Assert.AreEqual(false, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 1));
+            Assert.AreEqual(false, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 0));
+        }
+
+        [Test]
+        public void IntPtrOpsWork()
+        {
+            UnsafeEx.SkipInit(out IntPtr x);
+            x = (IntPtr) 20;
+            Assert.AreEqual(x, UnsafeEx.Add((IntPtr) 10, (IntPtr) 10));
+            Assert.AreEqual(x, UnsafeEx.Add((IntPtr) 10, 10));
+
+            Assert.AreEqual((IntPtr) 9, UnsafeEx.Sub((IntPtr) 10, (IntPtr) 1));
+            Assert.AreEqual((IntPtr) 9, UnsafeEx.Sub((IntPtr) 10, 1));
+
+            Assert.AreEqual((IntPtr) 100, UnsafeEx.Mul((IntPtr) 10, (IntPtr) 10));
+            Assert.AreEqual((IntPtr) 100, UnsafeEx.Mul((IntPtr) 10, 10));
+
+            Assert.AreEqual((IntPtr) (123 & 100), UnsafeEx.And((IntPtr) 123, (IntPtr) 100));
+            Assert.AreEqual((IntPtr) (123 & 100), UnsafeEx.And((IntPtr) 123, 100));
+
+            Assert.AreEqual((IntPtr) (123 | 100), UnsafeEx.Or((IntPtr) 123, (IntPtr) 100));
+            Assert.AreEqual((IntPtr) (123 | 100), UnsafeEx.Or((IntPtr) 123, 100));
+
+            Assert.AreEqual((IntPtr) (123 ^ 100), UnsafeEx.Xor((IntPtr) 123, (IntPtr) 100));
+            Assert.AreEqual((IntPtr) (123 ^ 100), UnsafeEx.Xor((IntPtr) 123, 100));
+
+            Assert.AreEqual((IntPtr) (128 >> 1), UnsafeEx.Shr((IntPtr) 128, (IntPtr) 1));
+            Assert.AreEqual((IntPtr) (128 >> 1), UnsafeEx.Shr((IntPtr) 128, 1));
+
+            if (IntPtr.Size == 64)
+            {
+                Assert.AreEqual((IntPtr) (1), UnsafeEx.ShrUn((IntPtr) (-1), (IntPtr) 63));
+                Assert.AreEqual((IntPtr) (1), UnsafeEx.ShrUn((IntPtr) (-1), 63));
+
+                Assert.AreEqual((IntPtr) (-1), UnsafeEx.Shr((IntPtr) (-1), (IntPtr) 63));
+                Assert.AreEqual((IntPtr) (-1), UnsafeEx.Shr((IntPtr) (-1), 63));
+            }
+
+            Assert.AreEqual((IntPtr) (128 << 1), UnsafeEx.Shl((IntPtr) 128, (IntPtr) 1));
+            Assert.AreEqual((IntPtr) (128 << 1), UnsafeEx.Shl((IntPtr) 128, 1));
+
+            Assert.AreEqual((IntPtr) (-5), UnsafeEx.Neg((IntPtr) 5));
+            Assert.AreEqual((IntPtr) (-6), UnsafeEx.Not((IntPtr) 5));
+        }
+
+        // [Test]
+        // public void UnsafeExWorks()
+        // {
+        //     var arr = new int[] { 1, 2, 3 };
+        //     object obj = arr;
+        //     var offset = (int)UnsafeEx.ArrayOffsetAdjustmentOfType(arr.GetType());
+        //
+        //     //var offsetO = (int) UnsafeEx.ElemOffset(new int[1]);
+        //     //var offsetA = UnsafeEx.ArrayOffsetAdjustment<int>();
+        //     //var fpa = offsetO - offsetA;
+        //     var snd = UnsafeEx.Get<int>(ref obj, (IntPtr)(offset), 1);
+        //     Assert.AreEqual(2, snd);
+        //
+        //     UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1) = 42;
+        //
+        //     snd = UnsafeEx.GetRef<int>(arr, (IntPtr)(offset), 1);
+        //     Assert.AreEqual(42, snd);
+        // }
 
         //[Test]
         //public void UnsafeExWorksWithStrings()
@@ -64,7 +161,7 @@ namespace Spreads.Native.Tests
         //public void UnsafeExWorksViaPinnedPtr()
         //{
         //    var arr = new int[] { 1, 2, 3 };
-            
+
         //    var handle = ((Memory<int>)arr).Pin();
         //    var ptr = (IntPtr)handle.Pointer;
 

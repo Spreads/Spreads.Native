@@ -164,7 +164,7 @@ namespace Spreads.Native
         /// <param name="p">Pointer to previously allocated memory (or NULL)</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_usable_size",
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe ulong UsableSize(byte* p);
+        public static extern unsafe UIntPtr UsableSize(byte* p);
 
         /// <summary>
         /// Returns the size n that will be allocated, where n >= size.
@@ -174,7 +174,7 @@ namespace Spreads.Native
         /// <param name="size">The minimal required size in bytes.</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_good_size",
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong GoodSize(UIntPtr size);
+        public static extern UIntPtr GoodSize(UIntPtr size);
 
         /// <summary>
         /// Eagerly free memory. Regular code should not have to call this function.

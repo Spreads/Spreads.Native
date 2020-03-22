@@ -245,7 +245,6 @@
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
   .method public hidebysig static int32  CompareToConstrained<T>(!!T& left,
                                                                  !!T& right) cil managed aggressiveinlining
   {
@@ -404,7 +403,384 @@
     calli default void (object obj, native int offset, int32 index, object val)
     ret
   }
+  
+  .method public hidebysig static int32 Ceq(int32 first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    ceq
+	ret
+  }
+  
+  .method public hidebysig static int32 Cgt(int32 first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    cgt
+	ret
+  }
+  
+  .method public hidebysig static int32 Clt(int32 first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    clt
+	ret
+  }
+  
+  .method public hidebysig static int32 Ceq(int64 first, int64 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    ceq
+	ret
+  }
+  
+  .method public hidebysig static int32 Cgt(int64 first, int64 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    cgt
+	ret
+  }
+  
+  .method public hidebysig static int32 Clt(int64 first, int64 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    clt
+	ret
+  }
 
+  .method public hidebysig static int32 Ceq(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    ceq
+	ret
+  }
+  
+  .method public hidebysig static int32 Cgt(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    cgt
+	ret
+  }
+  
+  .method public hidebysig static int32 Clt(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    clt
+	ret
+  }
+  
+  .method public hidebysig static bool CgtB(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    cgt
+	ret
+  }
+  
+  .method public hidebysig static bool CltB(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    clt
+	ret
+  }
+  
+  .method public hidebysig static void SkipInit<T> ([out] !!T& 'value') cil managed aggressiveinlining
+  {
+        .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
+        .maxstack 0
+        ret
+  }
+  
+  .method public hidebysig static native int Add(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    add
+	ret
+  }
+  
+  .method public hidebysig static native int Add(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    add
+	ret
+  }
+  
+  .method public hidebysig static native int Sub(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    sub
+	ret
+  }
+  
+  .method public hidebysig static native int Sub(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    sub
+	ret
+  }
+  
+  .method public hidebysig static native int Mul(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    mul
+	ret
+  }
+  
+  .method public hidebysig static native int Mul(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    mul
+	ret
+  }
+  
+  .method public hidebysig static native int Neg(native int 'value') cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 1
+	ldarg.0
+    neg
+	ret
+  }
+  
+  .method public hidebysig static native int And(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    and
+	ret
+  }
+  
+  .method public hidebysig static native int And(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    and
+	ret
+  }
+  
+  .method public hidebysig static native int Or(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    or
+	ret
+  }
+  
+  .method public hidebysig static native int Or(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    or
+	ret
+  }
+  
+  .method public hidebysig static native int Xor(native int first, native int second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    xor
+	ret
+  }
+  
+  .method public hidebysig static native int Xor(native int first, int32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    xor
+	ret
+  }
+  
+  .method public hidebysig static native int Not(native int 'value') cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 1
+	ldarg.0
+    not
+	ret
+  }
+  
+  .method public hidebysig static native int Shr(native int toBeShifted, native int shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shr
+	ret
+  }
+  
+  .method public hidebysig static native int Shr(native int toBeShifted, int32 shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shr
+	ret
+  }
+  
+  .method public hidebysig static native int ShrUn(native int toBeShifted, native int shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shr.un
+	ret
+  }
+  
+  .method public hidebysig static native int ShrUn(native int toBeShifted, int32 shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shr.un
+	ret
+  }
+  
+  .method public hidebysig static native int Shl(native int toBeShifted, native int shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shl
+	ret
+  }
+  
+  .method public hidebysig static native int Shl(native int toBeShifted, int32 shiftBy) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    shl
+	ret
+  }
+  
 } // end of class
 
 .class private auto ansi sealed beforefieldinit System.Runtime.Versioning.NonVersionableAttribute
