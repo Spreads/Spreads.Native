@@ -536,6 +536,30 @@
 	ret
   }
   
+  .method public hidebysig static int32 Ceq(float32 first, float32 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    ceq
+	ret
+  }
+  
+  .method public hidebysig static int32 Ceq(float64 first, float64 second) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 2
+	ldarg.0
+    ldarg.1
+    ceq
+	ret
+  }
+  
   .method public hidebysig static void SkipInit<T> ([out] !!T& 'value') cil managed aggressiveinlining
   {
         .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor() = ( 01 00 00 00 )
@@ -778,6 +802,22 @@
 	ldarg.0
     ldarg.1
     shl
+	ret
+  }
+  
+    .method public hidebysig static void CalliDataBlock<K,V>(object dlg, object target, int32 index, !!K& key, !!V& val, native int functionPtr) cil managed aggressiveinlining
+  {
+    .custom instance void System.Runtime.Versioning.NonVersionableAttribute::.ctor()
+             = {}
+    // 
+    .maxstack 6
+	ldarg.0
+    ldarg.1
+    ldarg.2
+    ldarg.3
+	ldarg 4
+	ldarg 5
+	calli default void (object dlg, object target, int32 index, !!K& key, !!V& val) 
 	ret
   }
   

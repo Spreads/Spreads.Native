@@ -872,7 +872,6 @@ mod tests {
     extern crate alloc;
 
     use super::*;
-    use alloc::boxed::Box;
 
     #[test]
     fn it_frees_allocated_memory() {
@@ -912,7 +911,17 @@ mod tests {
     fn it_could_call_mimalloc() {
         let x = spreads_mem_malloc(10);
         spreads_mem_free(x);
-        spreads_mem_collect(true);
+        spreads_mem_collect(false);
+    }
+
+    #[test]
+    fn it_could_free_on_different_thread() {
+        let x = spreads_mem_malloc(2 * 1024 * 1024 + 1) as i64;
+
+        let t = std::thread::spawn(move || {
+            spreads_mem_free(x as *mut libc::c_void);
+        });
+        t.join().expect("should join");
     }
 
     #[test]
@@ -926,7 +935,7 @@ mod tests {
     }
 
     #[no_mangle]
-    pub extern "C" fn test_print_out(msg: *const libc::c_char, arg: *mut libc::c_void) {
+    pub extern "C" fn test_print_out(msg: *const libc::c_char, _arg: *mut libc::c_void) {
         unsafe {
             printf(msg as *const u8);
         }

@@ -36,10 +36,13 @@ fn main() {
         cfg = cfg.define("MI_SECURE_FULL", "ON");
     }
 
-    // Inject MI_DEBUG=0
-    // This set mi_option_verbose and mi_option_show_errors options to false.
-    cfg = cfg.define("mi_defines", "MI_DEBUG=0");
-
+    if cfg!(debug_assertions) {
+        cfg = cfg.define("mi_defines", "MI_DEBUG_FULL=1");
+    } else {
+        // Inject MI_DEBUG=0
+        // This set mi_option_verbose and mi_option_show_errors options to false.
+        cfg = cfg.define("mi_defines", "MI_DEBUG=0");        
+    }
     if cfg!(all(windows, target_env = "msvc")) {
         cfg = cfg.define("CMAKE_SH", "CMAKE_SH-NOTFOUND");
 
@@ -48,12 +51,14 @@ fn main() {
         // extracted from default cmake configuration on windows
         if cfg!(debug_assertions) {
             // CMAKE_C_FLAGS + CMAKE_C_FLAGS_DEBUG
-            cfg = cfg.cflag("/DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1");
+            cfg = cfg.cflag("/DWIN32 /D_WINDOWS /W3 /MTd /Zi /Ob0 /Od /RTC1");
         } else {
             // CMAKE_C_FLAGS + CMAKE_C_FLAGS_RELEASE
-            cfg = cfg.cflag("/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG");
+            cfg = cfg.cflag("/DWIN32 /D_WINDOWS /W3 /MT /O2 /Ob2 /DNDEBUG");
         }
     }
+
+    cfg = cfg.static_crt(true);
 
     let (out_dir, out_name) = if cfg!(all(windows, target_env = "msvc")) {
         if cfg!(debug_assertions) {

@@ -22,11 +22,11 @@ namespace Spreads.Native.Run
         {
             Trace.Listeners.Add(new ConsoleListener());
 
-            Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
+            // Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
             // var summary = BenchmarkRunner.Run<Benchmark>();
 
-            var test = new Tests.ProcessorIdCacheTests();
-            test.CpuNumberPerformance();
+            var test = new Tests.CalliTests();
+            test.TestDelegate();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;

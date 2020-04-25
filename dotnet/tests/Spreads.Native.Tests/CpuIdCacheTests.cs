@@ -27,6 +27,7 @@ namespace Spreads.Native.Tests
             Console.WriteLine($"cached: {cpuId}");
         }
 
+#if NETCOREAPP3_0
         [Test, Explicit("Bench")]
         public void CpuNumberPerformance()
         {
@@ -72,5 +73,7 @@ namespace Spreads.Native.Tests
 
             Assert.IsTrue(x >= 0, "Spreads: " + x);
         }
+
+#endif
     }
 }

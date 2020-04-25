@@ -10,6 +10,13 @@ using System.Runtime.CompilerServices;
 
 namespace Spreads.Native.Tests
 {
+unsafe struct MdbVal
+{
+    private IntPtr _length;
+    private byte* _pointer;
+    public Span<byte> Span => new Span<byte>(_pointer, (int) _length);
+}
+    
     [Category("CI")]
     [TestFixture]
     public unsafe class UnsafeExTests
@@ -76,6 +83,13 @@ namespace Spreads.Native.Tests
             Assert.AreEqual(true, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 2));
             Assert.AreEqual(false, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 1));
             Assert.AreEqual(false, UnsafeEx.CltB((IntPtr) 1, (IntPtr) 0));
+            
+            // Float
+            Assert.AreEqual(1, UnsafeEx.Ceq(1.23, 1.23));
+            Assert.AreEqual(0, UnsafeEx.Ceq(1.23, 1.24));
+            
+            Assert.AreEqual(1, UnsafeEx.Ceq(1.23f, 1.23f));
+            Assert.AreEqual(0, UnsafeEx.Ceq(1.23f, 1.24f));
         }
 
         [Test]

@@ -326,7 +326,14 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern bool CltB(IntPtr first, IntPtr second);
 
-        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Ceq(float first, float second);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern int Ceq(double first, double second);
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern void SkipInit<T>(out T value);
@@ -470,5 +477,9 @@ namespace Spreads.Native
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern IntPtr Shl(IntPtr toBeShifted, int shiftBy);
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.ForwardRef)]
+        public static extern void CalliDataBlock<K,V>(object dlg, object block, int index, ref K key, ref V value, IntPtr fPtr);
     }
 }

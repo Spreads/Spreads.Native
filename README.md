@@ -165,4 +165,4 @@ Dictionary           |   43.29 |   231 ms |   0.0 |   0.0 |   0.0 | 0.000 MB
 
 ## License
 
-MPL 2.0. See the [lincese file](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.txt) and [third-party licenses](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.Dependencies.txt).
+MPL 2.0. See the [license file](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.txt) and [third-party licenses](https://github.com/Spreads/Spreads.Native/blob/master/LICENSE.Dependencies.txt).

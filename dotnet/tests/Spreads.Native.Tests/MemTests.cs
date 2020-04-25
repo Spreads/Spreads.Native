@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
@@ -19,6 +22,55 @@ namespace Spreads.Native.Tests
             var version = Mem.MimallocVersion();
             Assert.AreEqual(160, version);
             Console.WriteLine($"Version: {version}");
+        }
+
+        [Test]
+        public void CouldAllocFreeFromDifferentThreads()
+        {
+            var bc = new BlockingCollection<IntPtr>();
+            var are = new AutoResetEvent(false);
+            var count = 100;
+            var t1 = new Thread(() =>
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    var ptr = Mem.MallocAligned((UIntPtr) (2 * 1024 * 1024 + 1), (UIntPtr) (8));
+                    bc.Add((IntPtr) ptr);
+                    are.WaitOne();
+                }
+
+                bc.CompleteAdding();
+            });
+            t1.Start();
+
+            var t2 = new Thread(() =>
+            {
+                foreach (var intPtr in bc.GetConsumingEnumerable())
+                {
+                    Mem.Free((byte*) intPtr);
+                    are.Set();
+                }
+            });
+            t2.Start();
+            t1.Join();
+            t2.Join();
+        }
+
+        [Test, Explicit]
+        public void CouldFreeOnDifferentThread()
+        {
+            Mem.RegisterOutput((str, arg) => { Console.Write(str); }, null);
+            
+            var length = 2 * 1024 * 1024 + 1 ; // fails > 2MB
+            for (int i = 0; i < 1; i++)
+            {
+                var pm = Mem.Malloc((UIntPtr) (length));
+                // Mem.Free(pm); // works
+                Task.Run(() =>
+                {
+                    Mem.Free(pm); // fails
+                }).Wait();
+            }
         }
 
         [Test]
@@ -263,7 +315,6 @@ namespace Spreads.Native.Tests
             // Thread.Sleep(10000000);
         }
 
-
         [Test, Explicit]
         public void MimallocAllocFreeCallPerf()
         {
@@ -298,7 +349,6 @@ namespace Spreads.Native.Tests
 
             Mem.StatsPrint();
         }
-
 
         [Test, Explicit]
         public void MimallocAllocFreeCallLatency()
