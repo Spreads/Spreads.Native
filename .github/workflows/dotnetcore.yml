@@ -46,7 +46,7 @@ jobs:
     - name: Build
       run: cargo build --release
     - name: Run tests
-      run: cargo test --release
+      run: cargo test --all --release
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:
@@ -69,7 +69,7 @@ jobs:
     - name: Build
       run: cargo build --release
     - name: Run tests
-      run: cargo test --release
+      run: cargo test --all --release
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:
@@ -92,7 +92,7 @@ jobs:
     - name: Build
       run: cargo build --release
     - name: Run tests
-      run: cargo test --release
+      run: cargo test --all --release
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:

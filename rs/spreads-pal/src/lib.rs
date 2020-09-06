@@ -3,16 +3,16 @@ pub mod cpu;
 #[cfg(test)]
 pub mod tests {
     #[test]
-    #[cfg(any(windows, linux, unix))]
+    #[cfg(any(windows, linux))]
     pub fn can_get_cpu_number_current() {
         // TODO xplat set affinity
         let result = super::cpu::spreads_pal_get_cpu_number();
-            println!("CPU number: {}", result);
+        println!("CPU number: {}", result);
         assert!(result >= 0);
     }
 
     #[test]
-    #[cfg(any(linux, unix))]
+    #[cfg(any(linux))]
     pub fn can_get_cpu_number_with_affinity() {
         let cpu_num = 3;
         unsafe {
