@@ -3,7 +3,7 @@ pub mod cpu;
 #[cfg(test)]
 pub mod tests {
     #[test]
-    #[cfg(any(windows, linux))]
+    #[cfg(any(target_os = "linux", target_os = "windows"))]
     pub fn can_get_cpu_number_current() {
         // TODO xplat set affinity
         let result = super::cpu::spreads_pal_get_cpu_number();
@@ -12,9 +12,9 @@ pub mod tests {
     }
 
     #[test]
-    #[cfg(any(linux))]
+    #[cfg(target_os = "linux")]
     pub fn can_get_cpu_number_with_affinity() {
-        let cpu_num = 3;
+        let cpu_num = 1;
         unsafe {
             let mut cpu_set: libc::cpu_set_t = std::mem::zeroed();
             libc::CPU_ZERO(&mut cpu_set);
