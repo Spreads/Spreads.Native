@@ -10,12 +10,6 @@ using System.Runtime.CompilerServices;
 
 namespace Spreads.Native.Tests
 {
-unsafe struct MdbVal
-{
-    private IntPtr _length;
-    private byte* _pointer;
-    public Span<byte> Span => new Span<byte>(_pointer, (int) _length);
-}
     
     [Category("CI")]
     [TestFixture]

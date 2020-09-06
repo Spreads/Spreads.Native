@@ -1,0 +1,166 @@
+name: Build & test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types:
+      - published
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  native_build_macos:
+    name: Native build macOS
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: rs
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - name: Build
+      run: cargo build --release
+    - name: Run tests
+      run: cargo test --release
+    - name: Upload Native Lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: libspreads_native.dylib
+        path: rs/target/release/libspreads_native.dylib
+
+  native_build_linux:
+    name: Native build Linux
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rs
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - name: Build
+      run: cargo build --release
+    - name: Run tests
+      run: cargo test --release
+    - name: Upload Native Lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: libspreads_native.so
+        path: rs/target/release/libspreads_native.so
+
+  native_build_windows:
+    name: Native build Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: rs
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - name: Build
+      run: cargo build --release
+    - name: Run tests
+      run: cargo test --release
+    - name: Upload Native Lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: spreads_native.dll
+        path: rs/target/release/spreads_native.dll
+
+  dotnet_build:
+    name: Dotnet build Windows
+    runs-on: windows-latest
+    needs:
+      - native_build_macos
+      - native_build_linux
+      - native_build_windows
+    defaults:
+      run:
+        working-directory: dotnet
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Download macOS Lib
+      uses: actions/download-artifact@v2
+      with:
+        name: libspreads_native.dylib
+        path: dotnet/lib/runtimes/osx-x64/native
+
+    - name: Download Linux Lib
+      uses: actions/download-artifact@v2
+      with:
+        name: libspreads_native.so
+        path: dotnet/lib/runtimes/linux-x64/native
+
+    - name: Download Windows Lib
+      uses: actions/download-artifact@v2
+      with:
+        name: spreads_native.dll
+        path: dotnet/lib/runtimes/win-x64/native
+
+    # - name: Rename Windows Lib
+    #   run: Rename-Item lib/runtimes/win-x64/native/spreads_native.dll libspreads_native.dll
+
+    - name: Delete Native Lib Artifacts
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: |
+          libspreads_native.dylib
+          libspreads_native.so
+          spreads_native.dll
+        failOnError: false
+
+    - name: Restore Spreads.Native
+      run: dotnet restore src/Spreads.Native/Spreads.Native.csproj
+
+    - name: Build Spreads.Native
+      run: msbuild src/Spreads.Native/Spreads.Native.csproj /p:Configuration=Release
+
+    - name: Restore test project
+      run: dotnet restore tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj
+
+    - name: Build test project
+      run: msbuild tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj /p:Configuration=Release
+
+    - name: Run tests
+      run: dotnet test tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj --no-build --no-restore  -c Release --verbosity normal
+
+    - name: Pack NuGet
+      run: dotnet pack src\Spreads.Native\Spreads.Native.csproj --no-restore --no-build -c Release -o artifacts  -p:AutoSuffix=False
+
+    - name: Upload NuGet artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: NuGet
+        path: dotnet/artifacts/*.nupkg
+
+    - name: Publish NuGet
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      if: github.event_name == 'release'
+      run: dotnet nuget push artifacts/**/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true --api-key "$env:NUGET_API_KEY"
+

@@ -8,7 +8,7 @@ pub extern "C" fn spreads_pal_get_cpu_number() -> libc::c_int {
     }
 }
 
-#[cfg(any(linux, unix))]
+#[cfg(any(linux))]
 #[no_mangle]
 pub extern "C" fn spreads_pal_get_cpu_number() -> libc::c_int {
     unsafe {
@@ -17,7 +17,7 @@ pub extern "C" fn spreads_pal_get_cpu_number() -> libc::c_int {
     }
 }
 
-#[cfg(not(any(windows, linux, unix)))]
+#[cfg(not(any(windows, linux)))]
 #[no_mangle]
 pub extern "C" fn spreads_pal_get_cpu_number() -> libc::c_int {
     return -1;
