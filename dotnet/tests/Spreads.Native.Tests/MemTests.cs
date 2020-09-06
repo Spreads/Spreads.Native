@@ -20,7 +20,7 @@ namespace Spreads.Native.Tests
         public void CouldGetMimallocVersion()
         {
             var version = Mem.MimallocVersion();
-            Assert.AreEqual(160, version);
+            Assert.AreEqual(164, version);
             Console.WriteLine($"Version: {version}");
         }
 

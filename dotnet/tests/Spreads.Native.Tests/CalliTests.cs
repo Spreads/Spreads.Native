@@ -75,7 +75,7 @@ namespace Spreads.Native.Tests
 
         internal delegate void Getter<K, V>(DataBlock block, int index, ref K key, ref V value);
 
-        [Test]
+        [Test, Explicit]
         public void TestDelegate()
         {
             var blocks = 100_000;

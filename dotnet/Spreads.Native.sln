@@ -5,7 +5,6 @@ VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
 	ProjectSection(SolutionItems) = preProject
-		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		build.cmd = build.cmd
 		build\common.props = build\common.props
 		docs\filterConfig.yml = docs\filterConfig.yml
