@@ -23,6 +23,9 @@ namespace Spreads.Native
 
         [DllImport(UnsafeEx.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
+#if NET5_0
+        [SuppressGCTransition]
+#endif
         private static extern int spreads_pal_get_cpu_number();
         
         // internal delegate int GetCurrentProcessorNumber();

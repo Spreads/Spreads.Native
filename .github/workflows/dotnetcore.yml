@@ -25,7 +25,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
+        dotnet-version: 5.0.100-rc.1.20452.10
     - name: Test
       run: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --verbosity normal
 
@@ -113,12 +113,24 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core
+    - name: Setup .NET Core 3
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+        dotnet-version: 3.1.*
+    - name: Setup .NET Core 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100-rc.1.20452.10
+
+    # From https://github.com/kzu/NuGetizer/blob/4c64a2bc6c31f71eeedf1820896058ed0dffaddf/.github/workflows/build.yml
+    - run: dotnet tool update -g dotnet-vs
+    - run: echo "::set-env name=MSB::$(vs where preview --prop=InstallationPath)"
+    - run: vs install preview --quiet +Microsoft.VisualStudio.Component.ManagedDesktop.Core	+Microsoft.NetCore.Component.DevelopmentTools
+      if: env.MSB == ''
+    - run: echo "::add-path::$(vs where preview --prop=InstallationPath)\MSBuild\Current\Bin"
+    
+    # - name: Setup MSBuild
+    #  uses: microsoft/setup-msbuild@v1
 
     - name: Download macOS Lib
       uses: actions/download-artifact@v2

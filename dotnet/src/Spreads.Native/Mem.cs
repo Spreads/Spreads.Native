@@ -164,6 +164,9 @@ namespace Spreads.Native
         /// <param name="p">Pointer to previously allocated memory (or NULL)</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_usable_size",
             CallingConvention = CallingConvention.Cdecl)]
+#if NET5_0
+        [SuppressGCTransition]
+#endif
         public static extern unsafe UIntPtr UsableSize(byte* p);
 
         /// <summary>
@@ -174,6 +177,9 @@ namespace Spreads.Native
         /// <param name="size">The minimal required size in bytes.</param>
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_good_size",
             CallingConvention = CallingConvention.Cdecl)]
+#if NET5_0
+        [SuppressGCTransition]
+#endif
         public static extern UIntPtr GoodSize(UIntPtr size);
 
         /// <summary>
