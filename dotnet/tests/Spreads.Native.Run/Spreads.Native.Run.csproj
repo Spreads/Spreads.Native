@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <TieredCompilation>false</TieredCompilation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>7.2</LangVersion>
@@ -18,19 +18,23 @@
 
   <!--<ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
-  </ItemGroup>-->
+  </ItemGroup>--> 
 
   <ItemGroup>
     <ProjectReference Include="..\Spreads.Native.Tests\Spreads.Native.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <NativeLibs Include="..\..\lib\runtimes\**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
+    <NativeLibs Include="$(MSBuildThisFileDirectory)..\..\lib\runtimes\**\*.*" Exclude="$(MSBuildThisFileDirectory)**\*.targets" />
     <None Include="@(NativeLibs)">
       <Link>%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
+      <Visible>True</Visible>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
   
 </Project>

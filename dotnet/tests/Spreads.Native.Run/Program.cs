@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Running;
+using Perfolizer.Horology;
 
 namespace Spreads.Native.Run
 {
@@ -20,13 +25,27 @@ namespace Spreads.Native.Run
     {
         private static void Main(string[] args)
         {
-            Trace.Listeners.Add(new ConsoleListener());
+            var baseJob = Job.Default
+                .WithWarmupCount(1) // 1 warmup is enough for our purpose
+                .WithIterationTime(TimeInterval.FromMilliseconds(250.0)) // the default is 0.5s per iteration
+                .WithIterationCount(20)
+                .WithMaxRelativeError(0.01);
+            
+            var jobBefore = baseJob.WithId("Core31").WithRuntime(CoreRuntime.Core31);
 
-            // Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
-            // var summary = BenchmarkRunner.Run<Benchmark>();
+            var jobAfter =  baseJob.WithId("Core50").WithRuntime(CoreRuntime.Core50);
 
-            var test = new Tests.CalliTests();
-            test.TestDelegate();
+            var config = DefaultConfig.Instance.AddJob(jobBefore).AddJob(jobAfter).KeepBenchmarkFiles();
+
+            BenchmarkRunner.Run<CpuIdBench>(config);
+
+            // Trace.Listeners.Add(new ConsoleListener());
+            //
+            // // Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
+            // // var summary = BenchmarkRunner.Run<Benchmark>();
+            //
+            // var test = new Tests.CalliTests();
+            // test.TestDelegate();
 
             //var offset = UnsafeExTests.Helper<int>.ElemOffset;
             //var size = UnsafeExTests.Helper<int>.ElemSize;
@@ -52,8 +71,10 @@ namespace Spreads.Native.Run
 
             //Console.WriteLine("\n\n\n-------------------------------");
 
-            Console.WriteLine("Finished, press enter to exit...");
+            // Console.WriteLine("Finished, press enter to exit...");
             //Console.ReadLine();
         }
+
+        
     }
 }
