@@ -195,7 +195,7 @@ namespace Spreads.Native
             if (obj == null)
                 return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) byteOffset), index);
 
-            return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(obj).Data, byteOffset), index);
+            return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(obj)!.Data, byteOffset), index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -388,14 +388,14 @@ namespace Spreads.Native
         public static extern IntPtr Neg(IntPtr value);
      
         /// <summary>
-        /// &
+        /// 
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern IntPtr And(IntPtr first, IntPtr second);
      
         /// <summary>
-        /// &
+        /// 
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
@@ -465,14 +465,14 @@ namespace Spreads.Native
         public static extern IntPtr ShrUn(IntPtr toBeShifted, int shiftBy);
         
         /// <summary>
-        /// <<
+        /// 
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
         public static extern IntPtr Shl(IntPtr toBeShifted, IntPtr shiftBy);
      
         /// <summary>
-        /// <<
+        /// 
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]

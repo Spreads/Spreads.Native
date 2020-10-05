@@ -170,7 +170,7 @@ namespace Spreads.Native
         // Array header sizes are a runtime implementation detail and aren't the same across all runtimes. (The CLR made a tweak after 4.5, and Mono has an extra Bounds pointer.)
         internal static IntPtr MeasureArrayAdjustment()
         {
-            return Unsafe.ByteOffset(ref Unsafe.As<Pinnable<T>>(ArrayWithTwoElements).Data, ref ArrayWithTwoElements[0]);
+            return Unsafe.ByteOffset(ref Unsafe.As<Pinnable<T>>(ArrayWithTwoElements)!.Data, ref ArrayWithTwoElements[0]);
         }
     }
 }

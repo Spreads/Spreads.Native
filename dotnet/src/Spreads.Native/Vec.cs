@@ -924,7 +924,7 @@ namespace Spreads.Native
         internal ref T UnsafeGetRef<T>(IntPtr index)
         {
             if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
-                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(_pinnable).Data, _byteOffset), index);
+                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref Unsafe.As<Pinnable<T>>(_pinnable)!.Data, _byteOffset), index);
 
             return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) _byteOffset), index);
         }
