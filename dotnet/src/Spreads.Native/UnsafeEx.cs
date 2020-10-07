@@ -172,14 +172,14 @@ namespace Spreads.Native
 
         public static IntPtr GetterMethodPointerForType(Type ty) // ...ForType suffix to simplify reflection, don't make it an overload, we are lazy
         {
-            MethodInfo method = typeof(UnsafeEx).GetMethod("GetterMethodPointer", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo method = typeof(UnsafeEx).GetMethod("GetterMethodPointer", BindingFlags.Static | BindingFlags.Public)!;
             // ReSharper disable once PossibleNullReferenceException
             MethodInfo generic = method!.MakeGenericMethod(ty);
             return (IntPtr)generic.Invoke(null, null)!;
         }
 
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern object GetIndirect(object obj, IntPtr offset, int index, IntPtr functionPtr);
+        public static extern object GetIndirect(object? obj, IntPtr offset, int index, IntPtr functionPtr);
 
         /// <summary>
         /// Takes a (possibly null) object reference, plus an offset in bytes,
@@ -190,7 +190,7 @@ namespace Spreads.Native
         /// <param name="byteOffset">Byte offset from object pointer.</param>
         /// <param name="index"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T GetRef<T>(object obj, IntPtr byteOffset, int index)
+        public static ref T GetRef<T>(object? obj, IntPtr byteOffset, int index)
         {
             if (obj == null)
                 return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) byteOffset), index);
@@ -202,7 +202,7 @@ namespace Spreads.Native
         public static object GetAsObject<T>(object obj, IntPtr offset, int index)
         {
             var t = Unsafe.ReadUnaligned<T>(ref Unsafe.As<T, byte>(ref GetRef<T>(obj, offset, index)));
-            return t;
+            return t!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -221,7 +221,7 @@ namespace Spreads.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUnaligned<T>(ref T destination, T value)
         {
-            Unsafe.WriteUnaligned<T>(ref Unsafe.As<T, byte>(ref destination), value);
+            Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref destination), value);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Spreads.Native
         /// </summary>
         /// <remarks>Value <paramref name="val"/> is cast to underlying type as `(T)(dynamic)val`.</remarks>
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern void SetIndirect(object obj, IntPtr offset, int index, object val, IntPtr functionPtr);
+        public static extern void SetIndirect(object? obj, IntPtr offset, int index, object val, IntPtr functionPtr);
 
         // needed for reflection below
         internal static int ArrayOffsetAdjustment<T>()
@@ -480,6 +480,6 @@ namespace Spreads.Native
         
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.ForwardRef)]
-        public static extern void CalliDataBlock<K,V>(object dlg, object block, int index, ref K key, ref V value, IntPtr fPtr);
+        public static extern void CalliDataBlock<TKey,TValue>(object dlg, object block, int index, ref TKey key, ref TValue value, IntPtr fPtr);
     }
 }

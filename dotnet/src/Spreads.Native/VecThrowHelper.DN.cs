@@ -131,7 +131,7 @@ namespace Spreads.Native
         //
         public static bool TryParseThrowFormatException<T>(out T value, out int bytesConsumed)
         {
-            value = default;
+            value = default!;
             bytesConsumed = 0;
             VecThrowHelper.ThrowFormatException_BadFormatSpecifier();
             return false;

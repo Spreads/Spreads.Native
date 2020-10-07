@@ -3,11 +3,9 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Threading;
 
 namespace Spreads.Native
 {
@@ -27,14 +25,6 @@ namespace Spreads.Native
         [SuppressGCTransition]
 #endif
         private static extern int spreads_pal_get_cpu_number();
-        
-        // internal delegate int GetCurrentProcessorNumber();
-        // private static GetCurrentProcessorNumber GetCurrentProcessorNumberDelegate = CreateDelegate();
-        // private static GetCurrentProcessorNumber CreateDelegate()
-        // {
-        //     var method = typeof(Thread).GetMethod("GetCurrentProcessorNumber", BindingFlags.Static | BindingFlags.NonPublic);
-        //     return (GetCurrentProcessorNumber)method?.CreateDelegate(typeof(GetCurrentProcessorNumber));
-        // }
 
         internal static int get_cpu_number()
         {
@@ -104,24 +94,6 @@ namespace Spreads.Native
         public static void FlushCurrentCpuId()
         {
             _currentProcessorIdCache &= (~CacheCountDownMask) | 1;
-        }
-    }
-
-    internal static class CpuIdExtensions
-    {
-        // TODO (review) instead of using everywhere via e.g. such extension
-        // methods should use Flush directly where kernel wait is likely.
-        // Awaiting tasks does not require flushing, with async we should never 
-        // block. But waiting a task is blocking.
-        [Obsolete]
-        public static void WaitFlushProcessorId(this SemaphoreSlim semaphoreSlim)
-        {
-            // this two-step waiting breaks fairness
-            // var result = semaphoreSlim.Wait(0);
-            // if(result)
-            //     return;
-            semaphoreSlim.Wait();
-            Cpu.FlushCurrentCpuId();
         }
     }
 }

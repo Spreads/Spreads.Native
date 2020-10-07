@@ -92,7 +92,7 @@ namespace Spreads.Native
                 return true;
 
             // If type is a Nullable<> of something, unwrap it first.
-            Type underlyingNullable = Nullable.GetUnderlyingType(type);
+            Type? underlyingNullable = Nullable.GetUnderlyingType(type);
             if (underlyingNullable != null)
                 type = underlyingNullable;
 
@@ -162,7 +162,7 @@ namespace Spreads.Native
         
         private static readonly RuntimeVecInfo RuntimeVecInfo = VecTypeHelper.GetInfo(typeof(T));
 
-        // ReSharper disable once StaticMemberInGenericType
+        // ReSharper disable StaticMemberInGenericType
         public static readonly int RuntimeTypeId = RuntimeVecInfo.RuntimeTypeId;
         public static readonly bool IsReferenceOrContainsReferences = RuntimeVecInfo.IsReferenceOrContainsReferences;
         public static readonly int ArrayOffsetAdjustment = RuntimeVecInfo.ArrayOffsetAdjustment;

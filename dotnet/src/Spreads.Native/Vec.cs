@@ -44,7 +44,7 @@ namespace Spreads.Native
         //   _byteOffset = the pointer
         //
 
-        internal readonly Pinnable<T> _pinnable;
+        internal readonly Pinnable<T>? _pinnable;
         internal readonly IntPtr _byteOffset;
         internal readonly int _length;
         internal readonly int _runtimeTypeId; // padded anyway due to obj usage, no additional mem vs portable span
@@ -56,7 +56,7 @@ namespace Spreads.Native
         /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
         /// <exception cref="ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(T[] array)
+        public Vec(T[]? array)
         {
             if (array == null)
             {
@@ -78,7 +78,7 @@ namespace Spreads.Native
         // is to mirror the actual api shape. This overload of the constructor was removed from the api surface area due to possible
         // confusion with other overloads that take an int parameter that don't represent a start index.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Vec<T> Create(T[] array, int start)
+        internal static Vec<T> Create(T[]? array, int start)
         {
             if (array == null)
             {
@@ -110,7 +110,7 @@ namespace Spreads.Native
         /// Thrown when the specified <paramref name="start"/> or end index is not in the range (&lt;0 or &gt;=Length).
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(T[] array, int start, int length)
+        public Vec(T[]? array, int start, int length)
         {
             if (array == null)
             {
@@ -164,7 +164,7 @@ namespace Spreads.Native
 
         // Constructor for internal use only.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Vec(Pinnable<T> pinnable, IntPtr byteOffset, int length, int runtimeTypeId)
+        internal Vec(Pinnable<T>? pinnable, IntPtr byteOffset, int length, int runtimeTypeId)
         {
             Debug.Assert(length >= 0);
 
@@ -309,7 +309,7 @@ namespace Spreads.Native
         internal ref T UnsafeGetRef(IntPtr index)
         {
             if (VecTypeHelper<T>.IsReferenceOrContainsReferences)
-                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable.Data, _byteOffset), index);
+                return ref Unsafe.Add(ref Unsafe.AddByteOffset(ref _pinnable!.Data, _byteOffset), index);
 
             return ref Unsafe.Add(ref Unsafe.AsRef<T>((void*) _byteOffset), index);
         }
@@ -548,7 +548,7 @@ namespace Spreads.Native
             }
 
             // ReSharper disable once HeapView.BoxingAllocation
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current => Current!;
 
             public void Dispose()
             {
@@ -578,7 +578,7 @@ namespace Spreads.Native
     public readonly unsafe struct Vec : IEnumerable
     {
         [FieldOffset(0)]
-        internal readonly Array _pinnable;
+        internal readonly Array? _pinnable;
         [FieldOffset(8)]
         internal readonly IntPtr _byteOffset;
         [FieldOffset(16)]
@@ -593,7 +593,7 @@ namespace Spreads.Native
         /// <remarks>Returns default when <paramref name="array"/> is null.</remarks>
         /// <exception cref="ArrayTypeMismatchException">Thrown when <paramref name="array"/> is covariant and array's type is not exactly T[].</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vec(Array array)
+        public Vec(Array? array)
         {
             if (array == null)
             {
@@ -604,7 +604,7 @@ namespace Spreads.Native
             if (array.Rank != 1 || array.GetLowerBound(0) != 0)
                 VecThrowHelper.ThrowInvalidOperationException_ArrayNotVector();
 
-            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
+            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType()!);
 
             _length = array.Length;
             _pinnable = array;
@@ -617,7 +617,7 @@ namespace Spreads.Native
         // is to mirror the actual api shape. This overload of the constructor was removed from the api surface area due to possible
         // confusion with other overloads that take an int parameter that don't represent a start index.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Vec Create(Array array, int start)
+        internal static Vec Create(Array? array, int start)
         {
             if (array == null)
             {
@@ -632,7 +632,7 @@ namespace Spreads.Native
             if (unchecked((uint) start) > unchecked((uint) array.Length))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
 
-            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
+            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType()!);
 
             IntPtr byteOffset = (IntPtr) (vti.ArrayOffsetAdjustment + start * vti.ElemSize);
             int length = array.Length - start;
@@ -651,7 +651,7 @@ namespace Spreads.Native
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// Thrown when the specified <paramref name="start"/> or end index is not in the range (&lt;0 or &gt;=Length).
         /// </exception>
-        public Vec(Array array, int start, int length)
+        public Vec(Array? array, int start, int length)
         {
             if (array == null)
             {
@@ -665,7 +665,7 @@ namespace Spreads.Native
                 VecThrowHelper.ThrowInvalidOperationException_ArrayNotVector();
 
             // ReSharper disable once PossibleNullReferenceException
-            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType());
+            ref var vti = ref VecTypeHelper.GetInfo(array.GetType().GetElementType()!);
 
             if (unchecked((uint) start) > unchecked((uint) array.Length) || unchecked((uint) length) > unchecked((uint) (array.Length - start)))
                 VecThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
@@ -706,7 +706,7 @@ namespace Spreads.Native
                 VecThrowHelper.ThrowTypeIsNull();
 
             _pinnable = null;
-            _byteOffset = (IntPtr) pointer;
+            _byteOffset = (IntPtr) pointer!;
             _length = length;
             _runtimeTypeId = vti.RuntimeTypeId;
         }
@@ -715,7 +715,7 @@ namespace Spreads.Native
         /// An internal helper for creating Vecs.  Not for public use.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Vec(Array array, IntPtr byteOffset, int length, int runtimeTypeId)
+        internal Vec(Array? array, IntPtr byteOffset, int length, int runtimeTypeId)
         {
 #if DEBUG
             Debug.Assert(runtimeTypeId == VecTypeHelper.GetInfo(array.GetType().GetElementType()).RuntimeTypeId);
@@ -854,7 +854,7 @@ namespace Spreads.Native
             if (VecTypeHelper<T>.RuntimeTypeId != _runtimeTypeId || unchecked((uint) index) >= unchecked((uint) _length))
                 ThrowWrongLengthOrType<T>(index);
 
-            DangerousSetUnaligned<T>(index, value);
+            DangerousSetUnaligned(index, value);
         }
 
         /// <summary>
