@@ -17,14 +17,6 @@ namespace Spreads.Native.Tests
     public unsafe class MemTests
     {
         [Test]
-        public void CouldGetMimallocVersion()
-        {
-            var version = Mem.MimallocVersion();
-            Assert.AreEqual(164, version);
-            Console.WriteLine($"Version: {version}");
-        }
-
-        [Test]
         public void CouldAllocFreeFromDifferentThreads()
         {
             var bc = new BlockingCollection<IntPtr>();
