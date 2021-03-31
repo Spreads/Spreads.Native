@@ -12,7 +12,7 @@ on:
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-
+  
 jobs:
 
   test_nuget:
@@ -38,6 +38,9 @@ jobs:
       run:
         working-directory: rs
     steps:
+    - name: Set cargo config
+      if: github.event_name == 'release'
+      run: echo "CARGOCONFIG=release" >> $GITHUB_ENV
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -45,14 +48,14 @@ jobs:
       with:
         toolchain: stable
     - name: Build
-      run: cargo build --release
+      run: cargo build --${CARGOCONFIG}
     - name: Run tests
-      run: cargo test --all --release
+      run: cargo test --all --${CARGOCONFIG}
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:
         name: libspreads_native.dylib
-        path: rs/target/release/libspreads_native.dylib
+        path: rs/target/${{ env.CARGOCONFIG }}/libspreads_native.dylib
 
   native_build_linux:
     name: Native build Linux
@@ -61,6 +64,9 @@ jobs:
       run:
         working-directory: rs
     steps:
+    - name: Set cargo config
+      if: github.event_name == 'release'
+      run: echo "CARGOCONFIG=release" >> $GITHUB_ENV
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -68,14 +74,14 @@ jobs:
       with:
         toolchain: stable
     - name: Build
-      run: cargo build --release
+      run: cargo build ${CARGOCONFIG}
     - name: Run tests
-      run: cargo test --all --release
+      run: cargo test --all --${CARGOCONFIG}
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:
         name: libspreads_native.so
-        path: rs/target/release/libspreads_native.so
+        path: rs/target/${{ env.CARGOCONFIG }}/libspreads_native.so
 
   native_build_windows:
     name: Native build Windows
@@ -84,6 +90,9 @@ jobs:
       run:
         working-directory: rs
     steps:
+    - name: Set cargo config
+      if: github.event_name == 'release'
+      run: echo "CARGOCONFIG=release" >> $GITHUB_ENV
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -91,14 +100,14 @@ jobs:
       with:
         toolchain: stable
     - name: Build
-      run: cargo build --release
+      run: cargo build --${CARGOCONFIG}
     - name: Run tests
-      run: cargo test --all --release
+      run: cargo test --all --${CARGOCONFIG}
     - name: Upload Native Lib
       uses: actions/upload-artifact@v2
       with:
         name: spreads_native.dll
-        path: rs/target/release/spreads_native.dll
+        path: rs/target/${{ env.CARGOCONFIG }}/spreads_native.dll
 
   dotnet_build:
     name: Dotnet build Windows
@@ -119,15 +128,8 @@ jobs:
       with:
         dotnet-version: 5.0.x
 
-    # From https://github.com/kzu/NuGetizer/blob/4c64a2bc6c31f71eeedf1820896058ed0dffaddf/.github/workflows/build.yml
-    - run: dotnet tool update -g dotnet-vs
-    - run: echo "::set-env name=MSB::$(vs where preview --prop=InstallationPath)"
-    - run: vs install preview --quiet +Microsoft.VisualStudio.Component.ManagedDesktop.Core	+Microsoft.NetCore.Component.DevelopmentTools
-      if: env.MSB == ''
-    - run: echo "::add-path::$(vs where preview --prop=InstallationPath)\MSBuild\Current\Bin"
-  
-    # - name: Setup MSBuild
-    #  uses: microsoft/setup-msbuild@v1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Download macOS Lib
       uses: actions/download-artifact@v2
