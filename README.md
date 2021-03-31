@@ -1,32 +1,30 @@
-# Spreads.Native
+# Spreads.Native/Unsafe
 
 **Spreads' native dependencies and low-level IL methods.**
 
-[NuGet link](https://www.nuget.org/packages/Spreads.Native)
+## [Spreads.Native](https://www.nuget.org/packages/Spreads.Native)
 
-## Native compression
+### Native compression
 
 [Spreads.Native.Compression](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.Compression.html) class exposes methods from [Blosc](https://github.com/Blosc/c-blosc/): 
 * SIMD-optimized shuffle/unshuffle.
 * Compression: LZ4, Zstd, Zlib/GZip/Deflate compression/decompression. 
 Currently works on Windows x64/x86 and Linux x64 (tested on WSL & Docker Ubuntu). Targets `netstandard2.0`.
 
-## Mimalloc
+### Mimalloc
 
 Full [mimalloc](https://github.com/microsoft/mimalloc) API in .NET.
 
-## Cpu.GetCurrentCoreId method
+### Cpu.GetCurrentCoreId method
 
 Equivalent of [Thread.GetCurrentProcessorId](https://docs.microsoft.com/en-us/dotnet/api/system.threading.thread.getcurrentprocessorid?view=netcore-3.1) method
 that works on .NET Standard 2.0 and guarantees that the returned value could be used directly
 as an index in arrays with Cpu.CoreCount length. This allows to avoid expensive modulo 
 operation in the most common use cases of per-core data structures.
 
-## `Vec<T>` and `Vec`
+## [Spreads.Unsafe](https://www.nuget.org/packages/Spreads.Unsafe)
 
-Non-ref `Span<T>`-like structs that could be stored as fields and are almost as fast.
-
-## UnsafeEx
+### UnsafeEx
 
 [UnsafeEx](http://docs.dataspreads.io/spreads/libs/native/api/Spreads.Native.UnsafeEx.html) class contains unsafe IL helper methods that we cannot implement in C#.
 
@@ -75,7 +73,7 @@ public interface IInt64Diffable<T> : IComparable<T>
 ```
 
 
-### `KeyComparer<T>`
+#### `KeyComparer<T>`
 ---------------------
 
 The main use case and sample usage is [`KeyComparer<T>`](http://docs.dataspreads.io/spreads/api/Spreads.KeyComparer-1.html). 
@@ -124,9 +122,7 @@ But even if such optimization breaks in this particular case (see the linked dis
 still much cheaper than a virtual call, especially given that its value is constant for the lifetime of a program and branch 
 prediction should be 100% effective.
 
-
-
-### FastDictionary
+#### FastDictionary
 ---------------
 
 Another use case is [`FastDictionary<TKey,TValue>`](http://docs.dataspreads.io/spreads/api/Spreads.Collections.Generic.FastDictionary-2.html) 
