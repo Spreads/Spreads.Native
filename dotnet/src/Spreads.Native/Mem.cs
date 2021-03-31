@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -13,7 +14,7 @@ namespace Spreads.Native
     [SuppressUnmanagedCodeSecurity]
     public class Mem
     {
-        private const string NativeLibraryName = UnsafeEx.NativeLibraryName;
+        private const string NativeLibraryName = Constants.NativeLibraryName;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true), SuppressUnmanagedCodeSecurity]
         public unsafe delegate void DeferredFreeFun(bool force, ulong heartbeat, void* arg);
@@ -468,5 +469,52 @@ namespace Spreads.Native
         [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_heap_check_owned",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe bool HeapCheckOwned(void* heap, byte* p);
+
+        [DllImport(NativeLibraryName, EntryPoint = "spreads_mem_process_info",
+            CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe bool ProcessInfo(nuint* elapsedMsecs,
+            nuint* userMsecs,
+            nuint* systemMsecs,
+            nuint* currentRss,
+            nuint* peakRss,
+            nuint* currentCommit,
+            nuint* peakCommit,
+            nuint* pageFaults);
+
+        public static unsafe MemProcessInfo ProcessInfo()
+        {
+            MemProcessInfo result = default;
+            ProcessInfo(
+                &result.ElapsedMsecs,
+                &result.UserMsecs,
+                &result.SystemMsecs,
+                &result.CurrentRss,
+                &result.PeakRss,
+                &result.CurrentCommit,
+                &result.PeakCommit,
+                &result.PageFaults
+            );
+            return result;
+        }
+
+        [DebuggerDisplay("{ToString()}")]
+        public readonly  struct MemProcessInfo
+        {
+            public readonly nuint ElapsedMsecs;
+            public readonly nuint UserMsecs;
+            public readonly nuint SystemMsecs;
+            public readonly nuint CurrentRss;
+            public readonly nuint PeakRss;
+            public readonly nuint CurrentCommit;
+            public readonly nuint PeakCommit;
+            public readonly nuint PageFaults;
+
+            public override string ToString()
+            {
+                return $"ElapsedMsecs: {(long)ElapsedMsecs:N}, UserMsecs: {(long)UserMsecs:N}, SystemMsecs: {(long)SystemMsecs:N}, " +
+                       $"CurrentRss: {(long)CurrentRss:N}, PeakRss: {(long)PeakRss:N}, CurrentCommit: {(long)CurrentCommit:N}, " +
+                       $"PeakCommit: {(long)PeakCommit:N}, PageFaults: {(long)PageFaults:N}";
+            }
+        }
     }
 }

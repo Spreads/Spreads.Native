@@ -14,6 +14,7 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+
   test_nuget:
     name: Test NuGet package on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -25,7 +26,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-rc.1.20452.10
+        dotnet-version: 5.0.x
     - name: Test
       run: dotnet test dotnet/tests/Spreads.Native.Tests.NuGet/Spreads.Native.Tests.NuGet.csproj -c Release --verbosity normal
 
@@ -113,14 +114,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core 3
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.*
     - name: Setup .NET Core 5
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-rc.1.20452.10
+        dotnet-version: 5.0.x
 
     # From https://github.com/kzu/NuGetizer/blob/4c64a2bc6c31f71eeedf1820896058ed0dffaddf/.github/workflows/build.yml
     - run: dotnet tool update -g dotnet-vs
@@ -128,7 +125,7 @@ jobs:
     - run: vs install preview --quiet +Microsoft.VisualStudio.Component.ManagedDesktop.Core	+Microsoft.NetCore.Component.DevelopmentTools
       if: env.MSB == ''
     - run: echo "::add-path::$(vs where preview --prop=InstallationPath)\MSBuild\Current\Bin"
-    
+  
     # - name: Setup MSBuild
     #  uses: microsoft/setup-msbuild@v1
 
@@ -162,20 +159,38 @@ jobs:
     - name: Restore Spreads.Native
       run: dotnet restore src/Spreads.Native/Spreads.Native.csproj
 
+    - name: Restore Spreads.Unsafe
+      run: dotnet restore src/Spreads.Unsafe/Spreads.Unsafe.csproj
+      
     - name: Build Spreads.Native
-      run: msbuild src/Spreads.Native/Spreads.Native.csproj /p:Configuration=Release
+      run: dotnet build src/Spreads.Native/Spreads.Native.csproj -c Release
 
-    - name: Restore test project
+    - name: Build Spreads.Unsafe
+      run: msbuild src/Spreads.Unsafe/Spreads.Unsafe.csproj /p:Configuration=Release
+      
+    - name: Restore Spreads.Native.Tests project
       run: dotnet restore tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj
 
-    - name: Build test project
-      run: msbuild tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj /p:Configuration=Release
+    - name: Restore Spreads.Unsafe.Tests project
+      run: dotnet restore tests/Spreads.Unsafe.Tests/Spreads.Unsafe.Tests.csproj
+      
+    - name: Build Spreads.Native.Tests project
+      run:  dotnet build tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj -c Release
 
-    - name: Run tests
-      run: dotnet test tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj --no-build --no-restore  -c Release --verbosity normal
+    - name: Build Spreads.Unsafe.Tests project
+      run: msbuild tests/Spreads.Unsafe.Tests/Spreads.Unsafe.Tests.csproj /p:Configuration=Release
+      
+    - name: Run Spreads.Native.Tests
+      run: dotnet test tests/Spreads.Native.Tests/Spreads.Native.Tests.csproj -c Release --verbosity normal
 
-    - name: Pack NuGet
-      run: dotnet pack src\Spreads.Native\Spreads.Native.csproj --no-restore --no-build -c Release -o artifacts  -p:AutoSuffix=False
+    - name: Run Spreads.Unsafe.Tests
+      run: dotnet test tests/Spreads.Unsafe.Tests/Spreads.Unsafe.Tests.csproj --no-build --no-restore  -c Release --verbosity normal
+
+    - name: Pack Spreads.Native NuGet
+      run: dotnet pack src\Spreads.Native\Spreads.Native.csproj --no-restore --no-build -c Release -o artifacts  -p:BuildSuffix=False
+
+    - name: Pack Spreads.Unsafe NuGet
+      run: dotnet pack src\Spreads.Unsafe\Spreads.Unsafe.csproj --no-restore --no-build -c Release -o artifacts  -p:BuildSuffix=False
 
     - name: Upload NuGet artifact
       uses: actions/upload-artifact@v2

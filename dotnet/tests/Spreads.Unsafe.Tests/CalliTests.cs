@@ -148,7 +148,7 @@ namespace Spreads.Native.Tests
                 var getterPtrCalli2 = getterCalli2.Method.MethodHandle.GetFunctionPointer();
                 db.Getter = getterCalli2;
                 db.GetterPtr = getterPtrCalli2;
-                
+
                 Calli2(count, blocks, length, db, k, v);
             }
 
@@ -164,7 +164,7 @@ namespace Spreads.Native.Tests
             // GC.KeepAlive(getter2);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining/* | MethodImplOptions.AggressiveOptimization*/)]
         private static void Calli2(int count, int blocks, int length, DataBlock db, int k, int v)
         {
             using (Benchmark.Run("Calli2", count))
@@ -179,7 +179,7 @@ namespace Spreads.Native.Tests
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining/* | MethodImplOptions.AggressiveOptimization*/)]
         private static void Calli(int count, int blocks, int length, DataBlock db, int k, int v)
         {
             using (Benchmark.Run("Calli", count))
@@ -194,7 +194,7 @@ namespace Spreads.Native.Tests
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining /*| MethodImplOptions.AggressiveOptimization*/)]
         private static int Getter4(int count, int blocks, int length, DataBlock db, int k, ref int v)
         {
             using (Benchmark.Run("Getter4", count))
@@ -211,7 +211,7 @@ namespace Spreads.Native.Tests
             return k;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining /*| MethodImplOptions.AggressiveOptimization*/)]
         private static int Getter3(int count, int blocks, int length, DataBlock db, int k, ref int v)
         {
             using (Benchmark.Run("Getter3", count))
@@ -228,7 +228,7 @@ namespace Spreads.Native.Tests
             return k;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining /*| MethodImplOptions.AggressiveOptimization*/)]
         private static int Getter2(int count, int blocks, int length, DataBlock db, int k, ref int v)
         {
             using (Benchmark.Run("Getter2", count))
@@ -245,7 +245,7 @@ namespace Spreads.Native.Tests
             return k;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining /*| MethodImplOptions.AggressiveOptimization*/)]
         private static int Getter0(int count, int blocks, int length, DataBlock db, int k, ref int v)
         {
             using (Benchmark.Run("Getter", count))
@@ -262,7 +262,7 @@ namespace Spreads.Native.Tests
             return k;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining /*| MethodImplOptions.AggressiveOptimization*/)]
         private static int Direct(int count, int blocks, int length, DataBlock db, int k, ref int v)
         {
             using (Benchmark.Run("Direct", count))

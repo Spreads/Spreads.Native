@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
@@ -16,6 +14,21 @@ namespace Spreads.Native.Tests
     [TestFixture]
     public unsafe class MemTests
     {
+
+        // TODO Uncomment when NuGet is updated
+        // [Test]
+        // public void CouldGetProcessInfo()
+        // {
+        //     var info = Mem.ProcessInfo();
+        //     Console.WriteLine(info);
+        // }
+
+        // [Test]
+        // public void CouldGetVersion()
+        // {
+        //     Assert.IsTrue(Mem.MimallocVersion() >= 200);
+        // }
+
         [Test]
         public void CouldAllocFreeFromDifferentThreads()
         {
@@ -52,7 +65,7 @@ namespace Spreads.Native.Tests
         public void CouldFreeOnDifferentThread()
         {
             Mem.RegisterOutput((str, arg) => { Console.Write(str); }, null);
-            
+
             var length = 2 * 1024 * 1024 + 1 ; // fails > 2MB
             for (int i = 0; i < 1; i++)
             {
@@ -297,7 +310,7 @@ namespace Spreads.Native.Tests
             //     Mem.Free((byte*) ptrs[0]);
             //     if (x == long.MaxValue)
             //         break;
-            //     
+            //
             //     Thread.Sleep(1);
             // }
             //
@@ -427,7 +440,7 @@ namespace Spreads.Native.Tests
                         ptrs[i] = Marshal.AllocHGlobal(size);
 
                         // It's unaligned
-                        // if ((long)(ptrs[i]) % 4096 != 0) 
+                        // if ((long)(ptrs[i]) % 4096 != 0)
                         //     Assert.Fail(((long) (ptrs[i]) % 4096).ToString());
 
                         for (int j = 0; j < size; j += 4096) ((byte*) ptrs[i])[j] = 0;

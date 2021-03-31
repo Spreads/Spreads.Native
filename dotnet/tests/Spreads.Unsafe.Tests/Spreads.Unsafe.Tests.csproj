@@ -1,23 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>Spreads.Native.Tests</AssemblyName>
-    <RootNamespace>Spreads.Native.Tests</RootNamespace>
+    <AssemblyName>Spreads.Unsafe.Tests</AssemblyName>
+    <RootNamespace>Spreads.Unsafe.Tests</RootNamespace>
     <TieredCompilation>false</TieredCompilation>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputType>Library</OutputType>
-    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Spreads.Native.Tests\**\*.cs" Exclude="..\Spreads.Native.Tests\obj\**\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="HdrHistogram" Version="2.5.0" />
-    <PackageReference Include="Spreads.Native" Version="2020.1.907" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Spreads.Unsafe\Spreads.Unsafe.csproj" />
   </ItemGroup>
 </Project>

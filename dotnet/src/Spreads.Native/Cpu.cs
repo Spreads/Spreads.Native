@@ -19,7 +19,7 @@ namespace Spreads.Native
         /// </summary>
         public static readonly int CoreCount = Math.Min(Environment.ProcessorCount, MaxCores);
 
-        [DllImport(UnsafeEx.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
+        [DllImport(Constants.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
 #if NET5_0
         [SuppressGCTransition]
@@ -30,7 +30,7 @@ namespace Spreads.Native
         {
             try
             {
-                return spreads_pal_get_cpu_number(); // GetCurrentProcessorNumberDelegate(); // 
+                return spreads_pal_get_cpu_number();
             }
             catch
             {

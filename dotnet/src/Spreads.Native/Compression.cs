@@ -18,10 +18,7 @@ namespace Spreads.Native
     [SuppressUnmanagedCodeSecurity]
     public unsafe class Compression
     {
-        private const string NativeLibraryName = UnsafeEx.NativeLibraryName;
-        
-        internal static IntPtr compress_copy_ptr = UnsafeEx.CopyCompressMethod();
-        internal static IntPtr decompress_copy_ptr = UnsafeEx.CopyDecompressMethod();
+        private const string NativeLibraryName = Constants.NativeLibraryName;
 
         #region Blosc Internals
 

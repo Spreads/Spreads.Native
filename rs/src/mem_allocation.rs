@@ -303,6 +303,21 @@ pub extern "C" fn spreads_mem_thread_stats_print_out(out: mi_output_fun, arg: *m
     }
 }
 #[no_mangle]
+pub extern "C" fn spreads_mem_process_info(
+    elapsed_msecs: *mut usize,
+    user_msecs: *mut usize,
+    system_msecs: *mut usize,
+    current_rss: *mut usize,
+    peak_rss: *mut usize,
+    current_commit: *mut usize,
+    peak_commit: *mut usize,
+    page_faults: *mut usize) {
+    unsafe {
+        return mi_process_info(elapsed_msecs, user_msecs, system_msecs, current_rss, peak_rss, current_commit, peak_commit, page_faults);
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn spreads_mem_malloc_aligned(size: usize, alignment: usize) -> *mut libc::c_void {
     unsafe {
         return mi_malloc_aligned(size, alignment);
