@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Spreads.Native.Tests\Benchmark.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Spreads.Unsafe\Spreads.Unsafe.csproj" />
   </ItemGroup>
 </Project>
