@@ -21,7 +21,7 @@ namespace Spreads.Native
 
         [DllImport(Constants.NativeLibraryName, EntryPoint = "spreads_pal_get_cpu_number",
             CallingConvention = CallingConvention.Cdecl)]
-#if NET5_0
+#if HAS_SUPPRESS_GC_TRANSITION
         [SuppressGCTransition]
 #endif
         private static extern int spreads_pal_get_cpu_number();
@@ -47,7 +47,7 @@ namespace Spreads.Native
 
         private const int CacheCountDownMask = (1 << CacheShift) - 1;
 
-        private const int RefreshRate = 500;
+        private const int RefreshRate = 100;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int RefreshCurrentCoreId()
@@ -62,7 +62,8 @@ namespace Spreads.Native
                 currentProcessorId = Environment.CurrentManagedThreadId;
 
             // Make CPU id a valid index from [0, CoreCount]
-            currentProcessorId %= CoreCount;
+            if(currentProcessorId >= CoreCount)
+                currentProcessorId %= CoreCount;
 
             // Mask with int.MaxValue to ensure the execution Id is not negative
             _currentProcessorIdCache = ((currentProcessorId << CacheShift) & int.MaxValue) |
@@ -91,6 +92,7 @@ namespace Spreads.Native
         /// Consider flushing the currentProcessorIdCache on Wait operations or similar
         /// actions that are likely to result in changing the executing core.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FlushCurrentCpuId()
         {
             _currentProcessorIdCache &= (~CacheCountDownMask) | 1;

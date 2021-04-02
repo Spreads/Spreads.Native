@@ -12,7 +12,7 @@ using System.Security;
 namespace Spreads.Native
 {
     [SuppressUnmanagedCodeSecurity]
-    public class Mem
+    public static class Mem
     {
         private const string NativeLibraryName = Constants.NativeLibraryName;
 
@@ -31,7 +31,7 @@ namespace Spreads.Native
         public enum Option
         {
             // stable options
-            ShowSrrors,
+            ShowErrors,
             ShowStats,
             OptionVerbose,
 
