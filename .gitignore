@@ -197,3 +197,6 @@ docs/content/release-notes.md
 project.lock.json
 
 .idea
+/dotnet/lib/runtimes/linux-x64/native/libspreads_native.so
+/dotnet/lib/runtimes/osx-x64/native/libspreads_native.dylib
+/dotnet/lib/runtimes/win-x64/native/spreads_native.dll

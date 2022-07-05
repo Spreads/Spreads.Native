@@ -1,5 +1,5 @@
 ﻿<Project>
-  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0' OR '$(TargetFramework)'=='net5.0' OR '$(TargetFramework)'=='netcoreapp3.1'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0' OR '$(TargetFramework)'=='net7.0'">
     <DefineConstants>$(DefineConstants);NETSTANDARD;HAS_ISREF;HAS_AGGR_OPT;HAS_INTRINSICS;BUILTIN_SPAN;BUILTIN_NULLABLE;HAS_TPWORKITEM</DefineConstants>
   </PropertyGroup>
 
@@ -81,5 +81,10 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
 
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE.txt" Pack="true" PackagePath=""/>
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE.Dependencies.txt" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
 </Project>

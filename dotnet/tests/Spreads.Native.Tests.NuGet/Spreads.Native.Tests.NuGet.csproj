@@ -11,13 +11,11 @@
 
   <ItemGroup>
     <Compile Include="..\Spreads.Native.Tests\**\*.cs" Exclude="..\Spreads.Native.Tests\obj\**\*.*" />
-    <Compile Include="..\Spreads.Unsafe.Tests\**\*.cs" Exclude="..\Spreads.Unsafe.Tests\obj\**\*.*" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="HdrHistogram" Version="2.5.0" />
     <PackageReference Include="Spreads.Native" Version="2021.1.331" />
-    <PackageReference Include="Spreads.Unsafe" Version="2021.1.331" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
