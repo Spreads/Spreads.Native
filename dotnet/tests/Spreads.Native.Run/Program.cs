@@ -30,7 +30,7 @@ namespace Spreads.Native.Run
                 .WithIterationTime(TimeInterval.FromMilliseconds(250.0)) // the default is 0.5s per iteration
                 .WithIterationCount(20)
                 .WithMaxRelativeError(0.01);
-            
+
             var jobBefore = baseJob.WithId("Core31").WithRuntime(CoreRuntime.Core31);
 
             var jobAfter =  baseJob.WithId("Core50").WithRuntime(CoreRuntime.Core50);
@@ -40,17 +40,6 @@ namespace Spreads.Native.Run
             BenchmarkRunner.Run<CpuIdBench>(config);
 
             // Trace.Listeners.Add(new ConsoleListener());
-            //
-            // // Console.WriteLine("CPU ID: " + Cpu.GetCurrentCoreId());
-            // // var summary = BenchmarkRunner.Run<Benchmark>();
-            //
-            // var test = new Tests.CalliTests();
-            // test.TestDelegate();
-
-            //var offset = UnsafeExTests.Helper<int>.ElemOffset;
-            //var size = UnsafeExTests.Helper<int>.ElemSize;
-            //Console.WriteLine("Offset: " + offset);
-            //Console.WriteLine("Size: " + size);
 
             //var test = new CompressionTests();
 
@@ -75,6 +64,6 @@ namespace Spreads.Native.Run
             //Console.ReadLine();
         }
 
-        
+
     }
 }

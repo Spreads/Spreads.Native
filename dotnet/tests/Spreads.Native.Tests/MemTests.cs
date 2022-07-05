@@ -14,20 +14,20 @@ namespace Spreads.Native.Tests
     [TestFixture]
     public unsafe class MemTests
     {
+        [Test]
+        public void CouldGetProcessInfo()
+        {
+            var info = Mem.ProcessInfo();
+            Console.WriteLine(info);
+        }
 
-        // TODO Uncomment when NuGet is updated
-        // [Test]
-        // public void CouldGetProcessInfo()
-        // {
-        //     var info = Mem.ProcessInfo();
-        //     Console.WriteLine(info);
-        // }
-
-        // [Test]
-        // public void CouldGetVersion()
-        // {
-        //     Assert.IsTrue(Mem.MimallocVersion() >= 200);
-        // }
+        [Test]
+        public void CouldGetVersion()
+        {
+            int mimallocVersion = Mem.MimallocVersion();
+            Console.WriteLine($"Mimalloc version: {mimallocVersion}");
+            Assert.IsTrue(mimallocVersion >= 200);
+        }
 
         [Test]
         public void CouldAllocFreeFromDifferentThreads()

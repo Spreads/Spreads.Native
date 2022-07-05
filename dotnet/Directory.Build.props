@@ -61,11 +61,11 @@
 
   <PropertyGroup>
     <!-- Change YY and Q only for important releases. -->
-    <YYVersion>2021</YYVersion>
-    <QVersion>1</QVersion>
+    <YYVersion>2022</YYVersion>
+    <QVersion>0</QVersion>
 
     <!-- Overrides -->
-    <MMDDVersion>331</MMDDVersion>
+    <MMDDVersion>704</MMDDVersion>
 
     <!-- Set to True for auto incrementing build releases. Is set by scripts. -->
     <BuildSuffix>False</BuildSuffix>
