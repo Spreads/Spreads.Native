@@ -62,12 +62,12 @@
   <PropertyGroup>
     <!-- Change YY and Q only for important releases. -->
     <YYVersion>2022</YYVersion>
-    <QVersion>0</QVersion>
+    <QVersion>1</QVersion>
 
     <!-- Overrides -->
     <MMDDVersion>704</MMDDVersion>
 
-    <!-- Set to True for auto incrementing build releases. Is set by scripts. -->
+    <!-- Set to True for auto incrementing build releases. It's set by scripts. -->
     <BuildSuffix>False</BuildSuffix>
 
     <MMDDVersion Condition="'$(MMDDVersion)' == ''">$([System.DateTime]::Now.AddDays(1).ToString(MMdd))</MMDDVersion>
